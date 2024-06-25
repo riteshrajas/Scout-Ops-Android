@@ -1,10 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:scouting_app/pages/home_page.dart';
+import 'package:scouting_app/pages/match.dart';
+import 'package:scouting_app/pages/about_page.dart';
 import 'package:scouting_app/pages/match_page.dart';
 import 'package:scouting_app/pages/settings_page.dart';
-import 'package:scouting_app/pages/about_page.dart';
-
 
 const Color themeColor = Color.fromARGB(255, 255, 255, 255);
 const bool material3 = true;
@@ -26,6 +26,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
         useMaterial3: material3,
       ),
+      initialRoute: '/',
+      routes: {
+        '/home': (context) => const HomePage(),
+        '/settings': (context) => const SettingsPage(),
+        '/about': (context) => const AboutPage(),
+        '/match_page': (context) => const MatchPage(),
+
+      },
       home: const HomePage(),
     );
   }

@@ -59,6 +59,19 @@ class SettingsPageState extends State<SettingsPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Scout Name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+              ),
+            ),
             Container(
               padding: const EdgeInsets.all(10),
               margin: const EdgeInsets.only(
