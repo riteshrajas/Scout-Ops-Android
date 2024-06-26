@@ -5,14 +5,21 @@ class Match extends StatefulWidget {
   final String matchKey;
   final String? allianceColor;
   final String? station;
+  final Map<String, dynamic> MatchData;
 
-  const Match({super.key, required this.eventKey, required this.matchKey, required this.allianceColor, required this.station});
+  const Match(
+      {super.key,
+      required this.eventKey,
+      required this.matchKey,
+      required this.allianceColor,
+      required this.station,
+      required this.MatchData});
 
   @override
-  _MatchState createState() => _MatchState();
+  MatchState createState() => MatchState();
 }
 
-class _MatchState extends State<Match> {
+class MatchState extends State<Match> {
   int _selectedIndex = 0;
 
   @override
@@ -20,6 +27,13 @@ class _MatchState extends State<Match> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match Page'),
+        actions: <Widget>[
+          Text("${widget.station}",
+              style: const TextStyle(
+                fontSize: 20,
+              )),
+          const SizedBox(width: 10),
+        ],
       ),
       body: match(context, _selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
@@ -38,7 +52,8 @@ class _MatchState extends State<Match> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.red,
+        selectedItemColor:
+            widget.allianceColor == "Red" ? Colors.red : Colors.blue,
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
@@ -51,38 +66,74 @@ class _MatchState extends State<Match> {
   match(BuildContext context, int selectedIndex) {
     switch (selectedIndex) {
       case 0:
-        return Row( children: auto(context));
+        return Center(child: auto(context));
       case 1:
-        return Row( children: teleop(context));
+        return Row(children: teleop(context));
       case 2:
-        return Row( children: endGame(context));
+        return Row(children: endGame(context));
     }
   }
 
-  List<Widget> auto(BuildContext context) {
-    return [
-        Text("Event Key: ${widget.eventKey} \n"),
-        const SizedBox(height: 10,),
-        Text("Match Key: ${widget.matchKey} \n"),
-        const SizedBox(height: 10,),
-        Text("Alliance Color: ${widget.allianceColor} \n"),
-        const SizedBox(height: 10,),
-        Text("Station: ${widget.station} \n "),
-    ];
+  Widget auto(BuildContext context) {
+    switch (widget.allianceColor) {
+      case "Red":
+        return Column(
+            children: autoBuilder(context, widget.allianceColor,
+                widget.MatchData, widget.station));
+      case "Blue":
+        return Column(
+            children: autoBuilder(context, widget.allianceColor,
+                widget.MatchData, widget.station));
+      default:
+        return const Text("Error: Invalid Alliance Color");
+    }
   }
 
   List<Widget> teleop(BuildContext context) {
-    return [
-
-    ];
+    return [];
   }
 
   List<Widget> endGame(BuildContext context) {
-    return [
-
-    ];
+    return [];
   }
 
-
-
+  List<Widget> autoBuilder(BuildContext context, String? alliancecolor,
+      Map<String, dynamic> matchData, String? station) {
+    return [
+      Container(
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Column(children: [
+            Text(
+                "Assigned Team: ${(matchData["alliances"][alliancecolor?.toLowerCase()]["team_keys"][int.parse(station![1]) - 1]).substring(3)}",
+                style: const TextStyle(fontSize: 30, color: Colors.black45)),
+          ]),
+        ),
+      ),
+      Container(
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Column(children: [
+            const Text("Starting Position",
+                style: TextStyle(fontSize: 30, color: Colors.black45)),
+            const SizedBox(height: 10),
+            Image(
+                image: AssetImage(
+                    'assets/${alliancecolor}Alliance_StartPosition.png')),
+            const SizedBox(height: 10),
+          ]),
+        ),
+      )
+    ];
+  }
 }

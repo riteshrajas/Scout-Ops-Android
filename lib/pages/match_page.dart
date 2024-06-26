@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'components/nav.dart';
@@ -200,7 +202,7 @@ class MatchPageState extends State<MatchPage> {
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.red,
+                        backgroundColor: Variables.selectedStation == "R1" ? Colors.red : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -215,7 +217,7 @@ class MatchPageState extends State<MatchPage> {
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.red,
+                        backgroundColor: Variables.selectedStation == "R2" ? Colors.red : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -228,9 +230,12 @@ class MatchPageState extends State<MatchPage> {
                         Variables.selectedStation = "R3";
                       });
                     },
+                    //change the color when selected
+
+
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.red,
+                        backgroundColor: Variables.selectedStation == "R3" ? Colors.red : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -270,41 +275,41 @@ class MatchPageState extends State<MatchPage> {
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Variables.selectedStation == "B1" ? Colors.blue : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
-                    child: const Text('R1'),
+                    child: const Text('B1'),
                   ),
                   const SizedBox(width: 60),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        Variables.selectedStation = "R2";
+                        Variables.selectedStation = "B2";
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Variables.selectedStation == "B2" ? Colors.blue : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
-                    child: const Text('R2'),
+                    child: const Text('B2'),
                   ),
                   const SizedBox(width: 60),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        Variables.selectedStation = "R3";
+                        Variables.selectedStation = "B3";
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Variables.selectedStation == "B3" ? Colors.blue : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
-                    child: const Text('R3'),
+                    child: const Text('B3'),
                   ),
                 ],
               ),
@@ -501,8 +506,6 @@ class MatchPageState extends State<MatchPage> {
     );
   }
 
-
-
   Widget _buildMatchList(List<dynamic> matches, Color buttonColor) {
     return GridView.builder(
       padding: const EdgeInsets.all(8.0),
@@ -528,6 +531,7 @@ class MatchPageState extends State<MatchPage> {
                   matchKey: match['key'],
                   allianceColor: Variables.allianceColor,
                   station: Variables.selectedStation,
+                  MatchData: match,
                 ),
               ),
             );
@@ -537,7 +541,8 @@ class MatchPageState extends State<MatchPage> {
                 ? '${match['set_number']}'
                 : '${match['match_number']}',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         );
       },
@@ -553,61 +558,3 @@ class Variables {
   static String? matchType;
   static String? file;
 }
-
-// FutureBuilder<List<dynamic>>(
-//   future: matches,
-//   builder: (context, snapshot) {
-//     if (snapshot.hasData) {
-//       // Sort the matches by match_number
-//       var sortedMatches = snapshot.data!.toList()
-//         ..sort((a, b) => a['match_number'].compareTo(b['match_number']));
-//       return Expanded(
-//         child: GridView.builder(
-//           padding: const EdgeInsets.all(8.0),
-//           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//             crossAxisCount: 3, // Number of columns
-//             mainAxisSpacing: 8.0,
-//             crossAxisSpacing: 8.0,
-//             childAspectRatio: 1.5, // Width is 1.5 times the height
-//           ),
-//           itemCount: sortedMatches.length,
-//           itemBuilder: (context, index) {
-//             var match = sortedMatches[index];
-//             Color buttonColor;
-//             if (match['comp_level'].startsWith('sf')) {
-//               buttonColor = Colors.orange; // Semi-Finals color
-//             } else if (match['comp_level'].startsWith('f')) {
-//               buttonColor = Colors.red; // Finals color
-//             } else {
-//               buttonColor = Colors.yellowAccent; // Default color for other matches
-//             }
-//             return ElevatedButton(
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: buttonColor,
-//               ),
-//               onPressed: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => Match(
-//                       eventKey: eventKeyController.text,
-//                       matchKey: match['key'],
-//                       allianceColor: Variables.allianceColor,
-//                       station: Variables.selectedStation,
-//                     ),
-//                   ),
-//                 );
-//               },
-//               child: Text(
-//                 '${match['match_number']}',
-//                 textAlign: TextAlign.center,
-//               ),
-//             );
-//           },
-//         ),
-//       );
-//     } else {
-//       return const CircularProgressIndicator();
-//     }
-//   },
-// ),
