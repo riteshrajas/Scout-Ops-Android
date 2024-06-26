@@ -70,6 +70,8 @@ flutter:
     - assets/Areana.png
     - assets/RedAlliance.png
     - assets/BlueAlliance.png
+    - assets/BlueAlliance_StartPosition.png
+    - assets/RedAlliance_StartPosition.png
 
 
 

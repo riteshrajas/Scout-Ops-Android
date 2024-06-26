@@ -20,6 +20,7 @@ class MatchPageState extends State<MatchPage> {
   Future<List<dynamic>>? matches;
   bool isLoading = false;
   int _selectedIndex = 0;
+  int _selectedMatchType = 0;
 
   NavigationRailLabelType labelType = NavigationRailLabelType.all;
   bool showLeading = false;
@@ -405,32 +406,18 @@ class MatchPageState extends State<MatchPage> {
       children: <Widget>[
         // Navigation Rail
         NavigationRail(
-          leading: showLeading
-              ? Container(
-                  width: 60,
-                  height: 60,
-                  color: Colors.blue,
-                )
-              : null,
-          trailing: showTrailing
-              ? Container(
-                  width: 60,
-                  height: 60,
-                  color: Colors.red,
-                )
-              : null,
-          selectedIndex: _selectedIndex,
+          selectedIndex: _selectedMatchType,
           onDestinationSelected: (int index) {
             setState(() {
-              _selectedIndex = index;
+              _selectedMatchType = index;
             });
           },
           labelType: labelType,
           destinations: const [
             NavigationRailDestination(
               icon: Icon(Icons.refresh),
-              selectedIcon: Icon(Icons.read_more_outlined),
-              label: Text('Hello'),
+              selectedIcon: Icon(Icons.refresh_rounded),
+              label: Text('Quals'),
             ),
             NavigationRailDestination(
               icon: Icon(Icons.add_road),
@@ -446,84 +433,73 @@ class MatchPageState extends State<MatchPage> {
         ),
         // Vertical Divider
         const VerticalDivider(thickness: 1, width: 1),
-        // Match Selection
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            child: const SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("data")
-                ],
-
-              ),
+        if (_selectedMatchType == 0) ...[
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: matches,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var otherMatches = snapshot.data!
+                      .where((match) =>
+                          !match['comp_level'].startsWith('f') &&
+                          !match['comp_level'].startsWith('sf'))
+                      .toList()
+                    ..sort((a, b) =>
+                        a['match_number'].compareTo(b['match_number']));
+                  if (otherMatches.isNotEmpty) {
+                    return _buildMatchList(otherMatches, Colors.black);
+                  } else {
+                    return const Text('No Matches');
+                  }
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
             ),
           ),
-        ),
+        ] else if (_selectedMatchType == 1) ...[
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: matches,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  // Filter and sort finals matches
+                  var finalsMatches = snapshot.data!
+                      // Get 11 from sf11m1
+                      .where((match) => match['comp_level'].startsWith('sf'))
+                      .toList()
+                    ..sort(
+                        (a, b) => a['set_number'].compareTo(b['set_number']));
+                  return _buildMatchList(finalsMatches, Colors.deepOrange);
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
+            ),
+          ),
+        ] else if (_selectedMatchType == 2) ...[
+          Expanded(
+            child: FutureBuilder<List<dynamic>>(
+              future: matches,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  // Filter and sort semifinals matches
+                  var semifinalsMatches = snapshot.data!
+                      .where((match) => match['comp_level'].startsWith('f'))
+                      .toList()
+                    ..sort((a, b) =>
+                        a['match_number'].compareTo(b['match_number']));
+                  return _buildMatchList(semifinalsMatches, Colors.red);
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
+            ),
+          ),
+        ],
       ],
     );
-    }
-
-
-
-
-
-
-
-      // Column(
-      //   crossAxisAlignment: CrossAxisAlignment.stretch,
-      //   children: [
-      //     Expanded(
-      //       child: FutureBuilder<List<dynamic>>(
-      //         future: matches,
-      //         builder: (context, snapshot) {
-      //           if (snapshot.hasData) {
-      //             // Filter and sort other matches
-      //             var otherMatches = snapshot.data!.where((match) => !match['comp_level'].startsWith('f') && !match['comp_level'].startsWith('sf')).toList()
-      //               ..sort((a, b) => a['match_number'].compareTo(b['match_number']));
-      //             return _buildMatchList(otherMatches, Colors.yellow);
-      //           } else {
-      //             return const CircularProgressIndicator();
-      //           }
-      //         },
-      //       ),
-      //     ),
-      //     Expanded(
-      //       child: FutureBuilder<List<dynamic>>(
-      //         future: matches,
-      //         builder: (context, snapshot) {
-      //           if (snapshot.hasData) {
-      //             // Filter and sort finals matches
-      //             var finalsMatches = snapshot.data!.where((match) => match['comp_level'].startsWith('f')).toList()
-      //               ..sort((a, b) => a['match_number'].compareTo(b['match_number']));
-      //             return _buildMatchList(finalsMatches, Colors.red);
-      //           } else {
-      //             return const CircularProgressIndicator();
-      //           }
-      //         },
-      //       ),
-      //     ),
-      //     Expanded(
-      //       child: FutureBuilder<List<dynamic>>(
-      //         future: matches,
-      //         builder: (context, snapshot) {
-      //           if (snapshot.hasData) {
-      //             // Filter and sort semifinals matches
-      //             var semifinalsMatches = snapshot.data!.where((match) => match['comp_level'].startsWith('sf')).toList()
-      //               ..sort((a, b) => a['match_number'].compareTo(b['match_number']));
-      //             return _buildMatchList(semifinalsMatches, Colors.orange);
-      //           } else {
-      //             return const CircularProgressIndicator();
-      //           }
-      //         },
-      //       ),
-      //     ),
-      //     const SizedBox(height: 10),
-      //
-      //     const SizedBox(height: 10),
-      //   ],
-      // )
+  }
 
 
 
@@ -557,8 +533,11 @@ class MatchPageState extends State<MatchPage> {
             );
           },
           child: Text(
-            '${match['match_number']}',
+            match['comp_level'].startsWith('sf')
+                ? '${match['set_number']}'
+                : '${match['match_number']}',
             textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         );
       },
