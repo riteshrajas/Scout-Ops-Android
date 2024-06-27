@@ -531,7 +531,7 @@ class MatchPageState extends State<MatchPage> {
                   matchKey: match['key'],
                   allianceColor: Variables.allianceColor,
                   station: Variables.selectedStation,
-                  MatchData: match,
+                  matchData: match,
                 ),
               ),
             );

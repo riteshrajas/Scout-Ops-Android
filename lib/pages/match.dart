@@ -5,7 +5,7 @@ class Match extends StatefulWidget {
   final String matchKey;
   final String? allianceColor;
   final String? station;
-  final Map<String, dynamic> MatchData;
+  final Map<String, dynamic> matchData;
 
   const Match(
       {super.key,
@@ -13,7 +13,7 @@ class Match extends StatefulWidget {
       required this.matchKey,
       required this.allianceColor,
       required this.station,
-      required this.MatchData});
+      required this.matchData});
 
   @override
   MatchState createState() => MatchState();
@@ -21,6 +21,129 @@ class Match extends StatefulWidget {
 
 class MatchState extends State<Match> {
   int _selectedIndex = 0;
+  Offset? _circlePosition;
+
+  // Auto
+  int _ampPlacementAuton = 0;
+  int _speakerAuton = 0;
+
+  // Teleop
+  int allianceWing = 0;
+  int centerField = 0;
+  int farWing = 0;
+  int unamplified = 0;
+  int amplified = 0;
+  int amp = 0;
+  int trap = 0;
+  int passed = 0;
+  int missed = 0;
+
+  // End Game
+
+  // Functions for Auto
+  void _incrementCounterAuton(String type) {
+    setState(() {
+      switch (type) {
+        case 'ampPlacement':
+          _ampPlacementAuton++;
+          break;
+        case 'speaker':
+          _speakerAuton++;
+          break;
+      }
+    });
+  }
+
+  void _decrementCounterAuton(String type) {
+    setState(() {
+      switch (type) {
+        case 'ampPlacement':
+          if (_ampPlacementAuton > 0) _ampPlacementAuton--;
+          break;
+        case 'speaker':
+          if (_speakerAuton > 0) _speakerAuton--;
+          break;
+      }
+    });
+  }
+
+  // Functions for Teleop
+  void _incrementCounterTeleop(String type) {
+    setState(() {
+      switch (type) {
+        case 'allianceWing':
+          allianceWing++;
+          break;
+        case 'centerField':
+          centerField++;
+          break;
+        case 'farWing':
+          farWing++;
+          break;
+        case 'unamplified':
+          unamplified++;
+          break;
+        case 'amplified':
+          amplified++;
+          break;
+        case 'amp':
+          amp++;
+          break;
+        case 'trap':
+          trap++;
+          break;
+        case 'passed':
+          passed++;
+          break;
+        case 'missed':
+          missed++;
+          break;
+      }
+    });
+  }
+
+  void _decrementCounterTeleop(String type) {
+    setState(() {
+      switch (type) {
+        case 'allianceWing':
+          if (allianceWing > 0) allianceWing--;
+          break;
+        case 'centerField':
+          if (centerField > 0) centerField--;
+          break;
+        case 'farWing':
+          if (farWing > 0) farWing--;
+          break;
+        case 'unamplified':
+          if (unamplified > 0) unamplified--;
+          break;
+        case 'amplified':
+          if (amplified > 0) amplified--;
+          break;
+        case 'amp':
+          if (amp > 0) amp--;
+          break;
+        case 'trap':
+          if (trap > 0) trap--;
+          break;
+        case 'passed':
+          if (passed > 0) passed--;
+          break;
+        case 'missed':
+          if (missed > 0) missed--;
+          break;
+      }
+    });
+  }
+
+  // Functions for End Game
+
+  //----------------------------------------------
+  void _updatePosition(TapUpDetails details) {
+    setState(() {
+      _circlePosition = details.localPosition;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +176,7 @@ class MatchState extends State<Match> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor:
-            widget.allianceColor == "Red" ? Colors.red : Colors.blue,
+        widget.allianceColor == "Red" ? Colors.red : Colors.blue,
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
@@ -68,7 +191,7 @@ class MatchState extends State<Match> {
       case 0:
         return Center(child: auto(context));
       case 1:
-        return Row(children: teleop(context));
+        return SingleChildScrollView(child: Row(children: teleop(context)));
       case 2:
         return Row(children: endGame(context));
     }
@@ -77,21 +200,24 @@ class MatchState extends State<Match> {
   Widget auto(BuildContext context) {
     switch (widget.allianceColor) {
       case "Red":
-        return Column(
+        return SingleChildScrollView(
+          child: Column(
             children: autoBuilder(context, widget.allianceColor,
-                widget.MatchData, widget.station));
+                widget.matchData, widget.station),
+          ),
+        );
       case "Blue":
-        return Column(
+        return SingleChildScrollView(
+          child: Column(
             children: autoBuilder(context, widget.allianceColor,
-                widget.MatchData, widget.station));
+                widget.matchData, widget.station),
+          ),
+        );
       default:
         return const Text("Error: Invalid Alliance Color");
     }
   }
 
-  List<Widget> teleop(BuildContext context) {
-    return [];
-  }
 
   List<Widget> endGame(BuildContext context) {
     return [];
@@ -110,30 +236,210 @@ class MatchState extends State<Match> {
         child: Center(
           child: Column(children: [
             Text(
-                "Assigned Team: ${(matchData["alliances"][alliancecolor?.toLowerCase()]["team_keys"][int.parse(station![1]) - 1]).substring(3)}",
+                "Assigned Team: ${(matchData["alliances"][alliancecolor
+                    ?.toLowerCase()]["team_keys"][int.parse(station![1]) - 1])
+                    .substring(3)}",
                 style: const TextStyle(fontSize: 30, color: Colors.black45)),
           ]),
         ),
       ),
       Container(
-        margin: const EdgeInsets.all(10),
+          margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(children: [
+            const Text(
+              "Starting Position",
+              style: TextStyle(fontSize: 30, color: Colors.black45),
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTapUp: _updatePosition,
+              child: Stack(
+                children: [
+                  Image.asset(
+                      'assets/${alliancecolor}Alliance_StartPosition.png'),
+                  if (_circlePosition != null)
+                    Positioned(
+                      left: _circlePosition!.dx - 10, // Center the circle
+                      top: _circlePosition!.dy - 10, // Center the circle
+                      child: SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: Image.asset(
+                            'assets/Swerve.png',
+                          )),
+                    ),
+                ],
+              ),
+            ),
+          ])),
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(50),
         ),
-        child: Center(
-          child: Column(children: [
-            const Text("Starting Position",
-                style: TextStyle(fontSize: 30, color: Colors.black45)),
-            const SizedBox(height: 10),
-            Image(
-                image: AssetImage(
-                    'assets/${alliancecolor}Alliance_StartPosition.png')),
-            const SizedBox(height: 10),
-          ]),
-        ),
-      )
+        child: Column(children: [
+          Row(
+            children: [
+              Column(
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(180, 180),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                    ),
+                    onPressed: () => _incrementCounterAuton('ampPlacement'),
+                    child: const Icon(
+                      Icons.add,
+                      size: 50,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(180, 180),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                    ),
+                    onPressed: () => _decrementCounterAuton('ampPlacement'),
+                    child: const Icon(
+                      Icons.remove,
+                      size: 50,
+                    ),
+                  ),
+                  Text('Amp Placement: $_ampPlacementAuton'),
+                ],
+              ),
+              const SizedBox(width: 10),
+              Column(
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(180, 180),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                    ),
+                    onPressed: () => _incrementCounterAuton('speaker'),
+                    child: const Icon(
+                      Icons.add,
+                      size: 50,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(180, 180),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                    ),
+                    onPressed: () => _decrementCounterAuton('speaker'),
+                    child: const Icon(
+                      Icons.remove,
+                      size: 50,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Speaker: $_speakerAuton',
+                  ),
+                ],
+              )
+            ],
+          ),
+        ]),
+      ),
     ];
   }
+
+  List<Widget> teleop(BuildContext context) {
+    return [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _SwitchBuilder('allianceWing', 'Alliance Wing', allianceWing),
+          const SizedBox(height: 10),
+          _SwitchBuilder('centerField', 'Center Field', centerField),
+          const SizedBox(height: 10),
+          _SwitchBuilder('farWing', 'Far Wing', farWing),
+        ],
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Container(
+          color: Colors.grey[300],
+          child: GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height / 2),
+            padding: const EdgeInsets.all(10),
+            children: [
+              _SwitchBuilder('unamplified', 'Unamplified', unamplified),
+              _SwitchBuilder('amplified', 'Amplified', amplified),
+              _SwitchBuilder('amp', 'Amp', amp),
+              _SwitchBuilder('trap', 'Trap', trap),
+              _SwitchBuilder('passed', 'Passed', passed),
+              _SwitchBuilder('missed', 'Missed', missed),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+
+
+  Widget _SwitchBuilder(String type, String title, int value) {
+    return Column(
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            fixedSize: const Size(70, 70),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+          ),
+          onPressed: () => _incrementCounterTeleop(type),
+          child: const Icon(
+            Icons.add,
+          ),
+        ),
+        const SizedBox(height: 5),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            fixedSize: const Size(70, 70),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+          ),
+          onPressed: () => _decrementCounterTeleop(type),
+          child: const Icon(
+            Icons.remove,
+          ),
+        ),
+        const SizedBox(height: 0),
+        Text(
+          '$title: $value',
+        ),
+
+      ],
+    );
+  }
+
+}
+
+class Results {
+  late String matchKey;
+  late String eventKey;
+  late String allianceColor;
+  late String station;
+  late String teamKey;
+  late String startingPosition;
 }
