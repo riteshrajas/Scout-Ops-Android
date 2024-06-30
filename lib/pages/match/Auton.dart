@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:scouting_app/pages/components/DataBase.dart';
+import '../match.dart';
 
 class Auton extends StatefulWidget {
   const Auton({super.key});
@@ -10,256 +14,391 @@ class Auton extends StatefulWidget {
 }
 
 class AutonState extends State<Auton> {
-  DataMaster dataMaster = DataMaster();
+  final LocalDataBase dataMaster = LocalDataBase();
   Offset? _circlePosition;
-  String ampPlacementValue = '0';
-  String speakerValue = '0';
+  int ampPlacementValue = 0;
+  int speakerValue = 0;
+  late String assignedTeam;
+  late String assignedStation;
+  late String matchKey;
+  late String allianceColor;
+
+  // Match Variables
+  @override
+  void initState() {
+    super.initState();
+    assignedTeam = dataMaster.getData(Types.team) ?? "Null";
+    assignedStation = dataMaster.getData(Types.selectedStation) ?? "Null";
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: _auto(context));
+    setState(() {
+      assignedTeam = dataMaster.getData(Types.team) ?? "Null";
+      assignedStation = dataMaster.getData(Types.selectedStation) ?? "Null";
+      matchKey = dataMaster.getData(Types.matchKey) ?? "Null";
+      allianceColor = dataMaster.getData(Types.allianceColor) ?? "Null";
+    });
+    return Container(child: _buildAuto(context));
+  }
+
+  Widget _buildAuto(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [_buildTeamInfo(), _buildBotField(), _buildActions(), _buildComments()],
+      ),
+    );
+  }
+
+  Widget _buildTeamInfo() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.category,
+                  color: Colors.grey,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    assignedTeam,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$allianceColor Alliance, Station $assignedStation',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: const Text(
+                  'START',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBotField() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(7.0),
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTapUp: _updatePosition,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0), // Add border radius here
+                  child: Image.asset(
+                    'assets/${dataMaster.getData(Types.allianceColor)}Alliance_StartPosition.png',
+                  ),
+                ),
+              ),
+              if (_circlePosition != null)
+                Positioned(
+                  left: _circlePosition!.dx - 10, // Center the circle
+                  top: _circlePosition!.dy - 10, // Center the circle
+                  child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(0), // Add border radius here
+                      child: Image.asset(
+                        'assets/Swerve.png',
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+      )
+    );
   }
 
   void _updatePosition(TapUpDetails details) {
     setState(() {
       _circlePosition = details.localPosition;
-      ampPlacementValue = dataMaster.fetchScoutData(AutoType.AmpPlacement);
-      speakerValue = dataMaster.fetchScoutData(AutoType.Speaker);
+      dataMaster.putData(AutoType.StartPosition, _circlePosition);
     });
   }
 
-  Widget _auto(BuildContext context) {
-    return SingleChildScrollView(
+  Widget _buildActions() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+      decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.2),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: const Offset(0, 3), // changes position of shadow
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        children: _autoBuilder(context),
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome),
+              const SizedBox(width: 16),
+              const Text(
+                'Amp Placement',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        ampPlacementValue = ampPlacementValue - 1;
+                        dataMaster.putData(AutoType.AmpPlacement, ampPlacementValue);
+                      });
+                    },
+                    icon: const Icon(Icons.remove),
+                  ),
+                  Text(
+                    '$ampPlacementValue',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        ampPlacementValue = ampPlacementValue + 1;
+                        dataMaster.putData(AutoType.AmpPlacement, ampPlacementValue);
+                      });
+                    },
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(Icons.speaker),
+              const SizedBox(width: 16),
+              const Text(
+                'Speaker',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        speakerValue = speakerValue - 1;
+                        dataMaster.putData(AutoType.Speaker, speakerValue);
+                      });
+                    },
+                    icon: const Icon(Icons.remove),
+                  ),
+                  Text(
+                    '$speakerValue',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        speakerValue = speakerValue + 1;
+                        dataMaster.putData(AutoType.Speaker, speakerValue);
+                      });
+                    },
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+    ),
+    );
+  }
+  Widget _buildComments() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.sports_soccer_rounded),
+                  SizedBox(width: 16),
+                  Text(
+                    'Auton Rating',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Spacer(),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: RatingBar.builder(
+                  initialRating: 0,
+                  minRating: 0,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                ),
+              ),
+              const SizedBox(height: 22),
+              const Row(
+                children: [
+                  Icon(Icons.comment),
+                  SizedBox(width: 16),
+                  Text(
+                    'Your Comments',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Spacer(),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Row(
+                children: [
+                  Chip(
+                    label: Text('Chip 1'),
+                    backgroundColor: Colors.red,
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(width: 8),
+                  Chip(
+                    label: Text('Chip 2'),
+                    backgroundColor: Colors.green,
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(width: 8),
+                  Chip(
+                    label: Text('Chip 3'),
+                    backgroundColor: Colors.blue,
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  List<Widget> _autoBuilder(BuildContext context) {
-    return [
-      Container(
-        margin: const EdgeInsets.all(10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Column(children: [
-            Text(
-                // "Assigned Team: ${(matchData["alliances"][alliancecolor?.toLowerCase()]["team_keys"][int.parse(station![1]) - 1]).substring(3)}",
-                "Assigned Team: ${
-                    (dataMaster.readMatchData(Types.matchFile))['alliances'][(dataMaster.readMatchData(Types.allianceColor).toString().toLowerCase())]
-                            ['team_keys'][int.parse((dataMaster.readMatchData(Types.selectedStation)[1])) - 1].substring(3)
-                }",
-                style: const TextStyle(fontSize: 30, color: Colors.black45)),
-          ]),
-        ),
-      ),
-      Container(
-          margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(children: [
-            const Text(
-              "Starting Position",
-              style: TextStyle(fontSize: 30, color: Colors.black45),
-            ),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTapUp: _updatePosition,
-              child: Stack(
-                children: [
-                  Image.asset(
-                      'assets/${dataMaster.readMatchData(Types.allianceColor)}Alliance_StartPosition.png'),
-                  if (_circlePosition != null)
-                    Positioned(
-                      left: _circlePosition!.dx - 10, // Center the circle
-                      top: _circlePosition!.dy - 10, // Center the circle
-                      child: SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: Image.asset(
-                            'assets/Swerve.png',
-                          )),
-                    ),
-                ],
-              ),
-            ),
-          ])),
-      Container(
-        margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Column(children: [
-          Row(
-            children: [
-              Column(
-                children: <Widget>[
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(180, 180),
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                    ),
-                    onPressed: () => {
-                      dataMaster.incrementCounter(AutoType.AmpPlacement, 1),
-                      setState(() {
-                        ampPlacementValue =
-                            dataMaster.fetchScoutData(AutoType.AmpPlacement);
-                        speakerValue =
-                            dataMaster.fetchScoutData(AutoType.Speaker);
-                      }),
-                    },
-                    child: const Icon(
-                      Icons.add,
-                      size: 50,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(180, 180),
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                    ),
-                    onPressed: () => {
-                      dataMaster.incrementCounter(AutoType.AmpPlacement, -1),
-                      setState(() {
-                        ampPlacementValue =
-                            dataMaster.fetchScoutData(AutoType.AmpPlacement);
-                        speakerValue =
-                            dataMaster.fetchScoutData(AutoType.Speaker);
-                      }),
-                    },
-                    child: const Icon(
-                      Icons.remove,
-                      size: 50,
-                    ),
-                  ),
-                  Text(
-                      'Amp Placement: ${dataMaster.fetchScoutData(AutoType.AmpPlacement)}'),
-                ],
-              ),
-              const SizedBox(width: 10),
-              Column(
-                children: <Widget>[
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(180, 180),
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                    ),
-                    onPressed: () => {
-                      dataMaster.incrementCounter(AutoType.Speaker, 1),
-                      setState(() {
-                        ampPlacementValue =
-                            dataMaster.fetchScoutData(AutoType.AmpPlacement);
-                        speakerValue =
-                            dataMaster.fetchScoutData(AutoType.Speaker);
-                      }),
-                    },
-                    child: const Icon(
-                      Icons.add,
-                      size: 50,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(180, 180),
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50))),
-                    ),
-                    onPressed: () => {
-                      dataMaster.incrementCounter(AutoType.Speaker, -1),
-                      setState(() {
-                        ampPlacementValue =
-                            dataMaster.fetchScoutData(AutoType.AmpPlacement);
-                        speakerValue =
-                            dataMaster.fetchScoutData(AutoType.Speaker);
-                      }),
-                    },
-                    child: const Icon(
-                      Icons.remove,
-                      size: 50,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Speaker: ${dataMaster.fetchScoutData(AutoType.Speaker)}',
-                  ),
-                ],
-              )
-            ],
-          ),
-        ]),
-      ),
-    ];
-  }
+
 }
 
-enum MatchType { Auto, Teleop, EndGame }
-
-enum AutoType { AmpPlacement, Speaker }
-
-enum Types {
-  eventKey,
-  matchKey,
-  allianceColor,
-  selectedStation,
-  eventFile,
-  matchFile,
-}
-
-class DataMaster {
-  final storageAgent = Hive.box('ScoutData');
-  final matchData = Hive.box('matchData');
-  DataMaster();
-
-  fetchScoutData(AutoType type) {
-    if (kDebugMode) {
-      print(
-          'Fetching $type and returning ${storageAgent.get(type.toString())}');
-    }
-    return storageAgent.get(type.toString());
-  }
-
-  postScoutData(AutoType type, String value) {
-    if (kDebugMode) {
-      print('Posting $type with value $value');
-    }
-    storageAgent.put(type.toString(), value);
-  }
-
-  getScoutData() {
-    if (kDebugMode) {
-      print('Getting all scout data');
-    }
-    return storageAgent.get('AmpPlacement');
-  }
-
-  incrementCounter(AutoType type, int incrementBy) {
-    int value = int.parse(storageAgent.get(type.toString()) ?? 0);
-    value += incrementBy;
-    storageAgent.put(type.toString(), value.toString());
-    if (kDebugMode) {
-      print('Incrementing $type by $incrementBy to $value');
-    }
-  }
-
-  readMatchData(Types type) {
-    return matchData.get(type.toString());
-  }
-}
+enum AutoType { AmpPlacement, Speaker, StartPosition }

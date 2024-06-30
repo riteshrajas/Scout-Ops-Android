@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:scouting_app/pages/components/DataBase.dart';
 import 'package:scouting_app/pages/match/EndGame.dart';
 import 'package:scouting_app/pages/match/TeleOperated.dart';
 import 'actions/QrGenerator.dart';
@@ -16,19 +15,34 @@ class Match extends StatefulWidget {
 
 class MatchState extends State<Match> {
   int _selectedIndex = 0;
-  DataMaster dataMaster = DataMaster();
-
-
+  LocalDataBase dataMaster = LocalDataBase();
+  String _allianceColor = "";
+  String _selectedStation = "";
+  String _team = "";
 
 
 
   @override
+  void initState() {
+    super.initState();
+    _allianceColor = dataMaster.getData(Types.allianceColor);
+    // _allianceColor = "red";
+    _selectedStation = dataMaster.getData(Types.selectedStation);
+    // _selectedStation = "R1";
+    _team = (dataMaster.getData(Types.matchFile))['alliances'][_allianceColor.toLowerCase()]['team_keys'][int.parse(_selectedStation.substring(1)) - 1].substring(3).toString();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+    dataMaster.putData(Types.team, _team);
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match Page'),
         actions: <Widget>[
-          Text("${dataMaster.readMatchData(Types.selectedStation)}",
+          Text(_selectedStation,
               style: const TextStyle(
                 fontSize: 20,
               )),
@@ -66,7 +80,7 @@ class MatchState extends State<Match> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor:
-            dataMaster.readMatchData(Types.allianceColor) == "Red" ? Colors.red : Colors.blue,
+            _allianceColor == "Red" ? Colors.red : Colors.blue,
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
@@ -78,7 +92,7 @@ class MatchState extends State<Match> {
   _match(BuildContext context, int selectedIndex) {
     switch (selectedIndex) {
       case 0:
-        return const Center(child: Auton());
+        return const SingleChildScrollView(child: Auton());
       case 1:
         return const SingleChildScrollView(child: TeleOperated());
       case 2:
@@ -87,7 +101,7 @@ class MatchState extends State<Match> {
   }
 }
 
-enum MatchType { Auto, Teleop, EndGame }
+
 
 
 
@@ -98,47 +112,6 @@ enum Types {
   selectedStation,
   eventFile,
   matchFile,
+  team
 }
 
-
-class DataMaster {
-  final storageAgent = Hive.box('ScoutData');
-  final matchData = Hive.box('matchData');
-  DataMaster();
-
-  putScoutData(dynamic key, dynamic value) {
-    if (kDebugMode) {
-      print("DataMaster: ${key.toString()}: $value");
-    }
-    storageAgent.put(key.toString(), value);
-
-  }
-
-  String getScoutData(dynamic key) {
-    if (kDebugMode) {
-      print("DataMaster: ${key.toString()}");
-    }
-    return storageAgent.get(key.toString()).toString();
-  }
-
-
-
-  constructScoutData() {
-    if (kDebugMode) {
-      print("DataMaster: Constructing Data");
-    }
-  }
-
-  void incrementCounter(String key, int incrementBy) {
-    int currentCount = storageAgent.get(key) ?? 0;
-    putScoutData(key, currentCount + incrementBy);
-  }
-
-  readMatchData(dynamic key) {
-    if (kDebugMode) {
-      print("DataMaster: ${key.toString()}");
-    }
-    return matchData.get(key.toString());
-
-  }
-}

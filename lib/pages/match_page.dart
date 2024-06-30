@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:scouting_app/pages/hello.dart';
+import 'components/DataBase.dart';
 import 'components/nav.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'match.dart';
-import 'dart:developer';
 
 class MatchPage extends StatefulWidget {
   const MatchPage({super.key});
@@ -25,12 +26,30 @@ class MatchPageState extends State<MatchPage> {
   bool isLoading = false;
   int _selectedIndex = 0;
   int _selectedMatchType = 0;
-  bool iserror = false;
+  bool isError = false;
+  String eventKey = '';
+  String eventFile = '';
+  String matchFile = '';
+  String selectedStation = '';
+  String allianceColor = '';
+
+  final LocalDataBase database = LocalDataBase();
 
   NavigationRailLabelType labelType = NavigationRailLabelType.all;
   bool showLeading = false;
   bool showTrailing = false;
   double groupAlignment = -1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    eventKey = database.getData(Types.eventKey) ?? '';
+    eventFile = database.getData(Types.eventFile) ?? '';
+    matchFile = database.getData(Types.matchFile) ?? '';
+    selectedStation = database.getData(Types.selectedStation) ?? '';
+    allianceColor = database.getData(Types.allianceColor) ?? '';
+    eventKeyController.text = eventKey;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +63,7 @@ class MatchPageState extends State<MatchPage> {
             icon: const Icon(Icons.delete),
             tooltip: 'Refresh',
             onPressed: () {
-              clearStorage();
+              eventKey = '';
               setState(() {
                 eventKeyController.clear();
                 isLoading = false;
@@ -85,13 +104,14 @@ class MatchPageState extends State<MatchPage> {
     }
   }
 
-  prepopluateData() async {
+  prepopluateData() {
     try {
       var data = Hive.box("matchData").get("matches", defaultValue: null);
-      putStorage(Types.eventFile, data.toString());
-      putStorage(Types.eventKey, data[0]['event_key']);
-      eventKeyController.text = getStorage(Types.eventKey);
-      await writeJson(data);
+      database.putData(Types.eventFile, data.toString());
+      database.putData(Types.eventKey, data[0]['event_key']);
+
+      eventKeyController.text = database.getData(Types.eventKey);
+      writeJson(data);
       setState(() {
         matches = readJson();
         isLoading = false;
@@ -102,7 +122,7 @@ class MatchPageState extends State<MatchPage> {
       }
       setState(() {
         isLoading = true;
-        iserror = true;
+        isError = true;
       });
     }
   }
@@ -160,7 +180,7 @@ class MatchPageState extends State<MatchPage> {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(80, 50),
                     foregroundColor: Colors.white,
-                    backgroundColor: iserror ? Colors.grey : Colors.red,
+                    backgroundColor: isError ? Colors.grey : Colors.red,
                   ),
                   onPressed: prepopluateData,
                   child: const Text('Use Local'),
@@ -182,16 +202,17 @@ class MatchPageState extends State<MatchPage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: getStorage(Types.allianceColor) == 'Red'
-                      ? Colors.red
-                      : Colors.grey,
+                  backgroundColor:
+                      database.getData(Types.allianceColor) == 'Red'
+                          ? Colors.red
+                          : Colors.grey,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: const BorderSide(color: Colors.red)),
                 ),
                 onPressed: () {
                   setState(() {
-                    putStorage(Types.allianceColor, 'Red');
+                    database.putData(Types.allianceColor, 'Red');
                   });
                 },
                 child: const Text('Red'),
@@ -207,9 +228,10 @@ class MatchPageState extends State<MatchPage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: getStorage(Types.allianceColor) == 'Blue'
-                      ? Colors.blue
-                      : Colors.grey,
+                  backgroundColor:
+                      database.getData(Types.allianceColor) == 'Blue'
+                          ? Colors.blue
+                          : Colors.grey,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                     side: const BorderSide(color: Colors.blue),
@@ -217,7 +239,7 @@ class MatchPageState extends State<MatchPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    putStorage(Types.allianceColor, 'Blue');
+                    database.putData(Types.allianceColor, 'Blue');
                   });
                 },
                 child: const Text('Blue'),
@@ -226,7 +248,7 @@ class MatchPageState extends State<MatchPage> {
           ),
         ],
       ),
-      if (getStorage(Types.allianceColor) == "Red") ...[
+      if (database.getData(Types.allianceColor) == "Red") ...[
         const SizedBox(height: 10),
         Column(
           children: [
@@ -238,13 +260,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        putStorage(Types.selectedStation, 'R1');
+                        database.putData(Types.selectedStation, 'R1');
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            getStorage(Types.selectedStation) == "R1"
+                            database.getData(Types.selectedStation) == "R1"
                                 ? Colors.red
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -256,13 +278,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        putStorage(Types.selectedStation, 'R2');
+                        database.putData(Types.selectedStation, 'R2');
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            getStorage(Types.selectedStation) == "R2"
+                            database.getData(Types.selectedStation) == "R2"
                                 ? Colors.red
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -274,7 +296,7 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        putStorage(Types.selectedStation, 'R3');
+                        database.putData(Types.selectedStation, 'R3');
                       });
                     },
                     //change the color when selected
@@ -282,7 +304,7 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            getStorage(Types.selectedStation) == "R3"
+                            database.getData(Types.selectedStation) == "R3"
                                 ? Colors.red
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -299,7 +321,7 @@ class MatchPageState extends State<MatchPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/${getStorage(Types.allianceColor)}Alliance.png',
+                    'assets/${database.getData(Types.allianceColor)}Alliance.png',
                     width: MediaQuery.of(context).size.width * 0.90,
                   ),
                 ],
@@ -307,7 +329,7 @@ class MatchPageState extends State<MatchPage> {
             )
           ],
         ),
-      ] else if (getStorage(Types.allianceColor) == "Blue") ...[
+      ] else if (database.getData(Types.allianceColor) == "Blue") ...[
         const SizedBox(height: 10),
         Column(
           children: [
@@ -319,13 +341,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        putStorage(Types.selectedStation, "B1");
+                        database.putData(Types.selectedStation, "B1");
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            getStorage(Types.selectedStation) == "B1"
+                            database.getData(Types.selectedStation) == "B1"
                                 ? Colors.blue
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -337,13 +359,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        putStorage(Types.selectedStation, "B2");
+                        database.putData(Types.selectedStation, "B2");
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            getStorage(Types.selectedStation) == "B2"
+                            database.getData(Types.selectedStation) == "B2"
                                 ? Colors.blue
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -355,13 +377,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        putStorage(Types.selectedStation, "B3");
+                        database.putData(Types.selectedStation, "B3");
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            getStorage(Types.selectedStation) == "B3"
+                            database.getData(Types.selectedStation) == "B3"
                                 ? Colors.blue
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -378,7 +400,7 @@ class MatchPageState extends State<MatchPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/${getStorage(Types.allianceColor)}Alliance.png',
+                    'assets/${database.getData(Types.allianceColor)}Alliance.png',
                     width: MediaQuery.of(context).size.width * 0.90,
                   ),
                 ],
@@ -408,10 +430,10 @@ class MatchPageState extends State<MatchPage> {
       var data = jsonDecode(response.body);
 
       if (kDebugMode) {
-        print(data);
+        // print(data);
       }
 
-      putStorage(Types.eventFile, data.toString());
+      database.putData(Types.eventFile, data.toString());
 
       await writeJson(data);
 
@@ -512,7 +534,14 @@ class MatchPageState extends State<MatchPage> {
                   if (otherMatches.isNotEmpty) {
                     return _buildMatchList(otherMatches, Colors.black);
                   } else {
-                    return const Text('No Matches');
+                    return const Center(
+                        child: Column(children: [
+                      SizedBox(
+                        height: 90,
+                      ),
+                      Text('No Qualifications matches found for this event.'),
+                      Text(" Please try another event key.")
+                    ]));
                   }
                 } else {
                   return const CircularProgressIndicator();
@@ -576,18 +605,40 @@ class MatchPageState extends State<MatchPage> {
       itemCount: matches.length,
       itemBuilder: (context, index) {
         var match = matches[index];
-        putStorage(Types.matchFile, match);
+        database.putData(Types.matchFile, match);
         return ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: buttonColor,
           ),
           onPressed: () {
+            database.putData(Types.matchFile, match);
+            var eventKey = database.getData(Types.eventKey);
+            var matchKey = matches[index]['key'];
+            var allianceColor = database.getData(Types.allianceColor);
+            var selectedStation = database.getData(Types.selectedStation);
+            var matchFile = database.getData(Types.matchFile);
+            print("Sending Data Packs Before Transfering to Match Page");
+            database.putData(Types.matchKey, matchKey);
+            print("Setting ${Types.matchKey} to $matchKey");
+            database.putData(Types.eventKey, eventKey);
+            print("Setting ${Types.eventKey} to $eventKey");
+            database.putData(Types.allianceColor, allianceColor);
+            print("Setting ${Types.allianceColor} to $allianceColor");
+            database.putData(Types.selectedStation, selectedStation);
+            print("Setting ${Types.selectedStation} to $selectedStation");
+            database.putData(Types.matchFile, matchFile);
+            print("Setting ${Types.matchFile} to $matchFile");
+            print("Data Packs Sent");
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const Match(),
+                builder: (context) => Match(),
               ),
+
             );
+
+
+
           },
           child: Text(
             match['comp_level'].startsWith('sf')
@@ -601,33 +652,4 @@ class MatchPageState extends State<MatchPage> {
       },
     );
   }
-}
-
-enum Types {
-  eventKey,
-  matchKey,
-  allianceColor,
-  selectedStation,
-  eventFile,
-  matchFile,
-}
-
-putStorage(Types key, dynamic value) {
-  var box = Hive.box('matchData');
-  box.put((key).toString(), value);
-}
-
-getStorage(Types key) {
-  var box = Hive.box('matchData');
-  return box.get((key).toString());
-}
-
-clearStorage() {
-  var scoutbox = Hive.box('ScoutData');
-  putStorage(Types.eventKey, null);
-  putStorage(Types.matchFile, null);
-  putStorage(Types.allianceColor, null);
-  putStorage(Types.selectedStation, null);
-  putStorage(Types.matchKey, null);
-  scoutbox.clear();
 }

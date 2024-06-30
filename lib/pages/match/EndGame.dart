@@ -409,15 +409,7 @@ enum TeleopType {
   Missed
 }
 
-enum EndGameType {
-  Parked,
-  OnStage,
-  AttemptedClimb,
-  Notes,
-  Defense,
-  StuckNote,
-  Broke
-}
+
 
 enum Types {
   eventKey,
