@@ -6,6 +6,7 @@ import 'package:scouting_app/pages/match/EndGame.dart';
 import 'package:scouting_app/pages/match/TeleOperated.dart';
 import 'actions/QrGenerator.dart';
 import 'Match/Auton.dart';
+import 'components/DataBase.dart';
 class Match extends StatefulWidget {
   const Match({super.key});
 
@@ -15,7 +16,6 @@ class Match extends StatefulWidget {
 
 class MatchState extends State<Match> {
   int _selectedIndex = 0;
-  LocalDataBase dataMaster = LocalDataBase();
   String _allianceColor = "";
   String _selectedStation = "";
   String _team = "";
@@ -25,17 +25,17 @@ class MatchState extends State<Match> {
   @override
   void initState() {
     super.initState();
-    _allianceColor = dataMaster.getData(Types.allianceColor);
+    _allianceColor = LocalDataBase.getData(Types.allianceColor);
     // _allianceColor = "red";
-    _selectedStation = dataMaster.getData(Types.selectedStation);
+    _selectedStation = LocalDataBase.getData(Types.selectedStation);
     // _selectedStation = "R1";
-    _team = (dataMaster.getData(Types.matchFile))['alliances'][_allianceColor.toLowerCase()]['team_keys'][int.parse(_selectedStation.substring(1)) - 1].substring(3).toString();
+    _team = (LocalDataBase.getData(Types.matchFile))['alliances'][_allianceColor.toLowerCase()]['team_keys'][int.parse(_selectedStation.substring(1)) - 1].substring(3).toString();
   }
 
 
   @override
   Widget build(BuildContext context) {
-    dataMaster.putData(Types.team, _team);
+    LocalDataBase.putData(Types.team, _team);
 
 
     return Scaffold(

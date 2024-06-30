@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:scouting_app/pages/components/DataBase.dart';
 
 class TeleOperated extends StatefulWidget {
   const TeleOperated({Key? key}) : super(key: key);
@@ -13,10 +14,16 @@ class TeleOperated extends StatefulWidget {
 
 class _TeleOperatedState extends State<TeleOperated> {
   DataMaster dataMaster = DataMaster();
+  LocalDataBase lldataMaster = LocalDataBase();
   Offset? _circlePosition;
 
   @override
   Widget build(BuildContext context) {
+    print(LocalDataBase.getData(Types.allianceColor));
+    print(LocalDataBase.getData(Types.selectedStation));
+    print(LocalDataBase.getData(AutoType.AmpPlacement));
+    print(LocalDataBase.getData(Types.matchFile));
+
     return Container(
       child: _teleOp(context),
     );
@@ -138,6 +145,8 @@ enum TeleopType {
   Passed,
   Missed
 }
+
+enum AutoType { AmpPlacement, Speaker, StartPosition, AutonRating, Comments }
 
 enum Types {
   eventKey,

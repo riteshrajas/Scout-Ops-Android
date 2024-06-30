@@ -18,6 +18,8 @@ class AutonState extends State<Auton> {
   Offset? _circlePosition;
   int ampPlacementValue = 0;
   int speakerValue = 0;
+  int autonRating = 0;
+
   late String assignedTeam;
   late String assignedStation;
   late String matchKey;
@@ -27,17 +29,26 @@ class AutonState extends State<Auton> {
   @override
   void initState() {
     super.initState();
-    assignedTeam = dataMaster.getData(Types.team) ?? "Null";
-    assignedStation = dataMaster.getData(Types.selectedStation) ?? "Null";
+    assignedTeam = LocalDataBase.getData(Types.team) ?? "Null";
+    assignedStation = LocalDataBase.getData(Types.selectedStation) ?? "Null";
+    autonRating = LocalDataBase.getData(AutoType.AutonRating) ?? 0;
+  }
+
+  void UpdateData( ampPlacementValue, speakerValue, _circlePosition, autonRating) {
+    LocalDataBase.putData(AutoType.AmpPlacement, ampPlacementValue);
+    LocalDataBase.putData(AutoType.Speaker, speakerValue);
+    LocalDataBase.putData(AutoType.StartPosition, _circlePosition);
+    LocalDataBase.putData(AutoType.AutonRating, autonRating);
   }
 
   @override
   Widget build(BuildContext context) {
+
     setState(() {
-      assignedTeam = dataMaster.getData(Types.team) ?? "Null";
-      assignedStation = dataMaster.getData(Types.selectedStation) ?? "Null";
-      matchKey = dataMaster.getData(Types.matchKey) ?? "Null";
-      allianceColor = dataMaster.getData(Types.allianceColor) ?? "Null";
+      assignedTeam = LocalDataBase.getData(Types.team) ?? "Null";
+      assignedStation = LocalDataBase.getData(Types.selectedStation) ?? "Null";
+      matchKey = LocalDataBase.getData(Types.matchKey) ?? "Null";
+      allianceColor = LocalDataBase.getData(Types.allianceColor) ?? "Null";
     });
     return Container(child: _buildAuto(context));
   }
@@ -49,7 +60,6 @@ class AutonState extends State<Auton> {
       ),
     );
   }
-
   Widget _buildTeamInfo() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -128,7 +138,6 @@ class AutonState extends State<Auton> {
       ),
     );
   }
-
   Widget _buildBotField() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -154,7 +163,7 @@ class AutonState extends State<Auton> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0), // Add border radius here
                   child: Image.asset(
-                    'assets/${dataMaster.getData(Types.allianceColor)}Alliance_StartPosition.png',
+                    'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance_StartPosition.png',
                   ),
                 ),
               ),
@@ -180,14 +189,6 @@ class AutonState extends State<Auton> {
       )
     );
   }
-
-  void _updatePosition(TapUpDetails details) {
-    setState(() {
-      _circlePosition = details.localPosition;
-      dataMaster.putData(AutoType.StartPosition, _circlePosition);
-    });
-  }
-
   Widget _buildActions() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -226,7 +227,7 @@ class AutonState extends State<Auton> {
                     onPressed: () {
                       setState(() {
                         ampPlacementValue = ampPlacementValue - 1;
-                        dataMaster.putData(AutoType.AmpPlacement, ampPlacementValue);
+                        UpdateData(ampPlacementValue, speakerValue, _circlePosition, autonRating);
                       });
                     },
                     icon: const Icon(Icons.remove),
@@ -242,7 +243,7 @@ class AutonState extends State<Auton> {
                     onPressed: () {
                       setState(() {
                         ampPlacementValue = ampPlacementValue + 1;
-                        dataMaster.putData(AutoType.AmpPlacement, ampPlacementValue);
+                        UpdateData(ampPlacementValue, speakerValue, _circlePosition, autonRating);
                       });
                     },
                     icon: const Icon(Icons.add),
@@ -270,7 +271,7 @@ class AutonState extends State<Auton> {
                     onPressed: () {
                       setState(() {
                         speakerValue = speakerValue - 1;
-                        dataMaster.putData(AutoType.Speaker, speakerValue);
+                        UpdateData(ampPlacementValue, speakerValue, _circlePosition, autonRating );
                       });
                     },
                     icon: const Icon(Icons.remove),
@@ -286,7 +287,7 @@ class AutonState extends State<Auton> {
                     onPressed: () {
                       setState(() {
                         speakerValue = speakerValue + 1;
-                        dataMaster.putData(AutoType.Speaker, speakerValue);
+                        UpdateData(ampPlacementValue, speakerValue, _circlePosition, autonRating);
                       });
                     },
                     icon: const Icon(Icons.add),
@@ -344,6 +345,7 @@ class AutonState extends State<Auton> {
                   direction: Axis.horizontal,
                   allowHalfRating: true,
                   itemCount: 5,
+                  glow: false,
                   itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
                   itemBuilder: (context, _) => const Icon(
                     Icons.star,
@@ -399,6 +401,12 @@ class AutonState extends State<Auton> {
   }
 
 
+  void _updatePosition(TapUpDetails details) {
+    setState(() {
+      _circlePosition = details.localPosition;
+      LocalDataBase.putData(AutoType.StartPosition, _circlePosition);
+    });
+  }
 }
 
-enum AutoType { AmpPlacement, Speaker, StartPosition }
+enum AutoType { AmpPlacement, Speaker, StartPosition, AutonRating, Comments }

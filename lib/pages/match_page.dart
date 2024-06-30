@@ -33,7 +33,6 @@ class MatchPageState extends State<MatchPage> {
   String selectedStation = '';
   String allianceColor = '';
 
-  final LocalDataBase database = LocalDataBase();
 
   NavigationRailLabelType labelType = NavigationRailLabelType.all;
   bool showLeading = false;
@@ -43,12 +42,20 @@ class MatchPageState extends State<MatchPage> {
   @override
   void initState() {
     super.initState();
-    eventKey = database.getData(Types.eventKey) ?? '';
-    eventFile = database.getData(Types.eventFile) ?? '';
-    matchFile = database.getData(Types.matchFile) ?? '';
-    selectedStation = database.getData(Types.selectedStation) ?? '';
-    allianceColor = database.getData(Types.allianceColor) ?? '';
-    eventKeyController.text = eventKey;
+    try {
+      eventKey = LocalDataBase.getData(Types.eventKey) ?? '';
+      eventFile = LocalDataBase.getData(Types.eventFile) ?? '';
+
+      matchFile = LocalDataBase.getData(Types.matchFile) ?? '';
+      selectedStation = LocalDataBase.getData(Types.selectedStation) ?? '';
+      allianceColor = LocalDataBase.getData(Types.allianceColor) ?? '';
+      eventKeyController.text = eventKey;
+    }
+    catch (e) {
+      if (kDebugMode) {
+        print('Failed to load data');
+      }
+    }
   }
 
   @override
@@ -107,10 +114,10 @@ class MatchPageState extends State<MatchPage> {
   prepopluateData() {
     try {
       var data = Hive.box("matchData").get("matches", defaultValue: null);
-      database.putData(Types.eventFile, data.toString());
-      database.putData(Types.eventKey, data[0]['event_key']);
+      LocalDataBase.putData(Types.eventFile, data.toString());
+      LocalDataBase.putData(Types.eventKey, data[0]['event_key']);
 
-      eventKeyController.text = database.getData(Types.eventKey);
+      eventKeyController.text = LocalDataBase.getData(Types.eventKey);
       writeJson(data);
       setState(() {
         matches = readJson();
@@ -203,7 +210,7 @@ class MatchPageState extends State<MatchPage> {
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor:
-                      database.getData(Types.allianceColor) == 'Red'
+                      LocalDataBase.getData(Types.allianceColor) == 'Red'
                           ? Colors.red
                           : Colors.grey,
                   shape: RoundedRectangleBorder(
@@ -212,7 +219,7 @@ class MatchPageState extends State<MatchPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    database.putData(Types.allianceColor, 'Red');
+                    LocalDataBase.putData(Types.allianceColor, 'Red');
                   });
                 },
                 child: const Text('Red'),
@@ -229,7 +236,7 @@ class MatchPageState extends State<MatchPage> {
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor:
-                      database.getData(Types.allianceColor) == 'Blue'
+                      LocalDataBase.getData(Types.allianceColor) == 'Blue'
                           ? Colors.blue
                           : Colors.grey,
                   shape: RoundedRectangleBorder(
@@ -239,7 +246,7 @@ class MatchPageState extends State<MatchPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    database.putData(Types.allianceColor, 'Blue');
+                    LocalDataBase.putData(Types.allianceColor, 'Blue');
                   });
                 },
                 child: const Text('Blue'),
@@ -248,7 +255,7 @@ class MatchPageState extends State<MatchPage> {
           ),
         ],
       ),
-      if (database.getData(Types.allianceColor) == "Red") ...[
+      if (LocalDataBase.getData(Types.allianceColor) == "Red") ...[
         const SizedBox(height: 10),
         Column(
           children: [
@@ -260,13 +267,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        database.putData(Types.selectedStation, 'R1');
+                        LocalDataBase.putData(Types.selectedStation, 'R1');
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            database.getData(Types.selectedStation) == "R1"
+                            LocalDataBase.getData(Types.selectedStation) == "R1"
                                 ? Colors.red
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -278,13 +285,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        database.putData(Types.selectedStation, 'R2');
+                        LocalDataBase.putData(Types.selectedStation, 'R2');
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            database.getData(Types.selectedStation) == "R2"
+                            LocalDataBase.getData(Types.selectedStation) == "R2"
                                 ? Colors.red
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -296,7 +303,7 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        database.putData(Types.selectedStation, 'R3');
+                        LocalDataBase.putData(Types.selectedStation, 'R3');
                       });
                     },
                     //change the color when selected
@@ -304,7 +311,7 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            database.getData(Types.selectedStation) == "R3"
+                            LocalDataBase.getData(Types.selectedStation) == "R3"
                                 ? Colors.red
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -321,7 +328,7 @@ class MatchPageState extends State<MatchPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/${database.getData(Types.allianceColor)}Alliance.png',
+                    'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance.png',
                     width: MediaQuery.of(context).size.width * 0.90,
                   ),
                 ],
@@ -329,7 +336,7 @@ class MatchPageState extends State<MatchPage> {
             )
           ],
         ),
-      ] else if (database.getData(Types.allianceColor) == "Blue") ...[
+      ] else if (LocalDataBase.getData(Types.allianceColor) == "Blue") ...[
         const SizedBox(height: 10),
         Column(
           children: [
@@ -341,13 +348,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        database.putData(Types.selectedStation, "B1");
+                        LocalDataBase.putData(Types.selectedStation, "B1");
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            database.getData(Types.selectedStation) == "B1"
+                            LocalDataBase.getData(Types.selectedStation) == "B1"
                                 ? Colors.blue
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -359,13 +366,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        database.putData(Types.selectedStation, "B2");
+                        LocalDataBase.putData(Types.selectedStation, "B2");
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            database.getData(Types.selectedStation) == "B2"
+                            LocalDataBase.getData(Types.selectedStation) == "B2"
                                 ? Colors.blue
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -377,13 +384,13 @@ class MatchPageState extends State<MatchPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        database.putData(Types.selectedStation, "B3");
+                        LocalDataBase.putData(Types.selectedStation, "B3");
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                            database.getData(Types.selectedStation) == "B3"
+                            LocalDataBase.getData(Types.selectedStation) == "B3"
                                 ? Colors.blue
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
@@ -400,7 +407,7 @@ class MatchPageState extends State<MatchPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/${database.getData(Types.allianceColor)}Alliance.png',
+                    'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance.png',
                     width: MediaQuery.of(context).size.width * 0.90,
                   ),
                 ],
@@ -433,7 +440,7 @@ class MatchPageState extends State<MatchPage> {
         // print(data);
       }
 
-      database.putData(Types.eventFile, data.toString());
+      LocalDataBase.putData(Types.eventFile, data.toString());
 
       await writeJson(data);
 
@@ -605,28 +612,28 @@ class MatchPageState extends State<MatchPage> {
       itemCount: matches.length,
       itemBuilder: (context, index) {
         var match = matches[index];
-        database.putData(Types.matchFile, match);
+        LocalDataBase.putData(Types.matchFile, match);
         return ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: buttonColor,
           ),
           onPressed: () {
-            database.putData(Types.matchFile, match);
-            var eventKey = database.getData(Types.eventKey);
+            LocalDataBase.putData(Types.matchFile, match);
+            var eventKey = LocalDataBase.getData(Types.eventKey);
             var matchKey = matches[index]['key'];
-            var allianceColor = database.getData(Types.allianceColor);
-            var selectedStation = database.getData(Types.selectedStation);
-            var matchFile = database.getData(Types.matchFile);
+            var allianceColor = LocalDataBase.getData(Types.allianceColor);
+            var selectedStation = LocalDataBase.getData(Types.selectedStation);
+            var matchFile = LocalDataBase.getData(Types.matchFile);
             print("Sending Data Packs Before Transfering to Match Page");
-            database.putData(Types.matchKey, matchKey);
+            LocalDataBase.putData(Types.matchKey, matchKey);
             print("Setting ${Types.matchKey} to $matchKey");
-            database.putData(Types.eventKey, eventKey);
+            LocalDataBase.putData(Types.eventKey, eventKey);
             print("Setting ${Types.eventKey} to $eventKey");
-            database.putData(Types.allianceColor, allianceColor);
+            LocalDataBase.putData(Types.allianceColor, allianceColor);
             print("Setting ${Types.allianceColor} to $allianceColor");
-            database.putData(Types.selectedStation, selectedStation);
+            LocalDataBase.putData(Types.selectedStation, selectedStation);
             print("Setting ${Types.selectedStation} to $selectedStation");
-            database.putData(Types.matchFile, matchFile);
+            LocalDataBase.putData(Types.matchFile, matchFile);
             print("Setting ${Types.matchFile} to $matchFile");
             print("Data Packs Sent");
             Navigator.push(
