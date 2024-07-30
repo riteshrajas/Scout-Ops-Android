@@ -30,6 +30,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+.idx/
+.run/
+.vscode/
 
 # Symbolication related
 app.*.symbols
