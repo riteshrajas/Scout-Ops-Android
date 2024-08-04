@@ -1,4 +1,4 @@
-# 🚀 ScoutOps
+# 🚀 Scout-Ops-Android
 
 ScoutOps is a mobile-friendly and UI-friendly scouting application designed for FRC matches. Originally intended for use by a single team, ScoutOps is now open for public use, allowing users to recreate and grow the app as a community. If you use this app, please mention the creator. 😊
 
