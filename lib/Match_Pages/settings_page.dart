@@ -194,7 +194,8 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   onPressed: () {
-                    Hive.box('matchData').delete('matches');
+                    Hive.box('matchData').deleteAll;
+                    Hive.box('pitData').delete('teams');
                   },
                   child: const Text('Reset Match',
                       style: TextStyle(fontSize: 15, color: Colors.white),
@@ -215,6 +216,7 @@ class SettingsPageState extends State<SettingsPage> {
                     Hive.box('userData').deleteAll;
                     Hive.box('matchData').deleteAll;
                     Hive.box('settings').deleteAll;
+                    Hive.box('pitData').deleteAll;
                     LocalDataBase.clearData();
                     MatchLogs.clearLogs();
                   },
