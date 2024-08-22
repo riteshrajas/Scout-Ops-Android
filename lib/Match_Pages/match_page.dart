@@ -137,13 +137,34 @@ class MatchPageState extends State<MatchPage> {
     }
   }
 
+  Future<void> prepopulateDataServer() async {
+    var box = Hive.box('settings');
+    String ipAddress = box.get('ipAddress', defaultValue: '');
+    String url = 'http://$ipAddress:5000/get_event_file';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        developer.log(data[1]['event_key']);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to load data');
+        print(e);
+      }
+      setState(() {
+        isLoading = true;
+      });
+    }
+  }
+
   List<Widget> modules(BuildContext context) {
     return [
       const SizedBox(height: 10),
       TextField(
         controller: eventKeyController,
         decoration: InputDecoration(
-          labelText: 'Match Event Key (e.g. 2024cmptx)',
+          labelText: 'Match Event Key (e.g. 2024brbr)',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -190,6 +211,9 @@ class MatchPageState extends State<MatchPage> {
                   ),
                   onPressed: () {
                     prepopulateData();
+                  },
+                  onLongPress: () {
+                    prepopulateDataServer();
                   },
                   child: const Text('Use Local'),
                 ),

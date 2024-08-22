@@ -5,6 +5,7 @@ import 'package:scouting_app/References.dart';
 
 import 'Match_Pages/match_page.dart';
 import 'Pit_Recorder/Pit_Recorder.dart';
+import 'components/Button.dart';
 import 'components/nav.dart';
 import 'templateBuilder/builder.dart';
 
@@ -86,7 +87,7 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 10),
                       buildButton(
                         context: context,
-                        text: 'Create a Template',
+                        text: 'Create a Template -- Code Broken',
                         color: Colors.red.shade100,
                         borderColor: Colors.redAccent,
                         icon: Icons.style_outlined,
@@ -135,37 +136,6 @@ class HomePage extends StatelessWidget {
         ),
         const SizedBox(height: 20),
       ],
-    );
-  }
-
-  Widget buildButton({
-    required BuildContext context,
-    required String text,
-    required Color color,
-    Color? borderColor,
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width - 60,
-      height: 70,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: borderColor != null
-                ? BorderSide(color: borderColor)
-                : BorderSide.none,
-          ),
-        ),
-        icon: Icon(icon, size: 24),
-        label: Text(
-          text,
-          style: const TextStyle(fontSize: 18),
-        ),
-      ),
     );
   }
 }
