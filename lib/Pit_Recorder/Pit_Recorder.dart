@@ -112,20 +112,6 @@ Future<List<Team>> fetchTeams() async {
   List<dynamic> teamsJson = json.decode(dd);
   return teamsJson.map((json) => Team.fromJson(json)).toList();
 }
-// Future<List<Team>> fetchTeams() async {
-//   final response = await http.get(
-//     Uri.parse('https://www.thebluealliance.com/api/v3/event/2022miroc/teams'),
-//     headers: {'X-TBA-Auth-Key': '2ujRBcLLwzp008e9TxIrLYKG6PCt2maIpmyiWtfWGl2bT6ddpqGLoLM79o56mx3W'},
-//   );
-//
-//
-//   if (response.statusCode == 200) {
-//     List<dynamic> teamsJson = json.decode(response.body);
-//     return teamsJson.map((json) => Team.fromJson(json)).toList();
-//   } else {
-//     throw Exception('Failed to load teams');
-//   }
-// }
 
 class Team {
   final int teamNumber;

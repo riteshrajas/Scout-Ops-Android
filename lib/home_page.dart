@@ -22,8 +22,8 @@ class HomePage extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.attach_file_rounded),
               onPressed: () {
-                Route route =
-                MaterialPageRoute(builder: (context) => InfiniteZoomImage());
+                Route route = MaterialPageRoute(
+                    builder: (context) => InfiniteZoomImage());
                 Navigator.push(context, route);
               },
             ),
@@ -70,7 +70,10 @@ class HomePage extends StatelessWidget {
                         borderColor: Colors.green.shade800,
                         icon: Icons.play_arrow_outlined,
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const MatchPage()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MatchPage()));
                         },
                       ),
                       const SizedBox(height: 10),
@@ -81,18 +84,24 @@ class HomePage extends StatelessWidget {
                         borderColor: Colors.blueAccent,
                         icon: Icons.bookmark_add_outlined,
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const Pit_Recorder()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Pit_Recorder()));
                         },
                       ),
                       const SizedBox(height: 10),
                       buildButton(
                         context: context,
-                        text: 'Create a Template -- Code Broken',
+                        text: 'Create a Template -- Not Implemented',
                         color: Colors.red.shade100,
                         borderColor: Colors.redAccent,
                         icon: Icons.style_outlined,
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => TemplateEditor()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TemplateEditor()));
                         },
                       ),
                     ],
@@ -116,21 +125,39 @@ class HomePage extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 10.0, left: 30.0),
-          child: Text(
-            'Scout-Ops',
-            style: GoogleFonts.chivoMono(
-              fontSize: 60,
-              fontWeight: FontWeight.w100,
+          child: ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Colors.red, Colors.blue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds),
+            child: Text(
+              'Scout-Ops',
+              style: GoogleFonts.chivoMono(
+                fontSize: 70,
+                fontWeight: FontWeight.w100,
+                color: Colors
+                    .white, // This color is required but will be overridden by the gradient
+              ),
             ),
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 30.0),
-          child: Text(
-            'FABRICATED BY FEDS201',
-            style: GoogleFonts.chivoMono(
-              fontSize: 20,
-              fontWeight: FontWeight.w100,
+          child: ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Colors.red, Colors.blue, Colors.lightBlueAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds),
+            child: Text(
+              'DEVELOPED BY FEDS201',
+              style: GoogleFonts.chivoMono(
+                fontSize: 20,
+                fontWeight: FontWeight.w100,
+                color: Colors
+                    .white, // This color is required but will be overridden by the gradient
+              ),
             ),
           ),
         ),

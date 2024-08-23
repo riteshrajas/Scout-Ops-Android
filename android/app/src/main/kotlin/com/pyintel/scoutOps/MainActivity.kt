@@ -1,4 +1,4 @@
-package com.pyintel.scoutingApp
+package com.pyintel.scoutOps
 
 import io.flutter.embedding.android.FlutterActivity
 

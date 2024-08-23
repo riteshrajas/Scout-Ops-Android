@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,11 +17,13 @@ class SettingsPageState extends State<SettingsPage> {
   bool isLocationGranted = false;
   bool isBluetoothGranted = false;
   bool isNearbyDevicesGranted = false;
+  String ApiKey = Hive.box('settings').get('ApiKey', defaultValue: '');
 
   @override
   void initState() {
     super.initState();
     _checkInitialPermissions();
+    Settings.setApiKey(ApiKey);
   }
 
   Future<void> _checkInitialPermissions() async {
@@ -66,25 +66,53 @@ class SettingsPageState extends State<SettingsPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(10),
-              child: TextField(
-                controller: TextEditingController()
-                  ..text =
-                      Hive.box('userData').get('scouterName', defaultValue: ''),
-                decoration: InputDecoration(
-                  labelText: 'Scouter Name',
-                  hintText: 'Enter your name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.black),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: TextEditingController()
+                      ..text = Hive.box('userData')
+                          .get('scouterName', defaultValue: ''),
+                    decoration: InputDecoration(
+                      labelText: 'Scouter Name',
+                      hintText: 'Enter your name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                    ),
+                    onSubmitted: (String value) {
+                      Hive.box('userData').put('scouterName', value);
+                    },
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.black),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: TextEditingController()
+                      ..text = Hive.box('settings').get(
+                          'ApiKey'
+                          '+',
+                          defaultValue: ''),
+                    decoration: InputDecoration(
+                      labelText: 'BlueAlliance API Key',
+                      hintText: 'Enter your API Key',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
+                    ),
+                    onSubmitted: (String value) {
+                      Hive.box('settings').put('ApiKey', value);
+                      Settings.setApiKey(value);
+                    },
                   ),
-                ),
-                onSubmitted: (String value) {
-                  Hive.box('userData').put('scouterName', value);
-                },
+                ],
               ),
             ),
             Container(
@@ -163,7 +191,6 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             ),
             const SizedBox(height: 10),
-
             ButtonBar(
               alignment: MainAxisAlignment.center,
               children: [

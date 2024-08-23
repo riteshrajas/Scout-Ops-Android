@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:scouting_app/components/DataBase.dart';
 
 import '../home_page.dart';
 
@@ -110,9 +111,10 @@ class _localmatchLoaderState extends State<localmatchLoader> {
   }
 
   getData(String eventKey) async {
+    var ApiKey = Settings.getApiKey();
+    print(ApiKey);
     var headers = {
-      'X-TBA-Auth-Key':
-          '2ujRBcLLwzp008e9TxIrLYKG6PCt2maIpmyiWtfWGl2bT6ddpqGLoLM79o56mx3W'
+      'X-TBA-Auth-Key': ApiKey,
     };
     var responseForMatchData = await http.get(
         Uri.parse(

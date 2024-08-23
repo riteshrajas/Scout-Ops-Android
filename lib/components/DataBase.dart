@@ -136,3 +136,13 @@ enum PitData {
   EventKey,
   ScoutedTeam,
 }
+
+class Settings {
+  static void setApiKey(String key) {
+    LocalDataBase.putData('Settings.apiKey', key);
+  }
+
+  static String getApiKey() {
+    return LocalDataBase.getData('Settings.apiKey');
+  }
+}

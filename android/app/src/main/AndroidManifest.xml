@@ -20,10 +20,11 @@
     <!-- Required only if your app targets Android 12 (API level 31) or higher -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
 
+
     <application
         android:label="Scouts Ops"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -67,7 +67,6 @@ class MatchPageState extends State<MatchPage> {
                 LocalDataBase.putData(Types.selectedStation, null);
                 LocalDataBase.putData(Types.matchFile, null);
                 LocalDataBase.putData(Types.matchKey, null);
-
               });
             },
           ),
@@ -85,7 +84,8 @@ class MatchPageState extends State<MatchPage> {
             label: 'Match',
           ),
         ],
-        currentIndex: _selectedIndex.clamp(0, 1), // Ensure currentIndex is within valid range
+        currentIndex: _selectedIndex.clamp(
+            0, 1), // Ensure currentIndex is within valid range
         selectedItemColor: Colors.red,
         onTap: (int index) {
           setState(() {
@@ -97,25 +97,61 @@ class MatchPageState extends State<MatchPage> {
   }
 
   Widget matchPage(BuildContext context, int selectedIndex) {
-    return selectedIndex == 0 ? setup(context) : FutureBuilder<List<dynamic>>(
-      future: matches,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No data available'));
-        } else {
-          return matchSelection(context, _selectedMatchType, (int index) {
-            setState(() {
-              _selectedMatchType = index;
-            });
-          }, jsonEncode(snapshot.data));
-        }
-      },
-    );
+    return selectedIndex == 0
+        ? setup(context)
+        : FutureBuilder<List<dynamic>>(
+            future: matches,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'No data available!',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Please ensure you are connected to the internet.',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Verify the event key and try again.',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Check the API key in the settings page.',
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              } else {
+                return matchSelection(context, _selectedMatchType, (int index) {
+                  setState(() {
+                    _selectedMatchType = index;
+                  });
+                }, jsonEncode(snapshot.data));
+              }
+            },
+          );
   }
+
   void prepopulateData() {
     try {
       var data = Hive.box("matchData").get("matches", defaultValue: null);
@@ -191,7 +227,7 @@ class MatchPageState extends State<MatchPage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize:
-                    Size(MediaQuery.of(context).size.width / 2, 50),
+                        Size(MediaQuery.of(context).size.width / 2, 50),
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
                   ),
@@ -235,9 +271,9 @@ class MatchPageState extends State<MatchPage> {
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor:
-                  LocalDataBase.getData(Types.allianceColor) == 'Red'
-                      ? Colors.red
-                      : Colors.grey,
+                      LocalDataBase.getData(Types.allianceColor) == 'Red'
+                          ? Colors.red
+                          : Colors.grey,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: const BorderSide(color: Colors.red)),
@@ -261,9 +297,9 @@ class MatchPageState extends State<MatchPage> {
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor:
-                  LocalDataBase.getData(Types.allianceColor) == 'Blue'
-                      ? Colors.blue
-                      : Colors.grey,
+                      LocalDataBase.getData(Types.allianceColor) == 'Blue'
+                          ? Colors.blue
+                          : Colors.grey,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                     side: const BorderSide(color: Colors.blue),
@@ -298,9 +334,9 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                        LocalDataBase.getData(Types.selectedStation) == "R1"
-                            ? Colors.red
-                            : Colors.grey,
+                            LocalDataBase.getData(Types.selectedStation) == "R1"
+                                ? Colors.red
+                                : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -316,9 +352,9 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                        LocalDataBase.getData(Types.selectedStation) == "R2"
-                            ? Colors.red
-                            : Colors.grey,
+                            LocalDataBase.getData(Types.selectedStation) == "R2"
+                                ? Colors.red
+                                : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -336,9 +372,9 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                        LocalDataBase.getData(Types.selectedStation) == "R3"
-                            ? Colors.red
-                            : Colors.grey,
+                            LocalDataBase.getData(Types.selectedStation) == "R3"
+                                ? Colors.red
+                                : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -379,9 +415,9 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                        LocalDataBase.getData(Types.selectedStation) == "B1"
-                            ? Colors.blue
-                            : Colors.grey,
+                            LocalDataBase.getData(Types.selectedStation) == "B1"
+                                ? Colors.blue
+                                : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -397,9 +433,9 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                        LocalDataBase.getData(Types.selectedStation) == "B2"
-                            ? Colors.blue
-                            : Colors.grey,
+                            LocalDataBase.getData(Types.selectedStation) == "B2"
+                                ? Colors.blue
+                                : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -415,9 +451,9 @@ class MatchPageState extends State<MatchPage> {
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
-                        LocalDataBase.getData(Types.selectedStation) == "B3"
-                            ? Colors.blue
-                            : Colors.grey,
+                            LocalDataBase.getData(Types.selectedStation) == "B3"
+                                ? Colors.blue
+                                : Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
@@ -448,12 +484,14 @@ class MatchPageState extends State<MatchPage> {
     setState(() {
       isLoading = true;
     });
-
+    var ApiKey = Settings.getApiKey();
+    print(ApiKey);
     var headers = {
-      'X-TBA-Auth-Key': '2ujRBcLLwzp008e9TxIrLYKG6PCt2maIpmyiWtfWGl2bT6ddpqGLoLM79o56mx3W'
+      'X-TBA-Auth-Key': ApiKey,
     };
     var response = await http.get(
-        Uri.parse('https://www.thebluealliance.com/api/v3/event/$eventKey/matches'),
+        Uri.parse(
+            'https://www.thebluealliance.com/api/v3/event/$eventKey/matches'),
         headers: headers);
 
     if (response.statusCode == 200) {

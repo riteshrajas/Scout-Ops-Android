@@ -52,7 +52,7 @@ class _PluginsState extends State<Plugins> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Plugins'),
+        title: const Text('Plugins'),
       ),
       body: ListView(
         children: <Widget>[

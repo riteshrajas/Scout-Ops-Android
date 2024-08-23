@@ -114,10 +114,10 @@ class QrCoder extends State<Qrgenerator> {
     print('IP Address: $ipAddress');
     print('Device Name: $deviceName');
 
-    if (ipAddress != null && deviceName != null) {
-      bool serverStatus = await pluginStateManager
-          .getPluginState("intergrateWithPyintelScoutz");
-      if (serverStatus) {
+    bool serverStatus =
+        await pluginStateManager.getPluginState("intergrateWithPyintelScoutz");
+    if (serverStatus) {
+      if (ipAddress != null && deviceName != null) {
         String url = 'http://$ipAddress:5000/send_data';
         try {
           print('Attempting to send data...');
@@ -202,18 +202,6 @@ class QrCoder extends State<Qrgenerator> {
               );
             },
           );
-        }
-      } else {
-        print('Server is not running.');
-        LocalDataBase.clearData();
-        print("Data Cleared");
-
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePage(),
-          ),
-        );
       }
     } else {
       // IP address or device name not found in Hive
@@ -237,6 +225,18 @@ class QrCoder extends State<Qrgenerator> {
             ],
           );
         },
+      );
+    }
+    } else {
+      print('Server is not running.');
+      LocalDataBase.clearData();
+      print("Data Cleared");
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        ),
       );
     }
   }
