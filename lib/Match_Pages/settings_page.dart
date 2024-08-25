@@ -91,10 +91,7 @@ class SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: TextEditingController()
-                      ..text = Hive.box('settings').get(
-                          'ApiKey'
-                          '+',
-                          defaultValue: ''),
+                      ..text = Hive.box('settings').get('ApiKey', defaultValue: ''),
                     decoration: InputDecoration(
                       labelText: 'BlueAlliance API Key',
                       hintText: 'Enter your API Key',

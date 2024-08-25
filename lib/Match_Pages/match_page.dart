@@ -166,6 +166,8 @@ class MatchPageState extends State<MatchPage> {
     } catch (e) {
       if (kDebugMode) {
         print('Failed to load data');
+        print(e);
+        print(isLoading);
       }
       setState(() {
         isLoading = true;
@@ -516,7 +518,7 @@ class MatchPageState extends State<MatchPage> {
         print('Failed to load data');
       }
       setState(() {
-        isLoading = false;
+        isLoading = true;
       });
     }
   }
