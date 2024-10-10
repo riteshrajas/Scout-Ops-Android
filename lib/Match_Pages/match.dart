@@ -1,7 +1,13 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
+import '../Experiment/ExpStateManager.dart';
 import '../components/DataBase.dart';
 import '../components/QrGenerator.dart';
+import '../templateBuilder/Auton.dart';
+import '../templateBuilder/EndGame.dart';
+import '../templateBuilder/tele_operated.dart';
 import 'match/Auton.dart';
 import 'match/EndGame.dart';
 import 'match/TeleOperated.dart';
@@ -18,6 +24,7 @@ class MatchState extends State<Match> {
   String _allianceColor = "";
   String _selectedStation = "";
   String _team = "";
+  bool isExperimentBoxOpen = false;
 
   @override
   void initState() {
@@ -31,6 +38,14 @@ class MatchState extends State<Match> {
             [int.parse(_selectedStation.substring(1)) - 1]
         .substring(3)
         .toString();
+    _checkExperimentBox();
+  }
+
+  Future<void> _checkExperimentBox() async {
+    bool isOpen = await isExperimentBoxOpenFunc();
+    setState(() {
+      isExperimentBoxOpen = isOpen;
+    });
   }
 
   @override
@@ -91,10 +106,19 @@ class MatchState extends State<Match> {
   _match(BuildContext context, int selectedIndex) {
     switch (selectedIndex) {
       case 0:
+        if (isExperimentBoxOpen) {
+          return const SingleChildScrollView(child: AutonBuilder());
+        }
         return const SingleChildScrollView(child: Auton());
       case 1:
+        if (isExperimentBoxOpen) {
+          return const SingleChildScrollView(child: TeleOPBuilder());
+        }
         return const SingleChildScrollView(child: TeleOperated());
       case 2:
+        if (isExperimentBoxOpen) {
+          return const SingleChildScrollView(child: EndGameBuilder());
+        }
         return const SingleChildScrollView(child: EndGame());
     }
   }
@@ -108,4 +132,12 @@ enum Types {
   eventFile,
   matchFile,
   team
+}
+
+isExperimentBoxOpenFunc() async {
+  final ExpStateManager _stateManager = ExpStateManager();
+  Map<String, bool> states = await _stateManager.loadAllPluginStates([
+    'templateStudioEnabled',
+  ]);
+  return states['templateStudioEnabled'];
 }

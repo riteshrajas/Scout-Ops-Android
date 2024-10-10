@@ -9,8 +9,8 @@ Widget buildButton({
   required VoidCallback onPressed,
 }) {
   return SizedBox(
-    width: MediaQuery.of(context).size.width - 60,
-    height: 70,
+    width: MediaQuery.of(context).size.width - 40,
+    height: 90,
     child: ElevatedButton.icon(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

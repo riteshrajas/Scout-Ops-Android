@@ -1,0 +1,146 @@
+{
+  "type": "Scaffold",
+  "children": [
+    {
+      "type": "Container",
+      "children": [
+        {
+          "type": "SingleChildScrollView",
+          "children": [
+            {
+              "type": "Column",
+              "children": [
+                {
+                  "type": "MatchInfo",
+                  "attributes": {
+                    "assignedTeam": "@assignedTeam",
+                    "assignedStation": "@assignedStation",
+                    "allianceColor": "@allianceColor"
+                  },
+                  "events": {
+                    "onPressed": "Team Info START button pressed"
+                  }
+                },
+                {
+                  "type": "Map",
+                  "attributes": {
+                    "position": "@_circlePosition",
+                    "size": {
+                      "width": 35,
+                      "height": 35
+                    },
+                    "color": "@allianceColor"
+                  },
+                  "events": {
+                    "onTap": "_updatePosition"
+                  }
+                },
+                {
+                  "type": "CommentBox",
+                  "title": "Pick Up",
+                  "children": [
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "groundPickUp++",
+                        "decrement": "groundPickUp--",
+                        "icon": "Icons.grass_outlined",
+                        "number": "@groundPickUp",
+                        "counterText": "Ground",
+                        "color": "Colors.green"
+                      }
+                    },
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "sourcePickUp++",
+                        "decrement": "sourcePickUp--",
+                        "icon": "Icons.shopping_basket_outlined",
+                        "number": "@sourcePickUp",
+                        "counterText": "Source",
+                        "color": "Colors.blue"
+                      }
+                    }
+                  ],
+                  "icon": "Icons.add_comment"
+                },
+                {
+                  "type": "CommentBox",
+                  "title": "Scoring",
+                  "children": [
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "speakerNotes++",
+                        "decrement": "speakerNotes--",
+                        "icon": "Icons.speaker",
+                        "number": "@speakerNotes",
+                        "counterText": "Speaker Notes",
+                        "color": "Colors.green"
+                      }
+                    },
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "ampPlacement++",
+                        "decrement": "ampPlacement--",
+                        "icon": "Icons.hub_outlined",
+                        "number": "@ampPlacement",
+                        "counterText": "Amp Placement",
+                        "color": "Colors.blue"
+                      }
+                    },
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "trapPlacement++",
+                        "decrement": "trapPlacement--",
+                        "icon": "Icons.shopping_basket_outlined",
+                        "number": "@trapPlacement",
+                        "counterText": "Trap Placement",
+                        "color": "Colors.red"
+                      }
+                    }
+                  ],
+                  "icon": "Icons.add_comment"
+                },
+                {
+                  "type": "CounterShelf",
+                  "attributes": {
+                    "increment": "amplifiedSpeakerNotes++",
+                    "decrement": "amplifiedSpeakerNotes--",
+                    "icon": "Icons.grass_outlined",
+                    "number": "@amplifiedSpeakerNotes",
+                    "counterText": "Amplified Speaker Notes",
+                    "color": "Colors.green"
+                  }
+                },
+                {
+                  "type": "CheckBox",
+                  "attributes": {
+                    "label": "Co-Op Bonus",
+                    "value": "@coOpBonus"
+                  },
+                  "events": {
+                    "onChanged": "coOpBonus = value"
+                  }
+                },
+                {
+                  "type": "CounterShelf",
+                  "attributes": {
+                    "increment": "assists++",
+                    "decrement": "assists--",
+                    "icon": "Icons.assistant",
+                    "number": "@assists",
+                    "counterText": "Assists",
+                    "color": "Colors.orange"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -22,20 +22,6 @@ class _Pit_RecorderState extends State<Pit_Recorder> {
     _fetchTeams();
   }
 
-  void _fetchTeams() async {
-    try {
-      List<Team> teams = await fetchTeams();
-      setState(() {
-        _teams = teams;
-        _filteredTeams = teams;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load teams: $e')),
-      );
-    }
-  }
-
   void _filterTeams(String query) {
     setState(() {
       _filteredTeams = _teams
@@ -58,6 +44,60 @@ class _Pit_RecorderState extends State<Pit_Recorder> {
     setState(() {
       _visibleCount += 7;
     });
+  }
+
+  void _showErrorDialog(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Error',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'An error occurred while loading teams: $errorMessage\n\n'
+              'To resolve this issue, please navigate to Settings > Load Match, '
+              'enter the event key, and press Load Event. If the indicator turns green, '
+              'you can return to the home screen and try again.',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _fetchTeams();
+              },
+              child: Text(
+                'Retry',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _fetchTeams() async {
+    try {
+      List<Team> teams = await fetchTeams();
+      setState(() {
+        _teams = teams;
+        _filteredTeams = teams;
+      });
+    } catch (e) {
+      _showErrorDialog(context, e.toString());
+    }
   }
 
   @override

@@ -11,7 +11,7 @@ class InfiniteZoomImage extends StatelessWidget {
       body:
         Center(
         child: PhotoView(
-          imageProvider: AssetImage('assets/ref/Cheat-Sheet.jpg'),
+          imageProvider: const AssetImage('assets/ref/Cheat-Sheet.jpg'),
           minScale: PhotoViewComputedScale.contained,
           maxScale: PhotoViewComputedScale.covered * 4.0,
         ),

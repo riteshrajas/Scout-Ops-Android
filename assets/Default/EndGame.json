@@ -1,0 +1,163 @@
+{
+  "type": "Scaffold",
+  "children": [
+    {
+      "type": "SingleChildScrollView",
+      "children": [
+        {
+          "type": "Column",
+          "children": [
+            {
+              "type": "Map",
+              "attributes": {
+                "endLocation": "@endLocation",
+                "size": {
+                  "width": 35,
+                  "height": 35
+                },
+                "allianceColor": "@allianceColor",
+                "image": "assets/Areana.png"
+              },
+              "events": {
+                "onTap": "_updatePosition"
+              }
+            },
+            {
+              "type": "SingleChildScrollView",
+              "attributes": {
+                "scrollDirection": "Axis.horizontal"
+              },
+              "children": [
+                {
+                  "type": "Row",
+                  "attributes": {
+                    "mainAxisAlignment": "MainAxisAlignment.start"
+                  },
+                  "children": [
+                    {
+                      "type": "CheckBox",
+                      "attributes": {
+                        "label": "Climbed?",
+                        "value": "@climbed"
+                      },
+                      "events": {
+                        "onChanged": "setState(() { climbed = value; }); UpdateData();"
+                      }
+                    },
+                    {
+                      "type": "CheckBox",
+                      "attributes": {
+                        "label": "Failed",
+                        "value": "@attempted"
+                      },
+                      "events": {
+                        "onChanged": "setState(() { attempted = value; }); UpdateData();"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SingleChildScrollView",
+              "attributes": {
+                "scrollDirection": "Axis.horizontal"
+              },
+              "children": [
+                {
+                  "type": "Row",
+                  "attributes": {
+                    "mainAxisAlignment": "MainAxisAlignment.start"
+                  },
+                  "children": [
+                    {
+                      "type": "CheckBox",
+                      "attributes": {
+                        "label": "Spotlight?",
+                        "value": "@spotlight"
+                      },
+                      "events": {
+                        "onChanged": "setState(() { spotlight = value; }); UpdateData();"
+                      }
+                    },
+                    {
+                      "type": "CheckBox",
+                      "attributes": {
+                        "label": "Harmony?",
+                        "value": "@harmony"
+                      },
+                      "events": {
+                        "onChanged": "setState(() { harmony = value; }); UpdateData();"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Padding",
+              "attributes": {
+                "padding": "EdgeInsets.all(8.0)"
+              },
+              "children": [
+                {
+                  "type": "Container",
+                  "attributes": {
+                    "width": "MediaQuery.of(context).size.width - 16",
+                    "decoration": {
+                      "color": "Colors.white",
+                      "borderRadius": "BorderRadius.circular(100)",
+                      "boxShadow": [
+                        {
+                          "color": "Colors.grey.withOpacity(0.2)",
+                          "spreadRadius": 2,
+                          "blurRadius": 5,
+                          "offset": {
+                            "x": 0,
+                            "y": 3
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "SliderButton",
+                      "attributes": {
+                        "buttonColor": "Colors.yellow",
+                        "backgroundColor": "Colors.white",
+                        "highlightedColor": "Colors.green",
+                        "dismissThresholds": 0.97,
+                        "vibrationFlag": true,
+                        "width": "MediaQuery.of(context).size.width - 16",
+                        "label": {
+                          "type": "Text",
+                          "text": "Slide to Complete Event",
+                          "style": {
+                            "color": "Colors.white",
+                            "fontWeight": "FontWeight.w500",
+                            "fontSize": 17
+                          },
+                          "textAlign": "TextAlign.start"
+                        },
+                        "icon": {
+                          "type": "Icon",
+                          "iconData": "Icons.send_outlined",
+                          "size": 30,
+                          "color": "Colors.black"
+                        }
+                      },
+                      "events": {
+                        "action": "await Navigator.push(context, MaterialPageRoute(builder: (context) => const Qrgenerator())); return null;"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

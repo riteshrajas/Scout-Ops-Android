@@ -1,199 +1,49 @@
-import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// Assuming these imports exist and are correctly implemented
+import 'package:scouting_app/components/CheckBox.dart';
 import 'package:scouting_app/components/Map.dart';
-import 'package:scouting_app/components/ratings.dart';
+import 'package:slider_button/slider_button.dart';
 
-import '../components/Chips.dart';
-import '../components/CommentBox.dart';
-import '../components/CounterShelf.dart';
-import '../components/RatingsBox.dart';
-import '../components/TeamInfo.dart';
+import '../../components/DataBase.dart';
+import '../../components/QrGenerator.dart';
+import '../Match_Pages/match.dart';
 
 class EndGameBuilder extends StatefulWidget {
   const EndGameBuilder({super.key});
 
   @override
-  EndGameState createState() => EndGameState();
+  _EndGameState createState() => _EndGameState();
 }
 
-class EndGameState extends State<EndGameBuilder> {
-  Offset? _circlePosition;
-  Size size = const Size(30, 30);
+class _EndGameState extends State<EndGameBuilder> {
+  final LocalDataBase dataMaster = LocalDataBase();
+  late Offset endLocation;
 
-  // List to hold current widgets
-  List<Widget> currentWidgets = [];
+  late int trapNotePosition;
+  late String comments;
+  late String allianceColor;
+  late bool harmony;
+  late bool attempted;
+  late bool climbed;
+  late bool spotlight;
 
   @override
   void initState() {
     super.initState();
-    // Initialize with some default widgets
-    currentWidgets = [];
+    endLocation =
+        LocalDataBase.getData(EndgameType.endLocation) ?? Offset(10, 10);
+    climbed = LocalDataBase.getData(EndgameType.climbed) ?? false;
+    harmony = LocalDataBase.getData(EndgameType.harmony) ?? false;
+    allianceColor = LocalDataBase.getData(Types.allianceColor) ?? "Null";
+    attempted = LocalDataBase.getData(EndgameType.attempted) ?? false;
+    spotlight = LocalDataBase.getData(EndgameType.spotlight) ?? false;
   }
 
-  void onTap(Offset position) {
-    setState(() {
-      _circlePosition = position;
-      if (kDebugMode) {
-        print(_circlePosition);
-      }
-    });
-  }
-
-  // Function to replace a widget
-  void replaceWidget(int index, Widget newWidget) {
-    setState(() {
-      currentWidgets[index] = newWidget;
-    });
-  }
-
-  // Function to show available widgets and handle replacement
-  void showAvailableWidgets(int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (BuildContext context, ScrollController scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      "Available Widgets",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: double.infinity),
-                  ListTile(
-                    title: MatchInfo(
-                      assignedTeam: "201",
-                      assignedStation: "R1",
-                      allianceColor: "Red",
-                      onPressed: () {},
-                    ),
-                    onTap: () {
-                      replaceWidget(
-                          index,
-                          MatchInfo(
-                            assignedTeam: "201",
-                            assignedStation: "R1",
-                            allianceColor: "Red",
-                            onPressed: () {},
-                          ));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildCounterShelf([
-                      CounterSettings((int value) {
-                        if (kDebugMode) {
-                          print(value);
-                        }
-                      }, (int value) {},
-                          icon: Icons.star,
-                          number: 0,
-                          counterText: 'Counter 1',
-                          color: Colors.yellowAccent),
-                    ]),
-                    onTap: () {
-                      replaceWidget(
-                          index,
-                          buildCounterShelf([
-                            CounterSettings((int value) {
-                              if (kDebugMode) {
-                                print(value);
-                              }
-                            }, (int value) {},
-                                icon: Icons.star,
-                                number: 0,
-                                counterText: 'Counter 1',
-                                color: Colors.yellowAccent)
-                          ]));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildMap(context, _circlePosition, size, "Blue"),
-                    onTap: () {
-                      replaceWidget(index,
-                          buildMap(context, _circlePosition, size, "Blue"));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildComments(
-                      "EndGame Comments",
-                      [
-                        buildChips([
-                          "Moved",
-                          "Did Not Move"
-                        ], [
-                          [Colors.green, Colors.red],
-                          [Colors.green, Colors.red]
-                        ], [
-                          true,
-                          false
-                        ]),
-                      ],
-                      const Icon(Icons.comment_bank),
-                    ),
-                    onTap: () {
-                      replaceWidget(
-                          index,
-                          buildComments(
-                            "EndGame Comments",
-                            [
-                              buildChips([
-                                "Moved",
-                                "Did Not Move"
-                              ], [
-                                [Colors.green, Colors.red],
-                                [Colors.green, Colors.red]
-                              ], [
-                                true,
-                                false
-                              ]),
-                            ],
-                            const Icon(Icons.comment_bank),
-                          ));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildRatings([
-                      buildRating("RatingBar", Icons.access_alarm_outlined, 1.5,
-                          7, Colors.blue),
-                    ]),
-                    onTap: () {
-                      replaceWidget(
-                          index,
-                          buildRatings([
-                            buildRating(
-                                "RatingBar",
-                                Icons.access_alarm_outlined,
-                                1.5,
-                                7,
-                                Colors.blue),
-                          ]));
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+  void UpdateData() {
+    LocalDataBase.putData(EndgameType.endLocation, endLocation);
+    LocalDataBase.putData(EndgameType.climbed, climbed);
+    LocalDataBase.putData(EndgameType.harmony, harmony);
+    LocalDataBase.putData(EndgameType.attempted, attempted);
+    LocalDataBase.putData(EndgameType.spotlight, spotlight);
   }
 
   @override
@@ -201,80 +51,100 @@ class EndGameState extends State<EndGameBuilder> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Column(
-            children: currentWidgets.asMap().entries.map((entry) {
-              int index = entry.key;
-              Widget widget = entry.value;
-              return GestureDetector(
-                onTap: () => showAvailableWidgets(index),
-                child: widget,
-              );
-            }).toList(),
-          ),
-          InkWell(
-            onTap: () {
-              setState(() {
-                currentWidgets.add(
-                  Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      DottedBorder(
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(12),
-                        padding: const EdgeInsets.all(6),
-                        color: Colors.blue,
-                        dashPattern: const [8, 4],
-                        strokeWidth: 2,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - 36,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              });
+          buildMap(
+            context,
+            endLocation,
+            const Size(35, 35),
+            allianceColor,
+            onTap: (TapUpDetails details) {
+              _updatePosition(details);
             },
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                DottedBorder(
-                  borderType: BorderType.RRect,
-                  radius: const Radius.circular(12),
-                  padding: const EdgeInsets.all(6),
-                  color: Colors.blue,
-                  dashPattern: const [8, 4],
-                  strokeWidth: 2,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 36,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            image: Image.asset('assets/Areana.png'),
           ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+              buildCheckBox("Climbed?", climbed, (bool value) {
+                setState(() {
+                  climbed = value;
+                });
+                UpdateData();
+              }, IconOveride: true),
+              buildCheckBox("Failed", attempted, (bool value) {
+                setState(() {
+                  attempted = value;
+                });
+                UpdateData();
+              }, IconOveride: true),
+            ]),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+              buildCheckBox("Spotlight?", spotlight, (bool value) {
+                setState(() {
+                  spotlight = value;
+                });
+                UpdateData();
+              }, IconOveride: true),
+              buildCheckBox("Harmony?", harmony, (bool value) {
+                setState(() {
+                  harmony = value;
+                });
+                UpdateData();
+              }, IconOveride: true),
+            ]),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+                width: MediaQuery.of(context).size.width - 16,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: SliderButton(
+                  buttonColor: Colors.yellow,
+                  backgroundColor: Colors.white,
+                  highlightedColor: Colors.green,
+                  dismissThresholds: 0.97,
+                  vibrationFlag: true,
+                  width: MediaQuery.of(context).size.width - 16,
+                  action: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Qrgenerator()));
+                    return null;
+                  },
+                  label: const Text("Slide to Complete Event",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 17),
+                      textAlign: TextAlign.start),
+                  icon: const Icon(Icons.send_outlined,
+                      size: 30, color: Colors.black),
+                )),
+          )
         ],
       ),
     );
+  }
+
+  void _updatePosition(TapUpDetails details) {
+    setState(() {
+      endLocation = details.localPosition;
+      LocalDataBase.putData(AutoType.StartPosition, endLocation);
+    });
+    UpdateData();
   }
 }

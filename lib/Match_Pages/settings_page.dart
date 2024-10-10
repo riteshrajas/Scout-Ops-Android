@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../components/DataBase.dart';
 import '../components/localmatchLoader.dart';
 import '../components/nav.dart';
+import '../components/qr_code_scanner_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -17,6 +18,7 @@ class SettingsPageState extends State<SettingsPage> {
   bool isLocationGranted = false;
   bool isBluetoothGranted = false;
   bool isNearbyDevicesGranted = false;
+  bool isCameraGranted = false;
   String ApiKey = Hive.box('settings').get('ApiKey', defaultValue: '');
 
   @override
@@ -30,11 +32,13 @@ class SettingsPageState extends State<SettingsPage> {
     var locationStatus = await Permission.location.status;
     var bluetoothStatus = await Permission.bluetooth.status;
     var nearbyDevicesStatus = await Permission.bluetoothAdvertise.status;
+    var cameraStatus = await Permission.camera.status;
 
     setState(() {
       isLocationGranted = locationStatus.isGranted;
       isBluetoothGranted = bluetoothStatus.isGranted;
       isNearbyDevicesGranted = nearbyDevicesStatus.isGranted;
+      isCameraGranted = cameraStatus.isGranted;
     });
   }
 
@@ -89,9 +93,12 @@ class SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   const SizedBox(height: 10),
+
+// Inside the build method of SettingsPageState
                   TextField(
                     controller: TextEditingController()
-                      ..text = Hive.box('settings').get('ApiKey', defaultValue: ''),
+                      ..text =
+                          Hive.box('settings').get('ApiKey', defaultValue: ''),
                     decoration: InputDecoration(
                       labelText: 'BlueAlliance API Key',
                       hintText: 'Enter your API Key',
@@ -102,6 +109,23 @@ class SettingsPageState extends State<SettingsPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(color: Colors.black),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.qr_code_scanner),
+                        onPressed: () async {
+                          final qrCode = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => QRCodeScannerPage()),
+                          );
+                          if (qrCode != null) {
+                            setState(() {
+                              ApiKey = qrCode;
+                              Hive.box('settings').put('ApiKey', qrCode);
+                              Settings.setApiKey(qrCode);
+                            });
+                          }
+                        },
                       ),
                     ),
                     onSubmitted: (String value) {
@@ -178,6 +202,24 @@ class SettingsPageState extends State<SettingsPage> {
                           (newValue) {
                         setState(() {
                           isNearbyDevicesGranted = newValue;
+                        });
+                      });
+                    },
+                    activeTrackColor: const Color.fromARGB(255, 11, 243, 11),
+                    activeColor: const Color.fromARGB(255, 255, 255, 255),
+                  ),
+                  SwitchListTile(
+                    tileColor: const Color.fromARGB(255, 241, 255, 241),
+                    contentPadding: const EdgeInsets.only(left: 10, right: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    title: const Text("Camera"),
+                    thumbIcon: thumbIcon,
+                    value: isCameraGranted,
+                    onChanged: (bool value) {
+                      _requestPermission(Permission.camera, value, (newValue) {
+                        setState(() {
+                          isCameraGranted = newValue;
                         });
                       });
                     },

@@ -1,0 +1,148 @@
+{
+  "type": "Scaffold",
+  "children": [
+    {
+      "type": "Container",
+      "children": [
+        {
+          "type": "SingleChildScrollView",
+          "children": [
+            {
+              "type": "Column",
+              "children": [
+                {
+                  "type": "MatchInfo",
+                  "attributes": {
+                    "assignedTeam": "@assignedTeam",
+                    "assignedStation": "@assignedStation",
+                    "allianceColor": "@allianceColor"
+                  },
+                  "events": {
+                    "onPressed": "Team Info START button pressed"
+                  }
+                },
+                {
+                  "type": "Map",
+                  "attributes": {
+                    "position": "@_circlePosition",
+                    "size": {
+                      "width": 35,
+                      "height": 35
+                    },
+                    "color": "@allianceColor"
+                  },
+                  "events": {
+                    "onTap": "_updatePosition"
+                  }
+                },
+                {
+                  "type": "CommentBox",
+                  "title": "Scoring",
+                  "children": [
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "ampPlacementValue++",
+                        "decrement": "ampPlacementValue--",
+                        "icon": "Icons.sledding",
+                        "number": "@ampPlacementValue",
+                        "counterText": "Amp Placement",
+                        "color": "Colors.blue"
+                      }
+                    },
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "speakerValue++",
+                        "decrement": "speakerValue--",
+                        "icon": "Icons.speaker",
+                        "number": "@speakerValue",
+                        "counterText": "Speaker Placement",
+                        "color": "Colors.green"
+                      }
+                    },
+                    {
+                      "type": "CounterShelf",
+                      "attributes": {
+                        "increment": "trapValue++",
+                        "decrement": "trapValue--",
+                        "icon": "Icons.hub_outlined",
+                        "number": "@trapValue",
+                        "counterText": "Trap Placement",
+                        "color": "Colors.red"
+                      }
+                    }
+                  ],
+                  "icon": "Icons.comment"
+                },
+                {
+                  "type": "CommentBox",
+                  "title": "React",
+                  "children": [
+                    {
+                      "type": "RatingsBox",
+                      "attributes": {
+                        "title": "Auton Rating",
+                        "icon": "Icons.access_alarm_outlined",
+                        "rating": "@autonRating",
+                        "maxRating": 5,
+                        "color": "Colors.yellow.shade600"
+                      },
+                      "events": {
+                        "onRatingUpdate": "autonRating = rating.toInt()"
+                      }
+                    },
+                    {
+                      "type": "CommentBox",
+                      "title": "Auton Comments",
+                      "children": [
+                        {
+                          "type": "Chips",
+                          "attributes": {
+                            "labels": [
+                              "Encountered issues",
+                              "Fast and efficient",
+                              "No issues"
+                            ],
+                            "colors": [
+                              [
+                                "Colors.red",
+                                "Colors.white"
+                              ],
+                              [
+                                "Colors.green",
+                                "Colors.white"
+                              ],
+                              [
+                                "Colors.blue",
+                                "Colors.white"
+                              ]
+                            ],
+                            "isClicked": [
+                              "@isChip1Clicked",
+                              "@isChip2Clicked",
+                              "@isChip3Clicked"
+                            ]
+                          },
+                          "events": {
+                            "onTapList": [
+                              "isChip1Clicked = !isChip1Clicked",
+                              "isChip2Clicked = !isChip2Clicked",
+                              "isChip3Clicked = !isChip3Clicked"
+                            ]
+                          }
+                        }
+                      ],
+                      "icon": "Icons.comment_bank"
+                    }
+                  ],
+                  "icon": "Icons.comment_bank"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

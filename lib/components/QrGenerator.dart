@@ -35,15 +35,15 @@ class QrCoder extends State<Qrgenerator> {
               version: QrVersions.auto,
               size: 350,
               semanticsLabel: 'QR code',
-              eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.circle,
-                color: Colors.red,
-              ),
+              // eyeStyle: const QrEyeStyle(
+              //   eyeShape: QrEyeShape.circle,
+              //   color: Colors.red,
+              // ),
               gapless: false,
-              dataModuleStyle: const QrDataModuleStyle(
-                dataModuleShape: QrDataModuleShape.circle,
-                color: Colors.blue,
-              ),
+              // dataModuleStyle: const QrDataModuleStyle(
+              //   dataModuleShape: QrDataModuleShape.circle,
+              //   color: Colors.blue,
+              // ),
             ),
             const SizedBox(
               height: 20.0,
@@ -70,9 +70,9 @@ class QrCoder extends State<Qrgenerator> {
                   ],
                 ),
                 child: SliderButton(
-                  buttonColor: Colors.yellow,
+                  buttonColor: Colors.green,
                   backgroundColor: Colors.white,
-                  highlightedColor: Colors.green,
+                  highlightedColor: Colors.red,
                   buttonSize: 70,
                   dismissThresholds: 0.97,
                   vibrationFlag: true,

@@ -1,15 +1,14 @@
-import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// Assuming these imports exist and are correctly implemented
+import 'package:scouting_app/components/CommentBox.dart';
+import 'package:scouting_app/components/CounterShelf.dart';
 import 'package:scouting_app/components/Map.dart';
-import 'package:scouting_app/components/ratings.dart';
 
-import '../components/Chips.dart';
-import '../components/CommentBox.dart';
-import '../components/CounterShelf.dart';
-import '../components/RatingsBox.dart';
-import '../components/TeamInfo.dart';
+import '../../components/Chips.dart';
+import '../../components/DataBase.dart';
+import '../../components/RatingsBox.dart';
+import '../../components/TeamInfo.dart';
+import '../../components/ratings.dart';
+import '../Match_Pages/match.dart';
 
 class AutonBuilder extends StatefulWidget {
   const AutonBuilder({super.key});
@@ -19,255 +18,223 @@ class AutonBuilder extends StatefulWidget {
 }
 
 class AutonState extends State<AutonBuilder> {
-  Offset? _circlePosition;
-  Size size = const Size(30, 30);
+  final LocalDataBase dataMaster = LocalDataBase();
+  late Offset? _circlePosition =
+      LocalDataBase.getData(AutoType.StartPosition) ??
+          const Offset(10, 10); // Default value;
+  late int ampPlacementValue;
+  late int speakerValue;
+  late int trapValue;
 
-  // List to hold current widgets
-  List<Widget> currentWidgets = [];
+  late int autonRating;
+  late List<String> comments;
 
+  late String assignedTeam;
+  late String assignedStation;
+  late String matchKey;
+  late String allianceColor;
+
+  bool isChip1Clicked = false;
+  bool isChip2Clicked = false;
+  bool isChip3Clicked = false;
+
+  // Match Variables
   @override
   void initState() {
     super.initState();
-    // Initialize with some default widgets
-    currentWidgets = [
+    assignedTeam = LocalDataBase.getData(Types.team) ?? "Null";
+    assignedStation = LocalDataBase.getData(Types.selectedStation) ?? "Null";
+    autonRating = LocalDataBase.getData(AutoType.AutonRating) ?? 0;
 
-    ];
+    ampPlacementValue = LocalDataBase.getData(AutoType.AmpPlacement) ?? 0;
+    speakerValue = LocalDataBase.getData(AutoType.Speaker) ?? 0;
+    trapValue = LocalDataBase.getData(AutoType.Trap) ?? 0;
+    autonRating = LocalDataBase.getData(AutoType.AutonRating) ?? 0;
+
+    isChip1Clicked = LocalDataBase.getData(AutoType.Chip1) ?? false;
+    isChip2Clicked = LocalDataBase.getData(AutoType.Chip2) ?? false;
+    isChip3Clicked = LocalDataBase.getData(AutoType.Chip3) ?? false;
   }
 
-  void onTap(Offset position) {
-    setState(() {
-      _circlePosition = position;
-      if (kDebugMode) {
-        print(_circlePosition);
-      }
-    });
-  }
-
-  // Function to replace a widget
-  void replaceWidget(int index, Widget newWidget) {
-    setState(() {
-      currentWidgets[index] = newWidget;
-    });
-  }
-
-  // Function to show available widgets and handle replacement
-  void showAvailableWidgets(int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (BuildContext context, ScrollController scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      "Available Widgets",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: double.infinity),
-                  ListTile(
-                    title: MatchInfo(
-                      assignedTeam: "201",
-                      assignedStation: "R1",
-                      allianceColor: "Red",
-                      onPressed: () {},
-                    ),
-                    onTap: () {
-                      replaceWidget(
-                          index,
-                          MatchInfo(
-                            assignedTeam: "201",
-                            assignedStation: "R1",
-                            allianceColor: "Red",
-                            onPressed: () {},
-                          ));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildCounterShelf([
-                      CounterSettings((int value) {
-                        if (kDebugMode) {
-                          if (kDebugMode) {
-                            print(value);
-                          }
-                        }
-                      }, (int value) {},
-                          icon: Icons.star,
-                          number: 0,
-                          counterText: 'Counter 1',
-                          color: Colors.yellowAccent),
-                    ]),
-                    onTap: () {
-                      replaceWidget(
-                          index,
-                          buildCounterShelf([
-                            CounterSettings((int value) {
-                              if (kDebugMode) {
-                                if (kDebugMode) {
-                                  print(value);
-                                }
-                              }
-                            }, (int value) {},
-                                icon: Icons.star,
-                                number: 0,
-                                counterText: 'Counter 1',
-                                color: Colors.yellowAccent)
-                          ]));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildMap(context, _circlePosition, size,  "Blue"),
-                    onTap: () {
-                      replaceWidget(index, buildMap(context, _circlePosition, size,  "Blue"));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: buildComments(
-                      "Auton Comments",
-
-                      [
-                        buildChips(
-                            ["Moved", "Did Not Move"],
-                            [
-                              [Colors.green, Colors.red],
-                              [Colors.green, Colors.red]
-                            ],
-                            [true, false]
-                        ),
-                      ],
-                      const Icon(Icons.comment_bank),
-                    ),
-                    onTap: () {
-                      replaceWidget(index, buildComments(
-                        "Auton Comments",
-                        [
-                          buildChips(
-                              ["Moved", "Did Not Move"],
-                              [
-                                [Colors.green, Colors.red],
-                                [Colors.green, Colors.red]
-                              ],
-                              [true, false]
-                          ),
-                        ],
-                        const Icon(Icons.comment_bank),
-                      ));
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title:  buildRatings([
-                      buildRating("RatingBar", Icons.access_alarm_outlined, 1.5, 7, Colors.blue),
-                    ]),
-                    onTap: () {
-                      replaceWidget(index, buildRatings([
-                        buildRating("RatingBar", Icons.access_alarm_outlined, 1.5, 7, Colors.blue),
-                      ]));
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+  void UpdateData() {
+    LocalDataBase.putData(AutoType.AmpPlacement, ampPlacementValue);
+    LocalDataBase.putData(AutoType.Speaker, speakerValue);
+    LocalDataBase.putData(AutoType.Trap, trapValue);
+    LocalDataBase.putData(AutoType.StartPosition, _circlePosition);
+    LocalDataBase.putData(AutoType.AutonRating, autonRating);
+    LocalDataBase.putData(AutoType.Chip1, isChip1Clicked);
+    LocalDataBase.putData(AutoType.Chip2, isChip2Clicked);
+    LocalDataBase.putData(AutoType.Chip3, isChip3Clicked);
   }
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      assignedTeam = LocalDataBase.getData(Types.team) ?? "Null";
+      assignedStation = LocalDataBase.getData(Types.selectedStation) ?? "Null";
+      matchKey = LocalDataBase.getData(Types.matchKey) ?? "Null";
+      allianceColor = LocalDataBase.getData(Types.allianceColor) ?? "Null";
+    });
+    return Container(child: _buildAuto(context));
+  }
+
+  Widget _buildAuto(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Column(
-            children: currentWidgets.asMap().entries.map((entry) {
-              int index = entry.key;
-              Widget widget = entry.value;
-              return GestureDetector(
-                onTap: () => showAvailableWidgets(index),
-                child: widget,
-              );
-            }).toList(),
-          ),
-
-          InkWell(
-            onTap: () {
-              setState(() {
-                currentWidgets.add(
-                  Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      DottedBorder(
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(12),
-                        padding: const EdgeInsets.all(6),
-                        color: Colors.blue,
-                        dashPattern: const [8, 4],
-                        strokeWidth: 2,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - 36,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              });
+          MatchInfo(
+            assignedTeam: assignedTeam,
+            assignedStation: assignedStation,
+            allianceColor: allianceColor,
+            onPressed: () {
+              print('Team Info START button pressed');
             },
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                DottedBorder(
-                  borderType: BorderType.RRect,
-                  radius: const Radius.circular(12),
-                  padding: const EdgeInsets.all(6),
-                  color: Colors.blue,
-                  dashPattern: const [8, 4],
-                  strokeWidth: 2,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 36,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          ),
+          buildMap(
+            context,
+            _circlePosition,
+            const Size(35, 35),
+            allianceColor,
+            onTap: (TapUpDetails details) {
+              _updatePosition(details);
+            },
+          ),
+          buildComments(
+            "Scoring",
+            [
+              CounterSettings(
+                (int value) {
+                  value++;
+                  setState(() {
+                    ampPlacementValue = value;
+                  });
+                },
+                (int value) {
+                  value--;
+                  setState(() {
+                    ampPlacementValue = value;
+                  });
+                },
+                icon: Icons.sledding,
+                number: ampPlacementValue,
+                counterText: "Amp Placement",
+                color: Colors.blue,
+              ),
+              CounterSettings(
+                (int value) {
+                  value++;
+                  setState(() {
+                    speakerValue = value;
+                  });
+                },
+                (int value) {
+                  value--;
+                  setState(() {
+                    speakerValue = value;
+                  });
+                },
+                icon: Icons.speaker,
+                number: speakerValue,
+                counterText: "Speaker Placement",
+                color: Colors.green,
+              ),
+              CounterSettings(
+                (int value) {
+                  value++;
+                  setState(() {
+                    trapValue = value;
+                    UpdateData();
+                  });
+                },
+                (int value) {
+                  value--;
+                  setState(() {
+                    trapValue = value;
+                    UpdateData();
+                  });
+                },
+                icon: Icons.hub_outlined,
+                number: trapValue,
+                counterText: "Trap Placement",
+                color: Colors.red,
+              ),
+            ],
+            const Icon(Icons.comment),
+          ),
+          buildComments(
+            "React",
+            [
+              buildRatings([
+                buildRating(
+                    "Auton Rating",
+                    Icons.access_alarm_outlined,
+                    autonRating.toDouble(),
+                    5,
+                    Colors.yellow.shade600, onRatingUpdate: (double rating) {
+                  setState(() {
+                    autonRating = rating.toInt();
+                    UpdateData();
+                  });
+                }),
+              ]),
+              buildComments(
+                "Auton Comments",
+                [
+                  buildChips([
+                    "Encountered issues",
+                    "Fast and efficient",
+                    "No issues"
+                  ], [
+                    [Colors.red, Colors.white],
+                    [Colors.green, Colors.white],
+                    [Colors.blue, Colors.white]
+                  ], [
+                    isChip1Clicked,
+                    isChip2Clicked,
+                    isChip3Clicked,
+                  ], onTapList: [
+                    (String label) {
+                      setState(() {
+                        isChip1Clicked = !isChip1Clicked;
+                        isChip2Clicked = isChip2Clicked;
+                        isChip3Clicked = false;
+                      });
+                      UpdateData();
+                    },
+                    (String label) {
+                      setState(() {
+                        isChip1Clicked = isChip1Clicked;
+                        isChip2Clicked = !isChip2Clicked;
+                        isChip3Clicked = isChip3Clicked;
+                      });
+                      UpdateData();
+                    },
+                    (String label) {
+                      setState(() {
+                        isChip1Clicked = false;
+                        isChip2Clicked = isChip2Clicked;
+                        isChip3Clicked = !isChip3Clicked;
+                      });
+                      UpdateData();
+                    },
+                  ]),
+                ],
+                const Icon(Icons.comment_bank),
+              ),
+            ],
+            const Icon(Icons.comment_bank),
           ),
         ],
       ),
     );
+  }
+
+  void _updatePosition(TapUpDetails details) {
+    setState(() {
+      _circlePosition = Offset(details.localPosition.dx.roundToDouble(),
+          details.localPosition.dy.roundToDouble());
+      LocalDataBase.putData(AutoType.StartPosition, _circlePosition);
+    });
+    UpdateData();
   }
 }
