@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -9,6 +10,7 @@ import 'package:slider_button/slider_button.dart';
 import '../Plugins/plugin_state_manager.dart';
 import '../home_page.dart';
 import 'DataBase.dart';
+import 'compactifier.dart';
 
 class Qrgenerator extends StatefulWidget {
   const Qrgenerator({Key? key}) : super(key: key);
@@ -31,7 +33,8 @@ class QrCoder extends State<Qrgenerator> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             QrImageView(
-              data: LocalDataBase.getMatchData().toString(),
+              data: jsonEncode(jsonDecode(
+                  correctJsonFormat(LocalDataBase.getMatchData().toString()))),
               version: QrVersions.auto,
               size: 350,
               semanticsLabel: 'QR code',

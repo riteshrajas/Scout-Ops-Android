@@ -5,7 +5,10 @@ void DefaultonRatingUpdate(double rating) {
   print(rating);
 }
 
-Widget buildRating(String title, IconData icon, double rating, int maxRating, Color internaryColor, {Function(double)? onRatingUpdate = DefaultonRatingUpdate}) {
+Widget buildRating(String title, IconData icon, double rating, int maxRating,
+    Color internaryColor,
+    {Function(double)? onRatingUpdate = DefaultonRatingUpdate,
+    IconData? icon2}) {
   return Column(
     children: [
       Row(
@@ -33,7 +36,7 @@ Widget buildRating(String title, IconData icon, double rating, int maxRating, Co
           glow: true,
           itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
           itemBuilder: (context, _) => Icon(
-            Icons.star,
+            icon2 ?? Icons.star,
             color: internaryColor,
           ),
           onRatingUpdate: (rating) {

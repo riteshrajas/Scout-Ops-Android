@@ -34,7 +34,7 @@ class _EndGameState extends State<EndGameBuilder> {
     climbed = LocalDataBase.getData(EndgameType.climbed) ?? false;
     harmony = LocalDataBase.getData(EndgameType.harmony) ?? false;
     allianceColor = LocalDataBase.getData(Types.allianceColor) ?? "Null";
-    attempted = LocalDataBase.getData(EndgameType.attempted) ?? false;
+    attempted = LocalDataBase.getData(EndgameType.immobile) ?? false;
     spotlight = LocalDataBase.getData(EndgameType.spotlight) ?? false;
   }
 
@@ -42,7 +42,7 @@ class _EndGameState extends State<EndGameBuilder> {
     LocalDataBase.putData(EndgameType.endLocation, endLocation);
     LocalDataBase.putData(EndgameType.climbed, climbed);
     LocalDataBase.putData(EndgameType.harmony, harmony);
-    LocalDataBase.putData(EndgameType.attempted, attempted);
+    LocalDataBase.putData(EndgameType.immobile, attempted);
     LocalDataBase.putData(EndgameType.spotlight, spotlight);
   }
 

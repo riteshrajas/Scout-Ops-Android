@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scouting_app/components/Chips.dart';
 import 'package:scouting_app/components/plugin-tile.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../components/nav.dart';
 
@@ -259,8 +260,69 @@ class AboutPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-            )
+            ),
+            const SizedBox(height: 16),
+            // A tile dedicated to open source code in gihub using a button to redirect to the github page
+            ExpandableTile(
+              title: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Colors.blue, Colors.black],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: Text(
+                  'Open Source Code',
+                  style: GoogleFonts.chivoMono(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w100,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              onTap_Widget: () {},
+              icon_Widget: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Colors.blueAccent, Colors.black],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ).createShader(bounds),
+                child: const Icon(Icons.code, color: Colors.white, size: 35),
+              ),
+              expanded_Widget: true,
+              Expanded_Widget: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      "Check out our open-source code on GitHub!",
+                      style: GoogleFonts.chivoMono(
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Replace with your GitHub repository URL
+                        const url = 'https://github.com/your-repo';
+                        launchURL(url);
+                      },
+                      icon: const Icon(Icons.open_in_new),
+                      label: const Text('Go to GitHub'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ]),
         ));
+  }
+
+  void launchURL(String url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

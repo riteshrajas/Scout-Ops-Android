@@ -119,7 +119,20 @@ enum AutoType {
   Chip3
 }
 
-enum EndgameType { endLocation, climbed, harmony, attempted, spotlight }
+enum EndgameType {
+  endLocation,
+  climbed,
+  immobile,
+  spotlight,
+  harmony,
+  tippy,
+  notes_droped,
+  pickup_from,
+  driver_rating,
+  defense_rating,
+  robot_speed,
+  climb_time,
+}
 
 enum TeleType {
   GroundPickUp,

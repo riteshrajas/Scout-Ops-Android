@@ -223,7 +223,7 @@ class FreeResponseWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      decoration: InputDecoration(labelText: 'Enter your response'),
+      decoration: const InputDecoration(labelText: 'Enter your response'),
       onChanged: (value) {
         item.freeResponse =
             value; // Update the free response in the scouting item
