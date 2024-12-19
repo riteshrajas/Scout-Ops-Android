@@ -338,51 +338,51 @@ class _EndGameState extends State<EndGame> {
     UpdateData();
   }
 
-  double? _parseSize(String? size) {
-    return size != null ? double.tryParse(size) : null;
-  }
+  // double? _parseSize(String? size) {
+  //   return size != null ? double.tryParse(size) : null;
+  // }
 
   Color _parseColor(String? color) {
     return color != null ? Color(int.parse(color)) : Colors.transparent;
   }
 
-  MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
-    switch (alignment) {
-      case 'start':
-        return MainAxisAlignment.start;
-      case 'center':
-        return MainAxisAlignment.center;
-      case 'end':
-        return MainAxisAlignment.end;
-      default:
-        return MainAxisAlignment.start;
-    }
-  }
-
-  Offset _parseOffset(String? offsetString) {
-    if (offsetString == null) return Offset.zero;
-    final parts = offsetString.split(',');
-    return Offset(double.parse(parts[0]), double.parse(parts[1]));
-  }
-
-  IconData _parseIconData(String? iconData) {
-    return Icons.help;
-  }
-
-  List<BoxShadow> _parseBoxShadows(List<dynamic>? boxShadows) {
-    if (boxShadows == null) return [];
-    return boxShadows.map((shadow) {
-      return BoxShadow(
-        color: _parseColor(shadow['color']),
-        spreadRadius: shadow['spreadRadius']?.toDouble() ?? 0,
-        blurRadius: shadow['blurRadius']?.toDouble() ?? 0,
-        offset: Offset(
-          shadow['offset']['x']?.toDouble() ?? 0,
-          shadow['offset']['y']?.toDouble() ?? 0,
-        ),
-      );
-    }).toList();
-  }
+  // MainAxisAlignment _parseMainAxisAlignment(String? alignment) {
+  //   switch (alignment) {
+  //     case 'start':
+  //       return MainAxisAlignment.start;
+  //     case 'center':
+  //       return MainAxisAlignment.center;
+  //     case 'end':
+  //       return MainAxisAlignment.end;
+  //     default:
+  //       return MainAxisAlignment.start;
+  //   }
+  // }
+  //
+  // Offset _parseOffset(String? offsetString) {
+  //   if (offsetString == null) return Offset.zero;
+  //   final parts = offsetString.split(',');
+  //   return Offset(double.parse(parts[0]), double.parse(parts[1]));
+  // }
+  //
+  // IconData _parseIconData(String? iconData) {
+  //   return Icons.help;
+  // }
+  //
+  // List<BoxShadow> _parseBoxShadows(List<dynamic>? boxShadows) {
+  //   if (boxShadows == null) return [];
+  //   return boxShadows.map((shadow) {
+  //     return BoxShadow(
+  //       color: _parseColor(shadow['color']),
+  //       spreadRadius: shadow['spreadRadius']?.toDouble() ?? 0,
+  //       blurRadius: shadow['blurRadius']?.toDouble() ?? 0,
+  //       offset: Offset(
+  //         shadow['offset']['x']?.toDouble() ?? 0,
+  //         shadow['offset']['y']?.toDouble() ?? 0,
+  //       ),
+  //     );
+  //   }).toList();
+  // }
 
   getDriverRating() {
     if (isbelowAverage) {

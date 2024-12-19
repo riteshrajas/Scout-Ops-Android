@@ -36,7 +36,7 @@ class MatchPageState extends State<MatchPage> {
     try {
       eventKey = LocalDataBase.getData(Types.eventKey) ?? '';
       eventKeyController.text = eventKey;
-      matches = readJson();
+      matches = LocalDataBase.getMatchData() as Future<List>?;
       matches?.then((data) {
         developer.log(jsonEncode(data)); // Print the data once it is fetched
       });
@@ -82,14 +82,14 @@ class MatchPageState extends State<MatchPage> {
       title: Center(
         child: ShaderMask(
             shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.red, Colors.blue, Colors.lightBlueAccent],
+                  colors: [Colors.red, Colors.blue],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ).createShader(bounds),
             child: Text(
               'Match Page',
-              style: GoogleFonts.chivoMono(
-                fontSize: 25,
+              style: GoogleFonts.museoModerno(
+                fontSize: 30,
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
               ),
@@ -99,7 +99,7 @@ class MatchPageState extends State<MatchPage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.delete),
-          tooltip: 'Refresh',
+          tooltip: 'Clear all data',
           onPressed: () {
             isLoading = true;
             setState(() {
@@ -112,14 +112,6 @@ class MatchPageState extends State<MatchPage> {
               LocalDataBase.putData(Types.matchFile, null);
               LocalDataBase.putData(Types.matchKey, null);
             });
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.extension),
-          onPressed: () {
-            Route route =
-                MaterialPageRoute(builder: (context) => const Plugins());
-            Navigator.push(context, route);
           },
         ),
       ],
@@ -189,6 +181,7 @@ class MatchPageState extends State<MatchPage> {
       LocalDataBase.putData(Types.eventKey, data[0]['event_key']);
       eventKeyController.text = LocalDataBase.getData(Types.eventKey);
       writeJson(data);
+      developer.log(data.toString());
       setState(() {
         matches = readJson();
         isLoading = false;
@@ -213,7 +206,7 @@ class MatchPageState extends State<MatchPage> {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        developer.log(data[0]['event_key']);
+        // developer.log(data[0]['event_key']);
         Hive.box('matchData').put('matches', (data));
         LocalDataBase.putData(Types.eventFile, data.toString());
         LocalDataBase.putData(Types.eventKey, data[0]['event_key']);
@@ -241,7 +234,7 @@ class MatchPageState extends State<MatchPage> {
       TextField(
         controller: eventKeyController,
         decoration: InputDecoration(
-          labelText: 'Match Event Key (e.g. 2024brbr)',
+          labelText: 'Match Event Key (e.g. 2022miket)',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -250,123 +243,154 @@ class MatchPageState extends State<MatchPage> {
       const SizedBox(height: 10),
       const SizedBox(height: 10),
       SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: isLoading ? Colors.red : Colors.green,
-                shape: BoxShape.circle,
-              ),
-            ),
-            ButtonBar(
-              alignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize:
-                        Size(MediaQuery.of(context).size.width / 2, 50),
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isLoading ? Colors.redAccent : Colors.green[300],
+                  border: Border.all(
+                    color: isLoading ? Colors.red : Colors.green,
+                    width: 3,
                   ),
-                  onPressed: () => getData(eventKeyController.text),
-                  child: const Text('Load Event'),
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
-            ),
-            ButtonBar(
-              alignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(80, 50),
-                    foregroundColor: Colors.white,
-                    backgroundColor: isLoading ? Colors.grey : Colors.red,
-                  ),
-                  onPressed: () {
-                    prepopulateData();
-                  },
-                  onLongPress: () {
-                    prepopulateDataServer();
-                  },
-                  child: const Text('Use Local'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 20),
-      Row(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(right: 5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
               ),
-              child: ElevatedButton(
+              ElevatedButton(
                 style: ElevatedButton.styleFrom(
+                  minimumSize: Size(MediaQuery.of(context).size.width / 2, 50),
                   foregroundColor: Colors.white,
-                  backgroundColor:
-                      LocalDataBase.getData(Types.allianceColor) == 'Red'
-                          ? Colors.red
-                          : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: const BorderSide(color: Colors.red)),
-                ),
-                onPressed: () {
-                  setState(() {
-                    LocalDataBase.putData(Types.allianceColor, 'Red');
-                  });
-                },
-                child: const Text('Red'),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(left: 5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor:
-                      LocalDataBase.getData(Types.allianceColor) == 'Blue'
-                          ? Colors.blue
-                          : Colors.grey,
+                  backgroundColor: Colors.blueAccent[100],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                    side: const BorderSide(color: Colors.blue),
+                    side: const BorderSide(
+                      color: Colors.blue,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                onPressed: () => getData(eventKeyController.text),
+                child: Text(
+                  'Load Event',
+                  style: GoogleFonts.museoModerno(
+                      fontSize: 15, color: Colors.white),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(80, 50),
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.redAccent[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(
+                      color: Colors.red,
+                      width: 3,
+                    ),
                   ),
                 ),
                 onPressed: () {
-                  setState(() {
-                    LocalDataBase.putData(Types.allianceColor, 'Blue');
-                  });
+                  prepopulateData();
                 },
-                child: const Text('Blue'),
+                onLongPress: () {
+                  prepopulateDataServer();
+                },
+                child: Text('Use Local',
+                    style: GoogleFonts.museoModerno(
+                        fontSize: 15, color: Colors.white)),
+              ),
+            ],
+          )),
+      const SizedBox(height: 20),
+      Row(
+        spacing: 10,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+              child: Container(
+            margin: const EdgeInsets.only(left: 5),
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor:
+                    LocalDataBase.getData(Types.allianceColor) == 'Red'
+                        ? Colors.redAccent[400]
+                        : Colors.grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(color: Colors.red, width: 3),
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  LocalDataBase.putData(Types.allianceColor, 'Red');
+                });
+              },
+              child: Text(
+                'Red',
+                style:
+                    GoogleFonts.museoModerno(fontSize: 20, color: Colors.white),
               ),
             ),
-          ),
+          )),
+          Expanded(
+              child: Container(
+            margin: const EdgeInsets.only(right: 5),
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor:
+                    LocalDataBase.getData(Types.allianceColor) == 'Blue'
+                        ? Colors.blueAccent[400]
+                        : Colors.grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(color: Colors.blueAccent, width: 3),
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  LocalDataBase.putData(Types.allianceColor, 'Blue');
+                });
+              },
+              child: Text(
+                'Blue',
+                style:
+                    GoogleFonts.museoModerno(fontSize: 20, color: Colors.white),
+              ),
+            ),
+          )),
         ],
       ),
       if (LocalDataBase.getData(Types.allianceColor) == "Red") ...[
-        const SizedBox(height: 10),
         Column(
           children: [
-            const SizedBox(height: 10),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
+            const SizedBox(height: 20),
+            Row(
+              spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                    child: Container(
+                  margin: const EdgeInsets.only(left: 5),
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
                         LocalDataBase.putData(Types.selectedStation, 'R1');
@@ -376,15 +400,25 @@ class MatchPageState extends State<MatchPage> {
                         foregroundColor: Colors.white,
                         backgroundColor:
                             LocalDataBase.getData(Types.selectedStation) == "R1"
-                                ? Colors.red
+                                ? Colors.redAccent
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
+                            side:
+                                const BorderSide(color: Colors.red, width: 3))),
+                    child: Text('R1',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 15,
                         )),
-                    child: const Text('R1'),
                   ),
-                  const SizedBox(width: 60),
-                  ElevatedButton(
+                )),
+                Expanded(
+                    child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
                         LocalDataBase.putData(Types.selectedStation, 'R2');
@@ -394,15 +428,26 @@ class MatchPageState extends State<MatchPage> {
                         foregroundColor: Colors.white,
                         backgroundColor:
                             LocalDataBase.getData(Types.selectedStation) == "R2"
-                                ? Colors.red
+                                ? Colors.redAccent
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
+                            side:
+                                const BorderSide(color: Colors.red, width: 3))),
+                    child: Text('R2',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 15,
                         )),
-                    child: const Text('R2'),
                   ),
-                  const SizedBox(width: 60),
-                  ElevatedButton(
+                )),
+                Expanded(
+                    child: Container(
+                  margin: const EdgeInsets.only(right: 5),
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
                         LocalDataBase.putData(Types.selectedStation, 'R3');
@@ -414,96 +459,138 @@ class MatchPageState extends State<MatchPage> {
                         foregroundColor: Colors.white,
                         backgroundColor:
                             LocalDataBase.getData(Types.selectedStation) == "R3"
-                                ? Colors.red
+                                ? Colors.redAccent
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(color: Colors.red, width: 3))),
+                    child: Text('R3',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 15,
                         )),
-                    child: const Text('R3'),
                   ),
-                ],
-              ),
+                )),
+              ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance.png',
-                    width: MediaQuery.of(context).size.width * 0.90,
-                  ),
-                ],
-              ),
-            )
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          child: Image.asset(
+            'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance.png',
+            width: MediaQuery.of(context).size.width * 0.90,
+          ),
+        ),
+      ),
+    ],
+  ),
+)
           ],
         ),
       ] else if (LocalDataBase.getData(Types.allianceColor) == "Blue") ...[
-        const SizedBox(height: 10),
         Column(
           children: [
-            const SizedBox(height: 10),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
+            const SizedBox(height: 20),
+            Row(
+              spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                    child: Container(
+                  margin: const EdgeInsets.only(left: 5),
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        LocalDataBase.putData(Types.selectedStation, "B1");
+                        LocalDataBase.putData(Types.selectedStation, 'B1');
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
                             LocalDataBase.getData(Types.selectedStation) == "B1"
-                                ? Colors.blue
+                                ? Colors.blueAccent
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
+                            side: const BorderSide(
+                                color: Colors.blueAccent, width: 3))),
+                    child: Text('B1',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 15,
                         )),
-                    child: const Text('B1'),
                   ),
-                  const SizedBox(width: 60),
-                  ElevatedButton(
+                )),
+                Expanded(
+                    child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        LocalDataBase.putData(Types.selectedStation, "B2");
+                        LocalDataBase.putData(Types.selectedStation, 'B2');
                       });
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
                             LocalDataBase.getData(Types.selectedStation) == "B2"
-                                ? Colors.blue
+                                ? Colors.blueAccent
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
+                            side: const BorderSide(
+                                color: Colors.blueAccent, width: 3))),
+                    child: Text('B2',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 15,
                         )),
-                    child: const Text('B2'),
                   ),
-                  const SizedBox(width: 60),
-                  ElevatedButton(
+                )),
+                Expanded(
+                    child: Container(
+                  margin: const EdgeInsets.only(right: 5),
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        LocalDataBase.putData(Types.selectedStation, "B3");
+                        LocalDataBase.putData(Types.selectedStation, 'B3');
                       });
                     },
+                    //change the color when selected
+
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor:
                             LocalDataBase.getData(Types.selectedStation) == "B3"
-                                ? Colors.blue
+                                ? Colors.blueAccent
                                 : Colors.grey,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
+                            side: const BorderSide(
+                                color: Colors.blueAccent, width: 3))),
+                    child: Text('B3',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 15,
                         )),
-                    child: const Text('B3'),
                   ),
-                ],
-              ),
+                )),
+              ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

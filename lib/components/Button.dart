@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Widget buildButton({
   required BuildContext context,
   required String text,
   required Color color,
   Color? borderColor,
+  Color? iconColor,
   required IconData icon,
   required VoidCallback onPressed,
+  Color? textColor,
 }) {
   return SizedBox(
     width: MediaQuery.of(context).size.width - 40,
@@ -22,10 +25,11 @@ Widget buildButton({
               : BorderSide.none,
         ),
       ),
-      icon: Icon(icon, size: 24),
+      icon: Icon(icon, size: 24, color: iconColor ?? Color(0xA1CCC2C2)),
       label: Text(
         text,
-        style: const TextStyle(fontSize: 18),
+        style: GoogleFonts.museoModerno(
+          fontSize: 25, color: textColor ?? Color(0xA1CCC2C2),),
       ),
     ),
   );

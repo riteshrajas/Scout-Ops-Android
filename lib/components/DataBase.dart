@@ -63,6 +63,11 @@ class LocalDataBase {
     return jsonDecode(correctJsonFormat(dataMap.toString()));
   }
 
+  static void clearMatchData() {
+    _storage.remove('Types.eventFile');
+    _storage.remove('Types.matchFile');
+  }
+
   static void setPitMatchKey(String key) {
     _storage['PitData.EventKey'] = key;
   }

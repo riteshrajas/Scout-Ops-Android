@@ -28,9 +28,9 @@ class MatchState extends State<Match> {
   void initState() {
     super.initState();
     _allianceColor = LocalDataBase.getData(Types.allianceColor);
-    // _allianceColor = "red";
+    _allianceColor = "red";
     _selectedStation = LocalDataBase.getData(Types.selectedStation);
-    // _selectedStation = "R1";
+    _selectedStation = "R1";
     _team = (LocalDataBase.getData(Types.matchFile))['alliances']
                 [_allianceColor.toLowerCase()]['team_keys']
             [int.parse(_selectedStation.substring(1)) - 1]

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:scouting_app/components/CommentBox.dart';
 
+import 'FullScreenQrCodePage.dart';
+
 class MatchCard extends StatelessWidget {
   final String matchData;
   final String eventName;
@@ -55,19 +57,20 @@ class MatchCard extends StatelessWidget {
               "QR Code",
               [
                 Center(
-                  child: QrImageView(
-                    data: matchData,
-                    // Use the entire JSON string here
-                    version: QrVersions.auto,
-                    size: 270,
-                    eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.circle,
-                      color: Colors.red,
-                    ),
-                    gapless: false,
-                    dataModuleStyle: const QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.circle,
-                      color: Colors.blue,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FullScreenQrCodePage(data: matchData),
+                        ),
+                      );
+                    },
+                    child: QrImageView(
+                      data: matchData,
+                      version: QrVersions.auto,
+                      size: 270,
+                      gapless: false,
                     ),
                   ),
                 ),

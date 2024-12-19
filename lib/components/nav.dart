@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scouting_app/Experiment/experiment.dart';
 
 import '../Match_Pages/about_page.dart';
@@ -30,33 +31,34 @@ class NavBar extends StatelessWidget {
               height: 200,
               width: double.infinity,
               // This makes the width of the header fill the drawer
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     backgroundColor: Colors.white30, // Red avatar background
                     radius: 30,
-                    child: Icon(
-                      Icons.local_police_outlined,
-                      size: 35,
-                      color: Colors.white, // White icon for a clean contrast
-                    ),
+                    child: Image(
+                        image: AssetImage('assets/logo.png'),
+                        height: 50,
+                        width: 50,
+                        fit: BoxFit.fill),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'FEDS 201',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.museoModerno(
+                      fontSize: 24,
                       color: Colors.white, // White text
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   SizedBox(height: 4),
                   Text(
                     'Scout Ops v.1.5',
-                    style: TextStyle(
+                    style: GoogleFonts.museoModerno(
                       fontSize: 14,
-                      color: Colors.white70, // Slightly dimmed white text
+                      color: Colors.white, // White text
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -114,12 +116,20 @@ class NavBar extends StatelessWidget {
     return ListTile(
       contentPadding:
           const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      leading: Icon(icon, color: Colors.blueGrey[700], size: 28),
+      leading: ShaderMask(
+        shaderCallback: (bounds) => const LinearGradient(
+          colors: [Colors.red, Colors.blue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ).createShader(bounds),
+        child: Icon(icon, color: Colors.white, size: 30),
+      ),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
+        style: GoogleFonts.museoModerno(
+          fontSize: 18,
+          color: Colors.blueGrey[700],
+          fontWeight: FontWeight.w500,
         ),
       ),
       onTap: () {

@@ -96,6 +96,8 @@ class _HomePageState extends State<HomePage>
                 color: Colors.green.shade100,
                 borderColor: Colors.green.shade800,
                 icon: Icons.play_arrow_outlined,
+                textColor: Colors.green.shade800,
+                iconColor: Colors.green.shade800,
                 onPressed: () {
                   Navigator.push(
                       context,
@@ -110,11 +112,13 @@ class _HomePageState extends State<HomePage>
                 color: Colors.blue.shade100,
                 borderColor: Colors.blueAccent,
                 icon: Icons.bookmark_add_outlined,
+                textColor: Colors.blueAccent,
+                iconColor: Colors.blueAccent,
                 onPressed: () {
                   Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Pit_Recorder()));
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Pit_Recorder()));
                 },
               ),
               const SizedBox(height: 5),
@@ -125,6 +129,8 @@ class _HomePageState extends State<HomePage>
                 buildButton(
                   context: context,
                   text: 'Template Creator',
+                  iconColor: Colors.redAccent,
+                  textColor: Colors.redAccent,
                   color: Colors.red.shade100,
                   borderColor: Colors.redAccent,
                   icon: Icons.info_outline,
@@ -253,17 +259,17 @@ class _HomePageState extends State<HomePage>
               children: [
                 Text(
                   'DEVELOPED BY ',
-                  style: GoogleFonts.chivoMono(
+                  style: GoogleFonts.museoModerno(
                     fontSize: 20,
-                    fontWeight: FontWeight.w100,
+                    fontWeight: FontWeight.w300,
                     color: Colors.white,
                   ),
                 ),
                 Text(
                   'FEDS201',
-                  style: GoogleFonts.chivoMono(
+                  style: GoogleFonts.museoModerno(
                     fontSize: 20,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
@@ -315,7 +321,14 @@ Widget _buildCustomAppBar(BuildContext context) {
     elevation: 0, // Remove shadow for a cleaner look
     actions: [
       IconButton(
-        icon: const Icon(Icons.attach_file_rounded),
+        icon: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Colors.redAccent, Colors.lightBlueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: const Icon(Icons.attach_file_rounded, size: 30, color: Colors.white),
+        ),
         onPressed: () {
           Route route =
               MaterialPageRoute(builder: (context) => InfiniteZoomImage());
@@ -323,7 +336,14 @@ Widget _buildCustomAppBar(BuildContext context) {
         },
       ),
       IconButton(
-        icon: const Icon(Icons.extension),
+        icon: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Colors.red, Colors.lightBlueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomLeft,
+          ).createShader(bounds),
+          child: const Icon(Icons.extension, size: 30, color: Colors.white),
+        ),
         onPressed: () {
           Route route =
               MaterialPageRoute(builder: (context) => const Plugins());

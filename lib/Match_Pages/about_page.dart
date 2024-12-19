@@ -304,7 +304,7 @@ class AboutPage extends StatelessWidget {
                     ElevatedButton.icon(
                       onPressed: () {
                         // Replace with your GitHub repository URL
-                        const url = 'https://github.com/your-repo';
+                        const url = 'https://github.com/riteshrajas/Scout-Ops-Android';
                         launchURL(url);
                       },
                       icon: const Icon(Icons.open_in_new),

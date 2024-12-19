@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void DefaultonChipUpdate(String label) {
-  print('Chip clicked: ' + label);
+  print('Chip clicked: $label');
 }
 
 Widget buildChips(List<String> chipLabels, List<List<Color>> chipColors, List<bool> isChipClicked, {List<Function(String)>? onTapList}) {

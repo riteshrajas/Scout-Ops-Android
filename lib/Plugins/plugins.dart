@@ -133,7 +133,7 @@ class _PluginsState extends State<Plugins> {
             icon_Widget: Icons.integration_instructions,
             expanded_Widget: intergrateWithRitesh_expanded,
             value_trailing: intergrateWithRitesh,
-            enabled_trailing: false,
+            enabled_trailing: true,
             onToggle_Trailing: (bool value) {
               setState(() {
                 intergrateWithRitesh = value;
@@ -144,6 +144,7 @@ class _PluginsState extends State<Plugins> {
                 intergrateWithRitesh_expanded = !intergrateWithRitesh_expanded;
                 auth0Intergerations_expanded = false;
                 geminiIntergerations_expanded = false;
+                intergrateWithPyintelScoutz_expanded = false;
               });
             },
             Expanded_Widget: Container(),
