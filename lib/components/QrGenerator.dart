@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -25,7 +26,12 @@ class QrCoder extends State<Qrgenerator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QR Code'),
+        title: Text('QR Code',
+            style: GoogleFonts.museoModerno(
+              fontSize: 25,
+            )),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Column(
@@ -35,7 +41,7 @@ class QrCoder extends State<Qrgenerator> {
               data: jsonEncode(jsonDecode(
                   correctJsonFormat(LocalDataBase.getMatchData().toString()))),
               version: QrVersions.auto,
-              size: 350,
+              size: MediaQuery.of(context).size.width - 40,
               semanticsLabel: 'QR code',
               // eyeStyle: const QrEyeStyle(
               //   eyeShape: QrEyeShape.circle,
@@ -72,7 +78,7 @@ class QrCoder extends State<Qrgenerator> {
                   ],
                 ),
                 child: SliderButton(
-                  buttonColor: Colors.green,
+                  buttonColor: Color(0xFFFFD700), // Golden color
                   backgroundColor: Colors.white,
                   highlightedColor: Colors.red,
                   buttonSize: 70,

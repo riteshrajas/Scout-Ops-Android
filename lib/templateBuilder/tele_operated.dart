@@ -182,7 +182,7 @@ class _TeleOperatedState extends State<TeleOPBuilder> {
                   assists = value;
                 });
                 UpdateData();
-              }),
+              }, color: Colors.blue),
             ]),
           )
         ],

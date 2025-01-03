@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'CounterShelf.dart';
 
@@ -29,10 +30,9 @@ Widget buildComments(String title, List<dynamic> widgetChildren, Icon titleIcon)
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style:  GoogleFonts.museoModerno(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    fontWeight: FontWeight.bold,)
                 ),
               ],
             ),
@@ -80,18 +80,18 @@ Widget buildCommentsBox(String title, String comment, Icon titleIcon, Function(S
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: GoogleFonts.museoModerno(
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    fontWeight: FontWeight.bold,)
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               comment,
-              style: const TextStyle(
+              style: GoogleFonts.museoModerno(
                 fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

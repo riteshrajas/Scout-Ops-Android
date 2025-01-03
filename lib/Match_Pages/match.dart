@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../Experiment/ExpStateManager.dart';
 import '../components/DataBase.dart';
@@ -27,10 +28,9 @@ class MatchState extends State<Match> {
   @override
   void initState() {
     super.initState();
+    print(LocalDataBase.getData(Types.allianceColor));
     _allianceColor = LocalDataBase.getData(Types.allianceColor);
-    _allianceColor = "red";
     _selectedStation = LocalDataBase.getData(Types.selectedStation);
-    _selectedStation = "R1";
     _team = (LocalDataBase.getData(Types.matchFile))['alliances']
                 [_allianceColor.toLowerCase()]['team_keys']
             [int.parse(_selectedStation.substring(1)) - 1]
@@ -52,12 +52,37 @@ class MatchState extends State<Match> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Match Page'),
+        leading:  Container(
+          margin: const EdgeInsets.only(left: 20, top: 15),
+            child: Text(_selectedStation,
+            style: const TextStyle(
+              fontSize: 20,
+
+            ))),
+        title:
+        ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Colors.red, Colors.blue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds),
+            child: Text(
+              _selectedIndex == 0
+                  ? 'Autonomous'
+                  : _selectedIndex == 1
+                      ? 'Tele Operated'
+                      : 'End Game',
+              style: GoogleFonts.museoModerno(
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+
+            )),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
         actions: <Widget>[
-          Text(_selectedStation,
-              style: const TextStyle(
-                fontSize: 20,
-              )),
+
           const SizedBox(width: 10),
           MaterialButton(
               onPressed: () => {

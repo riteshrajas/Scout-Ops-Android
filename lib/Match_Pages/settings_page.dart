@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:scouting_app/components/MatchSelection.dart';
 import '../components/DataBase.dart';
 import '../components/localmatchLoader.dart';
 import '../components/nav.dart';
 import '../components/qr_code_scanner_page.dart';
 import 'match.dart';
 import 'dart:developer' as developer;
-
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -60,11 +60,26 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    print(Hive.box('userData').get('position', defaultValue: 'R1'));
     return Scaffold(
       drawer: const NavBar(),
       appBar: AppBar(
-        title:  Text('Settings', style:GoogleFonts.museoModerno(fontSize: 25, ),
-          ),
+        title: ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Colors.red, Colors.blue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+            child: Text(
+              'Settings',
+              style: GoogleFonts.museoModerno(
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            )),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -78,154 +93,96 @@ class SettingsPageState extends State<SettingsPage> {
                 right: 0,
               ),
               width: double.infinity,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: TextEditingController()
-                            ..text = Hive.box('userData')
-                                .get('scouterName', defaultValue: ''),
-                          decoration: InputDecoration(
-                            labelText: 'Scouter Name',
-                            labelStyle: GoogleFonts.museoModerno(fontSize: 15),
-                            hintText: 'Enter your name',
-                            hintStyle: GoogleFonts.museoModerno(fontSize: 15),
-
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
+              child: Column(children: [
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: TextEditingController()
+                          ..text = Hive.box('userData')
+                              .get('scouterName', defaultValue: ''),
+                        decoration: InputDecoration(
+                          labelText: 'Scouter Name',
+                          labelStyle: GoogleFonts.museoModerno(fontSize: 15),
+                          hintText: 'Enter your name',
+                          hintStyle: GoogleFonts.museoModerno(fontSize: 15),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: Colors.black),
                           ),
-                          style: GoogleFonts.museoModerno(fontSize: 18),
-                          onSubmitted: (String value) {
-                            Hive.box('userData').put('scouterName', value);
-                          },
-
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: TextEditingController()
-                            ..text =
-                            Hive.box('settings').get('ApiKey', defaultValue: ''),
-                          decoration: InputDecoration(
-                            labelText: 'BlueAlliance API Key',
-                            labelStyle: GoogleFonts.museoModerno(fontSize: 15),
-                            hintText: 'Enter your API Key',
-                            hintStyle:  GoogleFonts.museoModerno(fontSize: 15),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.qr_code_scanner),
-                              onPressed: () async {
-                                final qrCode = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => QRCodeScannerPage()),
-                                );
-                                if (qrCode != null) {
-                                  setState(() {
-                                    ApiKey = qrCode;
-                                    Hive.box('settings').put('ApiKey', qrCode);
-                                    Settings.setApiKey(qrCode);
-                                  });
-                                }
-                              },
-                            ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: Colors.black),
                           ),
-                          style: GoogleFonts.museoModerno(fontSize: 18),
-                          onSubmitted: (String value) {
-                            Hive.box('settings').put('ApiKey', value);
-                            Settings.setApiKey(value);
-                          },
                         ),
-                      ],
-                    ),
+                        style: GoogleFonts.museoModerno(fontSize: 18),
+                        onSubmitted: (String value) {
+                          Hive.box('userData').put('scouterName', value);
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: TextEditingController()
+                          ..text = Hive.box('settings')
+                              .get('ApiKey', defaultValue: ''),
+                        decoration: InputDecoration(
+                          labelText: 'BlueAlliance API Key',
+                          labelStyle: GoogleFonts.museoModerno(fontSize: 15),
+                          hintText: 'Enter your API Key',
+                          hintStyle: GoogleFonts.museoModerno(fontSize: 15),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(color: Colors.black),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.qr_code_scanner),
+                            onPressed: () async {
+                              final qrCode = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => QRCodeScannerPage()),
+                              );
+                              if (qrCode != null) {
+                                setState(() {
+                                  ApiKey = qrCode;
+                                  Hive.box('settings').put('ApiKey', qrCode);
+                                  Settings.setApiKey(qrCode);
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        style: GoogleFonts.museoModerno(fontSize: 18),
+                        onSubmitted: (String value) {
+                          Hive.box('settings').put('ApiKey', value);
+                          Settings.setApiKey(value);
+                        },
+                      ),
+                    ],
                   ),
-                ]
-              ),
-            ),  // Scouter Name and API Key
+                ),
+              ]),
+            ), // Scouter Name and API Key
             const SizedBox(height: 0),
-            Container(
-              padding: const EdgeInsets.all(10),
-              margin: const EdgeInsets.only(
-                left: 10,
-                right: 10,
-              ),
-              width: double.infinity,
-              child: Column(
-                children: [
-                  Row(
-                    spacing: 8,
-                    children: ['Red', 'Blue'].map((String value) {
-                      return Expanded(
-                        child: ChoiceChip(
-                          label: Center(
-                            child: Text(
-                              value,
-                              style: GoogleFonts.museoModerno(fontSize: 25),
-                            ),
-                          ),
-                          selectedColor: value == "Red"
-                              ? const Color.fromARGB(255, 230, 75, 75)
-                              : const Color.fromARGB(147, 0, 122, 248),
-                          selected:
-                              Hive.box('userData').get('alliance') == value,
-                          side: const BorderSide(color: Colors.black),
-                          onSelected: (bool selected) {
-                            setState(() {
-                              Hive.box('userData')
-                                  .put('alliance', selected ? value : null);
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    spacing: 8,
-                    children: ['1', '2', '3'].map((String value) {
-                      return Expanded(
-                        child: ChoiceChip(
-                          label: Center(
-                            child: Text(
-                              value,
-                              style: GoogleFonts.museoModerno(fontSize: 25),
-                            ),
-                          ),
-                          selectedColor:
-                              Hive.box('userData').get('alliance') == "Red"
-                                  ? const Color.fromARGB(255, 230, 75, 75)
-                                  : const Color.fromARGB(147, 0, 122, 248),
-                          selected:
-                              Hive.box('userData').get('position') == value,
-                          side: const BorderSide(color: Colors.black),
-                          onSelected: (bool selected) {
-                            setState(() {
-                              Hive.box('userData')
-                                  .put('position', selected ? value : null);
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),  // Alliance and Position
+            MatchSelection(
+              onAllianceSelected: (String? alliance) {
+                setState(() {
+                  Hive.box('userData').put('alliance', alliance);
+                  LocalDataBase.putData(Types.allianceColor, alliance);
+                });
+              },
+              onPositionSelected: (String? position) {
+                setState(() {
+                  Hive.box('userData').put('position', position);
+                  LocalDataBase.putData(Types.selectedStation, ((Hive.box('userData').get('alliance') == "Red") ? "R" : "B")+ position!);
+                });
+              }, initAlliance:Hive.box('userData').get('alliance', defaultValue: "Red"), initPosition: Hive.box('userData').get('position', defaultValue: '1') //Takeout the first letter of the alliance and add it to the position
+            ), // Alliance and Position
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(10),
@@ -242,7 +199,8 @@ class SettingsPageState extends State<SettingsPage> {
                     contentPadding: const EdgeInsets.only(left: 20, right: 20),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
-                    title: Text("Location", style: GoogleFonts.museoModerno(fontSize: 20)),
+                    title: Text("Location",
+                        style: GoogleFonts.museoModerno(fontSize: 20)),
                     thumbIcon: thumbIcon,
                     value: isLocationGranted,
                     onChanged: (bool value) {
@@ -264,7 +222,8 @@ class SettingsPageState extends State<SettingsPage> {
                     thumbIcon: thumbIcon,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
-                    title: Text("Bluetooth",style: GoogleFonts.museoModerno(fontSize: 20)),
+                    title: Text("Bluetooth",
+                        style: GoogleFonts.museoModerno(fontSize: 20)),
                     value: isBluetoothGranted,
                     onChanged: (bool value) {
                       _requestPermission(Permission.bluetooth, value,
@@ -284,7 +243,8 @@ class SettingsPageState extends State<SettingsPage> {
                     contentPadding: const EdgeInsets.only(left: 20, right: 20),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
-                    title: Text("Nearby Devices",style: GoogleFonts.museoModerno(fontSize: 20)),
+                    title: Text("Nearby Devices",
+                        style: GoogleFonts.museoModerno(fontSize: 20)),
                     thumbIcon: thumbIcon,
                     value: isNearbyDevicesGranted,
                     onChanged: (bool value) {
@@ -306,7 +266,8 @@ class SettingsPageState extends State<SettingsPage> {
                     contentPadding: const EdgeInsets.only(left: 20, right: 20),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
-                    title: Text("Camera",style: GoogleFonts.museoModerno(fontSize: 20)),
+                    title: Text("Camera",
+                        style: GoogleFonts.museoModerno(fontSize: 20)),
                     thumbIcon: thumbIcon,
                     value: isCameraGranted,
                     onChanged: (bool value) {
@@ -321,7 +282,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-            ),  // Permission Switches
+            ), // Permission Switches
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(10),
@@ -377,7 +338,11 @@ class SettingsPageState extends State<SettingsPage> {
                             setState(() {
                               Hive.box('matchData').delete('matches');
                               print('Data Cleared');
-                              developer.log(Hive.box('userData').get('scouterName', defaultValue: '') + ' cleared all data', name: 'Data Cleared');
+                              developer.log(
+                                  Hive.box('userData').get('scouterName',
+                                          defaultValue: '') +
+                                      ' cleared all data',
+                                  name: 'Data Cleared');
                             });
                           },
                         ),
@@ -418,7 +383,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-            ),  // Load Match, Eject Match, Clear Data
+            ), // Load Match, Eject Match, Clear Data
           ],
         ),
       ),

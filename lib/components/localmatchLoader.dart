@@ -3,10 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:scouting_app/components/DataBase.dart';
 
+import '../Match_Pages/match_page.dart';
 import '../home_page.dart';
 
 class localmatchLoader extends StatefulWidget {
@@ -24,6 +26,9 @@ class _localmatchLoaderState extends State<localmatchLoader> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: const Text('Local Match Loader'),
+        ),
       body: Container(
       color: Colors.white,
       child: Column(
@@ -34,79 +39,97 @@ class _localmatchLoaderState extends State<localmatchLoader> {
 
   List<Widget> modules(BuildContext context) {
     return [
-      const SizedBox(height: 100),
-      Material(
-        color: Colors.white,
+      const SizedBox(height: 10),
+      Container(
+        padding: const EdgeInsets.all(10),
         child: TextField(
           controller: eventKeyController,
           decoration: InputDecoration(
-            labelText: 'Match Event Key (e.g. 2023cmptx)',
+            labelText: 'Match Event Key (e.g. 2022miket)',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Colors.black),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Colors.black),
             ),
           ),
         ),
       ),
       const SizedBox(height: 10),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isLoading ? Colors.green : Colors.red,
-              shape: BoxShape.circle,
-            ),
-          ),
-          ButtonBar(
-            alignment: MainAxisAlignment.center,
+      SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isLoading ? Colors.green[300] : Colors.redAccent,
+                  border: Border.all(
+                    color: isLoading ? Colors.green : Colors.red,
+                    width: 3,
+                  ),
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(MediaQuery.of(context).size.width / 2, 50),
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
-                ),
-                onPressed: () => {
-                  getData(eventKeyController.text),
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      action: SnackBarAction(
-                        label: 'OK',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomePage(),
-                            ),
-                          );
-                        },
-                      ),
-                      content: const Text('Done! Now go back to the home page to view the matches!'),
-                      duration: const Duration(milliseconds: 1500),
-                      width: 280.0, // Width of the SnackBar.
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, // Inner padding for SnackBar content.
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
+                  backgroundColor: Colors.blueAccent[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(
+                      color: Colors.blue,
+                      width: 3,
                     ),
                   ),
+                ),
+                onPressed: () {
+                  getData(eventKeyController.text);
                 },
-                child: const Text('Load Event'),
+                child: Text(
+                  'Load Event',
+                  style: GoogleFonts.museoModerno(
+                      fontSize: 15, color: Colors.white),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(80, 50),
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.redAccent[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(
+                      color: Colors.red,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                  );
+                },
+                onLongPress: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MatchPage(),
+                    ),
+                  );
+                },
+                child: Text('Seek Home',
+                    style: GoogleFonts.museoModerno(
+                        fontSize: 15, color: Colors.white)),
               ),
             ],
-          ),
-        ],
-      ),
+          )),
+
     ];
   }
 
@@ -141,6 +164,7 @@ class _localmatchLoaderState extends State<localmatchLoader> {
       }
       setState(() {
         isLoading = true;
+
       });
       Hive.box('pitData').put('teams', (responseForPitData.body));
     }

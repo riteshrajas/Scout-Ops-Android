@@ -23,9 +23,11 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(allianceColor);
     return Container(
       decoration: BoxDecoration(
-        color: allianceColor == "red" ? Colors.red : Colors.blue,
+        color: allianceColor == "Red" ? Colors.red : Colors.blue,
+        // color: Colors.red,
         // Adjust color based on alliance
         borderRadius: BorderRadius.circular(20),
         shape: BoxShape.rectangle,

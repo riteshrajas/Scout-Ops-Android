@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../components/DataBase.dart';
 import '../components/SwipeCards.dart';
 import '../components/compactifier.dart';
+import 'GeminiPrediction.dart';
 
 class LogsPage extends StatelessWidget {
   const LogsPage({Key? key}) : super(key: key);
@@ -20,9 +22,35 @@ class LogsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Past Matches'),
+        title: Center(
+          child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.red, Colors.blue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Match Logs',
+                style: GoogleFonts.museoModerno(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              )),
+        ),
         centerTitle: true,
         actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.brightness_auto_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GeminiPredictionPage(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.restore_from_trash_rounded),
             onPressed: () {
@@ -32,7 +60,8 @@ class LogsPage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const LogsPage()),
               );
             },
-          )
+          ),
+
         ],
       ),
       body: SingleChildScrollView(

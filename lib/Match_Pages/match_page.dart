@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:scouting_app/components/MatchSelection.dart';
 
 import '../Plugins/plugins.dart';
 import '../components/DataBase.dart';
@@ -40,6 +41,13 @@ class MatchPageState extends State<MatchPage> {
       matches?.then((data) {
         developer.log(jsonEncode(data)); // Print the data once it is fetched
       });
+
+      LocalDataBase.putData(Types.allianceColor,
+          Hive.box('userData').get('alliance', defaultValue: 'Red'));
+      LocalDataBase.putData(
+          Types.selectedStation,
+          ((Hive.box('userData').get('alliance') == "Red") ? "R" : "B") +
+              Hive.box('userData').get('position', defaultValue: '1'));
     } catch (e) {
       if (kDebugMode) {
         print('Failed to load data');
@@ -179,6 +187,8 @@ class MatchPageState extends State<MatchPage> {
       var data = Hive.box("matchData").get("matches", defaultValue: null);
       LocalDataBase.putData(Types.eventFile, data.toString());
       LocalDataBase.putData(Types.eventKey, data[0]['event_key']);
+      LocalDataBase.putData(Types.allianceColor, Hive.box('userData').get('alliance', defaultValue: ''));
+      LocalDataBase.putData(Types.selectedStation,((Hive.box('userData').get('alliance') == "Red") ? "R" : "B")+  Hive.box('userData').get('position', defaultValue: ''));
       eventKeyController.text = LocalDataBase.getData(Types.eventKey);
       writeJson(data);
       developer.log(data.toString());
@@ -230,18 +240,18 @@ class MatchPageState extends State<MatchPage> {
 
   List<Widget> modules(BuildContext context) {
     return [
-      const SizedBox(height: 10),
-      TextField(
-        controller: eventKeyController,
-        decoration: InputDecoration(
-          labelText: 'Match Event Key (e.g. 2022miket)',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-      const SizedBox(height: 10),
-      const SizedBox(height: 10),
+      Padding(
+          padding: const EdgeInsets.all(20),
+          child: TextField(
+            controller: eventKeyController,
+            decoration: InputDecoration(
+              labelText: 'Match Event Key (e.g. 2022miket)',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),),
+
       SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -278,7 +288,8 @@ class MatchPageState extends State<MatchPage> {
                 child: Text(
                   'Load Event',
                   style: GoogleFonts.museoModerno(
-                      fontSize: 15, color: Colors.white),
+                      fontSize: 20, color: Colors.white),
+
                 ),
               ),
               ElevatedButton(
@@ -306,305 +317,50 @@ class MatchPageState extends State<MatchPage> {
               ),
             ],
           )),
-      const SizedBox(height: 20),
-      Row(
-        spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Expanded(
-              child: Container(
-            margin: const EdgeInsets.only(left: 5),
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor:
-                    LocalDataBase.getData(Types.allianceColor) == 'Red'
-                        ? Colors.redAccent[400]
-                        : Colors.grey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: const BorderSide(color: Colors.red, width: 3),
-                ),
-              ),
-              onPressed: () {
-                setState(() {
-                  LocalDataBase.putData(Types.allianceColor, 'Red');
-                });
-              },
-              child: Text(
-                'Red',
-                style:
-                    GoogleFonts.museoModerno(fontSize: 20, color: Colors.white),
-              ),
-            ),
-          )),
-          Expanded(
-              child: Container(
-            margin: const EdgeInsets.only(right: 5),
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor:
-                    LocalDataBase.getData(Types.allianceColor) == 'Blue'
-                        ? Colors.blueAccent[400]
-                        : Colors.grey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: const BorderSide(color: Colors.blueAccent, width: 3),
-                ),
-              ),
-              onPressed: () {
-                setState(() {
-                  LocalDataBase.putData(Types.allianceColor, 'Blue');
-                });
-              },
-              child: Text(
-                'Blue',
-                style:
-                    GoogleFonts.museoModerno(fontSize: 20, color: Colors.white),
-              ),
-            ),
-          )),
-        ],
+      MatchSelection(
+        initAlliance: Hive.box('userData').get('alliance', defaultValue: 'Red'),
+        initPosition: Hive.box('userData').get('position', defaultValue: '1'),
+        onAllianceSelected: (String? value) {
+          setState(() {
+            LocalDataBase.putData(Types.allianceColor, value);
+            Hive.box('userData').put('alliance', value);
+            Hive.box('userData').put('position', "");
+            LocalDataBase.putData(Types.selectedStation, "");
+          });
+        },
+        onPositionSelected: (String? value) {
+          setState(() {
+            LocalDataBase.putData(
+                Types.selectedStation,
+                ((Hive.box('userData').get('alliance') == "Red") ? "R" : "B") +
+                    value!);
+            Hive.box('userData').put('position', value);
+          });
+        },
       ),
-      if (LocalDataBase.getData(Types.allianceColor) == "Red") ...[
-        Column(
-          children: [
-            const SizedBox(height: 20),
-            Row(
-              spacing: 10,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                    child: Container(
-                  margin: const EdgeInsets.only(left: 5),
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        LocalDataBase.putData(Types.selectedStation, 'R1');
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor:
-                            LocalDataBase.getData(Types.selectedStation) == "R1"
-                                ? Colors.redAccent
-                                : Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side:
-                                const BorderSide(color: Colors.red, width: 3))),
-                    child: Text('R1',
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 15,
-                        )),
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        LocalDataBase.putData(Types.selectedStation, 'R2');
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor:
-                            LocalDataBase.getData(Types.selectedStation) == "R2"
-                                ? Colors.redAccent
-                                : Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side:
-                                const BorderSide(color: Colors.red, width: 3))),
-                    child: Text('R2',
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 15,
-                        )),
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  margin: const EdgeInsets.only(right: 5),
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        LocalDataBase.putData(Types.selectedStation, 'R3');
-                      });
-                    },
-                    //change the color when selected
-
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor:
-                            LocalDataBase.getData(Types.selectedStation) == "R3"
-                                ? Colors.redAccent
-                                : Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.red, width: 3))),
-                    child: Text('R3',
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 15,
-                        )),
-                  ),
-                )),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Center(
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
       ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 5),
-          child: Image.asset(
-            'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance.png',
-            width: MediaQuery.of(context).size.width * 0.90,
+          child: Builder(
+            builder: (context) {
+              String? allianceColor =
+                  LocalDataBase.getData(Types.allianceColor);
+              if (allianceColor == null || allianceColor.isEmpty) {
+                return const Text(
+                  'Please select an alliance color',
+                  style: TextStyle(fontSize: 16, color: Colors.red),
+                );
+              } else {
+                return Image.asset(
+                  'assets/${allianceColor}Alliance.png',
+                  width: MediaQuery.of(context).size.width * 0.90,
+                );
+              }
+            },
           ),
         ),
       ),
-    ],
-  ),
-)
-          ],
-        ),
-      ] else if (LocalDataBase.getData(Types.allianceColor) == "Blue") ...[
-        Column(
-          children: [
-            const SizedBox(height: 20),
-            Row(
-              spacing: 10,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                    child: Container(
-                  margin: const EdgeInsets.only(left: 5),
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        LocalDataBase.putData(Types.selectedStation, 'B1');
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor:
-                            LocalDataBase.getData(Types.selectedStation) == "B1"
-                                ? Colors.blueAccent
-                                : Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(
-                                color: Colors.blueAccent, width: 3))),
-                    child: Text('B1',
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 15,
-                        )),
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        LocalDataBase.putData(Types.selectedStation, 'B2');
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor:
-                            LocalDataBase.getData(Types.selectedStation) == "B2"
-                                ? Colors.blueAccent
-                                : Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(
-                                color: Colors.blueAccent, width: 3))),
-                    child: Text('B2',
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 15,
-                        )),
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  margin: const EdgeInsets.only(right: 5),
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        LocalDataBase.putData(Types.selectedStation, 'B3');
-                      });
-                    },
-                    //change the color when selected
-
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor:
-                            LocalDataBase.getData(Types.selectedStation) == "B3"
-                                ? Colors.blueAccent
-                                : Colors.grey,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(
-                                color: Colors.blueAccent, width: 3))),
-                    child: Text('B3',
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 15,
-                        )),
-                  ),
-                )),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/${LocalDataBase.getData(Types.allianceColor)}Alliance.png',
-                    width: MediaQuery.of(context).size.width * 0.90,
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ],
     ];
   }
 
@@ -621,7 +377,7 @@ class MatchPageState extends State<MatchPage> {
         Uri.parse(
             'https://www.thebluealliance.com/api/v3/event/$eventKey/matches'),
         headers: headers);
-
+    print('https://www.thebluealliance.com/api/v3/event/$eventKey/matches');
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       LocalDataBase.putData(Types.eventFile, data.toString());
@@ -664,7 +420,7 @@ class MatchPageState extends State<MatchPage> {
 
   Widget setup(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(0),
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -672,5 +428,12 @@ class MatchPageState extends State<MatchPage> {
         ),
       ),
     );
+  }
+
+  void devs() {
+    print("Hive Station: " + Hive.box('userData').get('position'));
+    print("Local Station: " + LocalDataBase.getData(Types.selectedStation));
+    print("Hive Alliance: " + Hive.box('userData').get('alliance'));
+    print("Local Alliance: " + LocalDataBase.getData(Types.allianceColor));
   }
 }

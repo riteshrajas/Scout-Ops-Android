@@ -88,7 +88,7 @@ Widget buildCounterShelf(List<CounterSettings> counterSettings) {
   );
 }
 
-Widget buildCounter(String title, int value, Function(int) onChanged) {
+Widget buildCounter(String title, int value, Function(int) onChanged, {required MaterialColor color}) {
   return LayoutBuilder(
     builder: (context, constraints) {
       double screenWidth = MediaQuery.of(context).size.width - 25;
@@ -108,7 +108,7 @@ Widget buildCounter(String title, int value, Function(int) onChanged) {
                   borderType: BorderType.RRect,
                   radius: const Radius.circular(12),
                   padding: const EdgeInsets.all(6),
-                  color: Colors.black,
+                  color: color ?? Colors.green,
                   dashPattern: const [8, 4],
                   strokeWidth: 2,
                   child: Container(

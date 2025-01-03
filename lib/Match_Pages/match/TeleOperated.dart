@@ -146,7 +146,7 @@ class _TeleOperatedState extends State<TeleOperated> {
                     icon: Icons.shopping_basket_outlined,
                     number: trapPlacement,
                     counterText: "Trap Placement",
-                    color: Colors.blue)
+                    color: Colors.red)
               ],
               const Icon(Icons.add_comment)),
           buildCounterShelf([
@@ -177,12 +177,17 @@ class _TeleOperatedState extends State<TeleOperated> {
                 });
                 UpdateData();
               }),
-              buildCounter("Assists", assists, (int value) {
-                setState(() {
-                  assists = value;
-                });
-                UpdateData();
-              }),
+              buildCounter(
+                "Assists",
+                assists,
+                (int value) {
+                  setState(() {
+                    assists = value;
+                  });
+                  UpdateData();
+                },
+                color: Colors.blue,
+              ),
             ]),
           )
         ],
