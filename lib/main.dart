@@ -6,11 +6,11 @@ import 'package:scouting_app/Pit_Recorder/Pit_Recorder.dart';
 
 import 'Match_Pages/about_page.dart';
 import 'Match_Pages/match_page.dart';
-import 'Match_Pages/settings_page.dart';
+import 'settings_page.dart';
 import 'home_page.dart';
 import 'model/widget_data.dart';
 
-const Color themeColor = Color.fromARGB(255, 255, 255, 255);
+const Color themeColor = Color.fromARGB(255, 255, 255, 0);
 const bool material3 = true;
 
 void main() async {
@@ -37,7 +37,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Scout Ops',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 255, 255, 255)),
         useMaterial3: material3,
       ),
       initialRoute: '/',
@@ -53,9 +54,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
+bool isdarkmode() {
+  Hive.box('userData').get('darkMode') ??
+      Hive.box('userData').put('darkMode', false);
+  return Hive.box('userData').get('darkMode');
+}
 
-
-
-
-
-
+Color invertColor(Color color) {
+  return Color.fromARGB(
+    color.alpha,
+    255 - color.red,
+    255 - color.green,
+    255 - color.blue,
+  );
+}

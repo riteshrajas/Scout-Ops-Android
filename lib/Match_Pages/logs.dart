@@ -10,7 +10,7 @@ import '../components/compactifier.dart';
 import 'GeminiPrediction.dart';
 
 class LogsPage extends StatelessWidget {
-  const LogsPage({Key? key}) : super(key: key);
+  const LogsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

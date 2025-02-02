@@ -45,7 +45,7 @@ Widget buildComments(String title, List<dynamic> widgetChildren, Icon titleIcon)
               } else {
                 return Container(); // Fallback for unexpected types
               }
-            }).toList(),
+            }),
           ],
         ),
       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'ExpStateManager.dart';
 
 class Experiment extends StatefulWidget {
-  const Experiment({Key? key}) : super(key: key);
+  const Experiment({super.key});
 
   @override
   _ExperimentState createState() => _ExperimentState();

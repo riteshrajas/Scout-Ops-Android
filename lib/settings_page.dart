@@ -5,12 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scouting_app/components/MatchSelection.dart';
+import 'package:scouting_app/main.dart';
 
-import '../components/DataBase.dart';
-import '../components/localmatchLoader.dart';
-import '../components/nav.dart';
-import '../components/qr_code_scanner_page.dart';
-import 'match.dart';
+import 'components/DataBase.dart';
+import 'components/localmatchLoader.dart';
+import 'components/nav.dart';
+import 'components/qr_code_scanner_page.dart';
+import 'Match_Pages/match.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -24,6 +25,7 @@ class SettingsPageState extends State<SettingsPage> {
   bool isBluetoothGranted = false;
   bool isNearbyDevicesGranted = false;
   bool isCameraGranted = false;
+  bool isDarkMode = false;
   String ApiKey = Hive.box('settings').get('ApiKey', defaultValue: '');
 
   @override
@@ -60,29 +62,22 @@ class SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _darkMode() async {
+    var currentMode = Hive.box('userData').get('darkMode');
+    if (currentMode == null) {
+      Hive.box('userData').put('darkMode', false);
+    } else {
+      Hive.box('userData').put('darkMode', !currentMode);
+    }
+    print(Hive.box('userData').get('darkMode'));
+    return Hive.box('userData').get('darkMode');
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    print(Hive.box('userData').get('position', defaultValue: 'R1'));
     return Scaffold(
       drawer: const NavBar(),
-      appBar: AppBar(
-        title: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.red, Colors.blue],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-            child: Text(
-              'Settings',
-              style: GoogleFonts.museoModerno(
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-            )),
-        centerTitle: true,
-      ),
+      appBar: _buildCustomAppBar(context),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -173,19 +168,29 @@ class SettingsPageState extends State<SettingsPage> {
             ), // Scouter Name and API Key
             const SizedBox(height: 0),
             MatchSelection(
-              onAllianceSelected: (String? alliance) {
-                setState(() {
-                  Hive.box('userData').put('alliance', alliance);
-                  LocalDataBase.putData(Types.allianceColor, alliance);
-                });
-              },
-              onPositionSelected: (String? position) {
-                setState(() {
-                  Hive.box('userData').put('position', position);
-                  LocalDataBase.putData(Types.selectedStation, ((Hive.box('userData').get('alliance') == "Red") ? "R" : "B")+ position!);
-                });
-              }, initAlliance:Hive.box('userData').get('alliance', defaultValue: "Red"), initPosition: Hive.box('userData').get('position', defaultValue: '1') //Takeout the first letter of the alliance and add it to the position
-            ), // Alliance and Position
+                onAllianceSelected: (String? alliance) {
+                  setState(() {
+                    Hive.box('userData').put('alliance', alliance);
+                    LocalDataBase.putData(Types.allianceColor, alliance);
+                  });
+                },
+                onPositionSelected: (String? position) {
+                  setState(() {
+                    Hive.box('userData').put('position', position);
+                    LocalDataBase.putData(
+                        Types.selectedStation,
+                        ((Hive.box('userData').get('alliance') == "Red")
+                                ? "R"
+                                : "B") +
+                            position!);
+                  });
+                },
+                initAlliance:
+                    Hive.box('userData').get('alliance', defaultValue: "Red"),
+                initPosition: Hive.box('userData').get('position',
+                    defaultValue:
+                        '1') //Takeout the first letter of the alliance and add it to the position
+                ), // Alliance and Position
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(10),
@@ -316,7 +321,7 @@ class SettingsPageState extends State<SettingsPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
+                                    builder: (context) =>
                                         const localmatchLoader(),
                                     fullscreenDialog: true),
                               );
@@ -390,6 +395,43 @@ class SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  AppBar _buildCustomAppBar(BuildContext context) {
+    return AppBar(
+      leading: Builder(builder: (context) {
+        return IconButton(
+            icon: Icon(Icons.menu),
+            color: !isdarkmode()
+                ? const Color.fromARGB(193, 255, 255, 255)
+                : const Color.fromARGB(105, 36, 33, 33),
+            onPressed: () => Scaffold.of(context).openDrawer());
+      }),
+      actions: [
+        IconButton(
+          icon: Icon(isdarkmode() ? Icons.dark_mode : Icons.light_mode),
+          onPressed: _darkMode,
+        ),
+      ],
+      backgroundColor: Colors.transparent, // Transparent to show the animation
+      title: Center(
+        child: ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Colors.red, Colors.blue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+            child: Text(
+              'Settings',
+              style: GoogleFonts.museoModerno(
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            )),
+      ),
+      elevation: 0, // Remove shadow for a cleaner look
     );
   }
 }

@@ -7,7 +7,7 @@ class MatchInfo extends StatelessWidget {
   final String allianceColor;
   final VoidCallback onPressed;
 
-  MatchInfo({
+  const MatchInfo({super.key, 
     required this.assignedTeam,
     required this.assignedStation,
     required this.allianceColor,
@@ -126,14 +126,14 @@ class TeamInfo extends StatelessWidget {
   final String? website;
 
   const TeamInfo({
-    Key? key,
+    super.key,
     required this.teamNumber,
     required this.nickname,
     this.city,
     this.stateProv,
     this.country,
     this.website,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -166,16 +166,16 @@ class TeamInfo extends StatelessWidget {
                   ),
                 ],
               ),
-              Divider(height: 20, thickness: 2),
+              const Divider(height: 20, thickness: 2),
               if (city != null || stateProv != null || country != null)
                 Row(
                   children: [
-                    Icon(Icons.location_on, size: 20, color: Colors.redAccent),
-                    SizedBox(width: 6),
+                    const Icon(Icons.location_on, size: 20, color: Colors.redAccent),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         '${city ?? ''}${city != null && stateProv != null ? ', ' : ''}${stateProv ?? ''}${(city != null || stateProv != null) && country != null ? ', ' : ''}${country ?? ''}',
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
                   ],
@@ -185,8 +185,8 @@ class TeamInfo extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 12.0),
                   child: Row(
                     children: [
-                      Icon(Icons.link, size: 20, color: Colors.green),
-                      SizedBox(width: 6),
+                      const Icon(Icons.link, size: 20, color: Colors.green),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: InkWell(
                           onTap: () {
@@ -194,7 +194,7 @@ class TeamInfo extends StatelessWidget {
                           },
                           child: Text(
                             website!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 16,
                               decoration: TextDecoration.underline,

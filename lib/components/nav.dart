@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scouting_app/Experiment/experiment.dart';
+import 'package:scouting_app/main.dart';
 
 import '../Match_Pages/about_page.dart';
 import '../Match_Pages/logs.dart';
 import '../Match_Pages/match_page.dart';
-import '../Match_Pages/settings_page.dart';
+import '../settings_page.dart';
 import '../home_page.dart';
 
 class NavBar extends StatelessWidget {
@@ -14,6 +15,7 @@ class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: isdarkmode() ? Colors.white : Colors.black,
       width: MediaQuery.of(context).size.width *
           1, // Drawer width is 60% of the screen width
       child: Column(
@@ -27,7 +29,7 @@ class NavBar extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Container(
+            child: SizedBox(
               height: 200,
               width: double.infinity,
               // This makes the width of the header fill the drawer
@@ -48,16 +50,22 @@ class NavBar extends StatelessWidget {
                     'FEDS 201',
                     style: GoogleFonts.museoModerno(
                       fontSize: 24,
-                      color: Colors.white, // White text
+                      color: isdarkmode()
+                          ? const Color.fromARGB(255, 255, 255, 255)
+                          : invertColor(
+                              const Color.fromARGB(255, 255, 255, 255)),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     'Scout Ops v.1.5',
                     style: GoogleFonts.museoModerno(
                       fontSize: 14,
-                      color: Colors.white, // White text
+                      color: isdarkmode()
+                          ? const Color.fromARGB(255, 255, 255, 255)
+                          : invertColor(
+                              const Color.fromARGB(255, 255, 255, 255)),
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -105,7 +113,7 @@ class NavBar extends StatelessWidget {
           _buildNavItem(context,
               icon: Icons.science_outlined,
               title: 'Experimental',
-              page: Experiment()),
+              page: const Experiment()),
         ],
       ),
     );
@@ -128,7 +136,9 @@ class NavBar extends StatelessWidget {
         title,
         style: GoogleFonts.museoModerno(
           fontSize: 18,
-          color: Colors.blueGrey[700],
+          color: !isdarkmode()
+              ? const Color.fromARGB(255, 255, 255, 255)
+              : invertColor(const Color.fromARGB(255, 255, 255, 255)),
           fontWeight: FontWeight.w500,
         ),
       ),

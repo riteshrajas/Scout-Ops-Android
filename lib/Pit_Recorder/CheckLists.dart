@@ -41,19 +41,19 @@ class _ChecklistsState extends State<Checklists> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Options'),
+          title: const Text('Options'),
           content: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
-                icon: Icon(Icons.add),
+                icon: const Icon(Icons.add),
                 onPressed: () {
                   Navigator.of(context).pop();
                   _showAddWidgetDialog();
                 },
               ),
               IconButton(
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
@@ -76,18 +76,18 @@ class _ChecklistsState extends State<Checklists> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Scouting Item'),
+          title: const Text('Add Scouting Item'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: labelController,
-                decoration: InputDecoration(labelText: 'Label'),
+                decoration: const InputDecoration(labelText: 'Label'),
               ),
               TextField(
                 controller: optionsController,
                 decoration:
-                    InputDecoration(labelText: 'Options (comma separated)'),
+                    const InputDecoration(labelText: 'Options (comma separated)'),
               ),
             ],
           ),
@@ -103,13 +103,13 @@ class _ChecklistsState extends State<Checklists> {
                 _addScoutingItem(newItem);
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
@@ -128,7 +128,7 @@ class _ChecklistsState extends State<Checklists> {
           children: [
             Text(
               item.label,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 8),
             if (item.options.isNotEmpty)
@@ -146,7 +146,7 @@ class _ChecklistsState extends State<Checklists> {
                     });
                   },
                 );
-              }).toList(),
+              }),
             if (item.options.isEmpty) FreeResponseWidget(item: item),
             if (isEditing)
               Align(
@@ -180,7 +180,7 @@ class _ChecklistsState extends State<Checklists> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddItemDialog,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -217,7 +217,7 @@ class ScoutingItem {
 class FreeResponseWidget extends StatelessWidget {
   final ScoutingItem item;
 
-  const FreeResponseWidget({Key? key, required this.item}) : super(key: key);
+  const FreeResponseWidget({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {

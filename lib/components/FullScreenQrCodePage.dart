@@ -4,7 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 class FullScreenQrCodePage extends StatelessWidget {
   final String data;
 
-  const FullScreenQrCodePage({required this.data});
+  const FullScreenQrCodePage({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

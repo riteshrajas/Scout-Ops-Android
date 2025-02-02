@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:scouting_app/components/plugin-tile.dart';
 
+import '../main.dart';
 import 'Pyintel_Soutz.dart';
 import 'plugin_state_manager.dart'; // Import the state manager
 
@@ -14,14 +16,8 @@ class Plugins extends StatefulWidget {
 class _PluginsState extends State<Plugins> {
   final PluginStateManager _stateManager = PluginStateManager();
   bool intergrateWithPyintelScoutz = false;
-  bool geminiIntergerations = false;
-  bool auth0Intergerations = false;
-  bool intergrateWithRitesh = false;
 
   bool intergrateWithPyintelScoutz_expanded = false;
-  bool geminiIntergerations_expanded = false;
-  bool auth0Intergerations_expanded = false;
-  bool intergrateWithRitesh_expanded = false;
 
   @override
   void initState() {
@@ -38,27 +34,19 @@ class _PluginsState extends State<Plugins> {
     ]);
     setState(() {
       intergrateWithPyintelScoutz = states['intergrateWithPyintelScoutz']!;
-      geminiIntergerations = states['geminiIntergerations']!;
-      auth0Intergerations = states['auth0Intergerations']!;
-      intergrateWithRitesh = states['intergrateWithRitesh']!;
     });
   }
 
   Future<void> _saveStates() async {
     await _stateManager.saveAllPluginStates({
       'intergrateWithPyintelScoutz': intergrateWithPyintelScoutz,
-      'geminiIntergerations': geminiIntergerations,
-      'auth0Intergerations': auth0Intergerations,
-      'intergrateWithRitesh': intergrateWithRitesh,
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugins'),
-      ),
+      appBar: _buildCustomAppBar(context),
       body: ListView(
         children: <Widget>[
           PluginTile(
@@ -78,79 +66,44 @@ class _PluginsState extends State<Plugins> {
               setState(() {
                 intergrateWithPyintelScoutz_expanded =
                     !intergrateWithPyintelScoutz_expanded;
-                auth0Intergerations_expanded = false;
-                geminiIntergerations_expanded = false;
               });
             },
             Expanded_Widget: PyintelScoutzWidget(),
           ),
-          PluginTile(
-            title: "Authentication",
-            description: "Enables in app authentications",
-            icon_Widget: Icons.connected_tv_sharp,
-            expanded_Widget: auth0Intergerations_expanded,
-            value_trailing: auth0Intergerations,
-            enabled_trailing: false,
-            onToggle_Trailing: (bool value) {
-              setState(() {
-                auth0Intergerations = value;
-              });
-              _saveStates();
-            },
-            onTap_Widget: () {
-              setState(() {
-                auth0Intergerations_expanded = !auth0Intergerations_expanded;
-                geminiIntergerations_expanded = false;
-                intergrateWithPyintelScoutz_expanded = false;
-              });
-            },
-            Expanded_Widget: Container(),
-          ),
-          PluginTile(
-            title: "Integrate with Gemini (Soon)",
-            description: "description",
-            icon_Widget: Icons.webhook,
-            expanded_Widget: geminiIntergerations_expanded,
-            value_trailing: geminiIntergerations,
-            enabled_trailing: false,
-            onToggle_Trailing: (bool value) {
-              setState(() {
-                geminiIntergerations = value;
-              });
-            },
-            onTap_Widget: () {
-              setState(() {
-                geminiIntergerations_expanded = !geminiIntergerations_expanded;
-                auth0Intergerations_expanded = false;
-                intergrateWithPyintelScoutz_expanded = false;
-              });
-            },
-            Expanded_Widget: Container(),
-          ),
-          PluginTile(
-            title: "Integrate with Ritesh",
-            description: "description",
-            icon_Widget: Icons.integration_instructions,
-            expanded_Widget: intergrateWithRitesh_expanded,
-            value_trailing: intergrateWithRitesh,
-            enabled_trailing: true,
-            onToggle_Trailing: (bool value) {
-              setState(() {
-                intergrateWithRitesh = value;
-              });
-            },
-            onTap_Widget: () {
-              setState(() {
-                intergrateWithRitesh_expanded = !intergrateWithRitesh_expanded;
-                auth0Intergerations_expanded = false;
-                geminiIntergerations_expanded = false;
-                intergrateWithPyintelScoutz_expanded = false;
-              });
-            },
-            Expanded_Widget: Container(),
-          ),
         ],
       ),
+    );
+  }
+
+  AppBar _buildCustomAppBar(BuildContext context) {
+    return AppBar(
+      leading: Builder(builder: (context) {
+        return IconButton(
+            icon: Icon(Icons.arrow_back),
+            color: !isdarkmode()
+                ? const Color.fromARGB(193, 255, 255, 255)
+                : const Color.fromARGB(105, 36, 33, 33),
+            onPressed: () => Navigator.pop(context));
+      }),
+
+      backgroundColor: Colors.transparent, // Transparent to show the animation
+      title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.red, Colors.blue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+          child: Text(
+            'Plugins',
+            style: GoogleFonts.museoModerno(
+              fontSize: 30,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          )),
+
+      elevation: 0, // Remove shadow for a cleaner look
+      centerTitle: true,
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'compactifier.dart';
 
 class LocalDataBase {
-  static Map<String, dynamic> _storage = {};
+  static final Map<String, dynamic> _storage = {};
 
   static void putData(dynamic key, dynamic value) {
     if (key == null) {
@@ -96,7 +96,7 @@ class LocalDataBase {
 }
 
 class MatchLogs {
-  static List<String> _logs = [];
+  static final List<String> _logs = [];
   static void addLog(String log) {
     // print(_logs);
     _logs.add(log);

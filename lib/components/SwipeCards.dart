@@ -13,7 +13,7 @@ class MatchCard extends StatelessWidget {
   final String allianceColor;
   final String selectedStation;
 
-  MatchCard({
+  const MatchCard({super.key, 
     required this.matchData,
     required this.eventName,
     required this.teamNumber,
@@ -48,7 +48,7 @@ class MatchCard extends StatelessWidget {
                 buildCommentsBox("Match Key", matchKey,
                     const Icon(Icons.contact_mail_sharp), (String value) {}),
                 buildCommentsBox("Alliance Color", allianceColor,
-                    Icon(Icons.connected_tv_sharp), (String value) {}),
+                    const Icon(Icons.connected_tv_sharp), (String value) {}),
                 // Adjust color based on alliance
                 buildCommentsBox("Selected Station", selectedStation,
                     const Icon(Icons.map_outlined), (String value) {}),

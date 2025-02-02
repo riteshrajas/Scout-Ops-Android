@@ -25,11 +25,11 @@ Widget buildButton({
               : BorderSide.none,
         ),
       ),
-      icon: Icon(icon, size: 24, color: iconColor ?? Color(0xA1CCC2C2)),
+      icon: Icon(icon, size: 24, color: iconColor ?? const Color(0xA1CCC2C2)),
       label: Text(
         text,
         style: GoogleFonts.museoModerno(
-          fontSize: 25, color: textColor ?? Color(0xA1CCC2C2),),
+          fontSize: 25, color: textColor ?? const Color(0xA1CCC2C2),),
       ),
     ),
   );

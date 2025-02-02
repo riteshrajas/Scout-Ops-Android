@@ -6,15 +6,14 @@ class StopwatchWidget extends StatefulWidget {
   final Function(double time)? onStopped;
   final double time;
 
-  const StopwatchWidget({Key? key, required this.time, this.onStopped})
-      : super(key: key);
+  const StopwatchWidget({super.key, required this.time, this.onStopped});
 
   @override
   _StopwatchWidgetState createState() => _StopwatchWidgetState();
 }
 
 class _StopwatchWidgetState extends State<StopwatchWidget> {
-  Stopwatch _stopwatch = Stopwatch();
+  final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   late int _initialElapsedMilliseconds;
 
@@ -76,7 +75,7 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
               BoxShadow(
                 color: Colors.grey.withOpacity(0.2),
                 blurRadius: 10,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
@@ -102,7 +101,7 @@ class _StopwatchWidgetState extends State<StopwatchWidget> {
                       children: [
                         Center(
                           child: Text(
-                            _formatTime(_stopwatch.elapsedMilliseconds) + 's',
+                            '${_formatTime(_stopwatch.elapsedMilliseconds)}s',
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,

@@ -12,7 +12,7 @@ import '../Match_Pages/match_page.dart';
 import '../home_page.dart';
 
 class localmatchLoader extends StatefulWidget {
-  const localmatchLoader({Key? key}) : super(key: key);
+  const localmatchLoader({super.key});
 
   @override
   _localmatchLoaderState createState() => _localmatchLoaderState();

@@ -9,9 +9,10 @@ import 'References.dart';
 import 'components/Animator/GridPainter.dart';
 import 'components/Button.dart';
 import 'components/nav.dart';
+import 'main.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -58,6 +59,11 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor:
+            isdarkmode() ? const Color(0xFFFFFFFF) : const Color(0xFF151515),
+      ),
       home: Scaffold(
         drawer: const NavBar(),
         body: Stack(
@@ -123,40 +129,22 @@ class _HomePageState extends State<HomePage>
               const SizedBox(height: 5),
             ];
 
-            // if (isExperimentBoxOpen) {
-            //   children.add(
-            //     buildButton(
-            //       context: context,
-            //       text: 'Template Creator',
-            //       iconColor: Colors.redAccent,
-            //       textColor: Colors.redAccent,
-            //       color: Colors.red.shade100,
-            //       borderColor: Colors.redAccent,
-            //       icon: Icons.info_outline,
-            //       onPressed: () {
-            //         Navigator.push(
-            //             context,
-            //             MaterialPageRoute(
-            //                 builder: (context) => const TemplateBuilder(), fullscreenDialog: true));
-            //       },
-            //     ),
-            //   );
-            // }
-
             double height = 55.0 * children.length;
 
             return Container(
               height: height,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isdarkmode()
+                    ? const Color(0xFFFFFFFF)
+                    : const Color.fromARGB(255, 32, 30, 30),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(25),
+                  topRight: Radius.circular(25),
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: _colorAnimation.value!.withOpacity(0.6),
-                    blurRadius: 10.0,
+                    blurRadius: 50.0,
                     spreadRadius: 2.0,
                     offset: const Offset(0, 0),
                   ),
@@ -186,7 +174,7 @@ class _HomePageState extends State<HomePage>
 
   Widget swipeableCards() {
     if (isCardBuilderOpen) {
-      return Container(
+      return SizedBox(
         height: 200,
         child: PageView.builder(
           itemCount: 5,
@@ -194,7 +182,9 @@ class _HomePageState extends State<HomePage>
             return Container(
               margin: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isdarkmode()
+                    ? const Color(0xFFFFFFFF)
+                    : const Color.fromARGB(255, 1, 1, 1),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -211,7 +201,9 @@ class _HomePageState extends State<HomePage>
                   style: GoogleFonts.chivoMono(
                     fontSize: 30,
                     fontWeight: FontWeight.w300,
-                    color: Colors.black,
+                    color: isdarkmode()
+                        ? const Color(0xFFFFFFFF)
+                        : const Color.fromARGB(255, 179, 25, 25),
                   ),
                 ),
               ),
@@ -296,8 +288,8 @@ class _HomePageState extends State<HomePage>
   }
 
   isExperimentBoxOpenFunc() async {
-    final ExpStateManager _stateManager = ExpStateManager();
-    Map<String, bool> states = await _stateManager.loadAllPluginStates([
+    final ExpStateManager stateManager = ExpStateManager();
+    Map<String, bool> states = await stateManager.loadAllPluginStates([
       'templateStudioEnabled',
       'templateStudioExpanded',
       'cardBuilderEnabled',
@@ -307,8 +299,8 @@ class _HomePageState extends State<HomePage>
   }
 
   isCardBuilderOpenFunc() async {
-    final ExpStateManager _stateManager = ExpStateManager();
-    Map<String, bool> states = await _stateManager
+    final ExpStateManager stateManager = ExpStateManager();
+    Map<String, bool> states = await stateManager
         .loadAllPluginStates(['cardBuilderEnabled', 'cardBuilderExpanded']);
     return states['cardBuilderEnabled'];
   }
@@ -316,6 +308,14 @@ class _HomePageState extends State<HomePage>
 
 Widget _buildCustomAppBar(BuildContext context) {
   return AppBar(
+    leading: Builder(builder: (context) {
+      return IconButton(
+          icon: Icon(Icons.menu),
+          color: !isdarkmode()
+              ? const Color.fromARGB(193, 255, 255, 255)
+              : const Color.fromARGB(105, 36, 33, 33),
+          onPressed: () => Scaffold.of(context).openDrawer());
+    }),
     backgroundColor: Colors.transparent, // Transparent to show the animation
     elevation: 0, // Remove shadow for a cleaner look
     actions: [
@@ -326,11 +326,12 @@ Widget _buildCustomAppBar(BuildContext context) {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ).createShader(bounds),
-          child: const Icon(Icons.attach_file_rounded, size: 30, color: Colors.white),
+          child: const Icon(Icons.attach_file_rounded,
+              size: 30, color: Colors.white),
         ),
         onPressed: () {
-          Route route =
-              MaterialPageRoute(builder: (context) => InfiniteZoomImage());
+          Route route = MaterialPageRoute(
+              builder: (context) => const InfiniteZoomImage());
           Navigator.push(context, route);
         },
       ),

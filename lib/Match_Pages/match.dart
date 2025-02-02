@@ -148,8 +148,8 @@ enum Types {
 }
 
 isExperimentBoxOpenFunc() async {
-  final ExpStateManager _stateManager = ExpStateManager();
-  Map<String, bool> states = await _stateManager.loadAllPluginStates([
+  final ExpStateManager stateManager = ExpStateManager();
+  Map<String, bool> states = await stateManager.loadAllPluginStates([
     'templateStudioEnabled',
   ]);
   return states['templateStudioEnabled'];

@@ -53,7 +53,7 @@ class _Pit_RecorderState extends State<Pit_Recorder> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Error',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
@@ -64,7 +64,7 @@ class _Pit_RecorderState extends State<Pit_Recorder> {
               'To resolve this issue, please navigate to Settings > Load Match, '
               'enter the event key, and press Load Event. If the indicator turns green, '
               'you can return to the home screen and try again.',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
           ),
           actions: [
@@ -82,7 +82,7 @@ class _Pit_RecorderState extends State<Pit_Recorder> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );

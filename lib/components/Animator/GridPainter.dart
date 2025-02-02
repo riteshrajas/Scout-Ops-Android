@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import '../../main.dart';
+
 class WaveGrid extends StatefulWidget {
-  const WaveGrid({Key? key}) : super(key: key);
+  const WaveGrid({super.key});
 
   @override
   _WaveGridState createState() => _WaveGridState();
@@ -26,6 +28,8 @@ class _WaveGridState extends State<WaveGrid> with TickerProviderStateMixin {
     _controller.dispose(); // Disposing the animation controller
     super.dispose();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +63,11 @@ class _WaveGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Color(0x15040404)
+      ..color = isdarkmode() ? const Color(0x15040404) : invertColor(const Color(0x15040404))
       ..style = PaintingStyle.fill;
 
     final linePaint = Paint()
-      ..color = Color(0xFFFFFF)
+      ..color = const Color(0x00ffffff)
       ..strokeWidth = 3 // Line width
       ..style = PaintingStyle.stroke;
 
@@ -119,6 +123,7 @@ class _WaveGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WaveGridPainter oldDelegate) => true;
+
 }
 
 class Cell {

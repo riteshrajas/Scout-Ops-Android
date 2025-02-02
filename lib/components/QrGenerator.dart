@@ -13,7 +13,7 @@ import 'DataBase.dart';
 import 'compactifier.dart';
 
 class Qrgenerator extends StatefulWidget {
-  const Qrgenerator({Key? key}) : super(key: key);
+  const Qrgenerator({super.key});
 
   @override
   QrCoder createState() => QrCoder();
@@ -79,7 +79,7 @@ class QrCoder extends State<Qrgenerator> {
                   ],
                 ),
                 child: SliderButton(
-                  buttonColor: Color(0xFFFFD700), // Golden color
+                  buttonColor: const Color(0xFFFFD700), // Golden color
                   backgroundColor: Colors.white,
                   highlightedColor: Colors.red,
                   buttonSize: 70,
@@ -165,12 +165,12 @@ class QrCoder extends State<Qrgenerator> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text('Error'),
+                  title: const Text('Error'),
                   content:
                       Text('Server returned an error: ${response.statusCode}'),
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () async {
                         await Navigator.push(
                           context,
@@ -191,11 +191,11 @@ class QrCoder extends State<Qrgenerator> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Error'),
-                content: Text('Failed to communicate with the server.'),
+                title: const Text('Error'),
+                content: const Text('Failed to communicate with the server.'),
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       LocalDataBase.clearData();
                       print("Data Cleared");

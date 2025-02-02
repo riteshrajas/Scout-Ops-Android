@@ -5,6 +5,8 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
 class PyintelScoutzWidget extends StatefulWidget {
+  const PyintelScoutzWidget({super.key});
+
   @override
   _PyintelScoutzWidgetState createState() => _PyintelScoutzWidgetState();
 }
@@ -14,6 +16,7 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
   final TextEditingController _controllerDeviceName = TextEditingController();
   Color _testButtonColor = Colors.blue;
 
+  @override
   void initState() {
     super.initState();
     _loadSettings();
@@ -48,7 +51,7 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
     String ipAddress = _controllerIp.text;
     RegExp websitePattern = RegExp(r'^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!websitePattern.hasMatch(ipAddress)) {
-      ipAddress = '$ipAddress';
+      ipAddress = ipAddress;
     }
 
     String deviceName = _controllerDeviceName.text;
@@ -79,7 +82,7 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
                 content: Text(responseBody['message']),
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -144,7 +147,7 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
               controller: _controllerDeviceName,
               decoration: const InputDecoration(

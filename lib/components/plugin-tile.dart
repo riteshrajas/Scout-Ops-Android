@@ -12,7 +12,7 @@ class PluginTile extends StatelessWidget {
   final Function(bool) onToggle_Trailing;
   final Widget Expanded_Widget;
 
-  const PluginTile({
+  const PluginTile({super.key, 
     required this.title,
     required this.description,
     required this.onTap_Widget,
@@ -40,7 +40,7 @@ class PluginTile extends StatelessWidget {
                 color: Colors.grey.withOpacity(0.2),
                 spreadRadius: 2,
                 blurRadius: 5,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 class InfiniteZoomImage extends StatelessWidget {
+  const InfiniteZoomImage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

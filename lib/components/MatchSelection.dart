@@ -8,7 +8,7 @@ class MatchSelection extends StatefulWidget {
   final String initAlliance;
   final String initPosition;
 
-  MatchSelection({required this.onAllianceSelected, required this.onPositionSelected, required this.initAlliance, required this.initPosition});
+  const MatchSelection({super.key, required this.onAllianceSelected, required this.onPositionSelected, required this.initAlliance, required this.initPosition});
 
   @override
   _MatchSelectionState createState() => _MatchSelectionState();

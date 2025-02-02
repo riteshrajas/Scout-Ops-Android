@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/GeminiService.dart';
 
 class GeminiPredictionPage extends StatefulWidget {
-  const GeminiPredictionPage({Key? key}) : super(key: key);
+  const GeminiPredictionPage({super.key});
 
   @override
   _GeminiPredictionPageState createState() => _GeminiPredictionPageState();

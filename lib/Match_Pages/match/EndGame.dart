@@ -130,13 +130,13 @@ class MapWidget extends StatelessWidget {
   final Function(TapUpDetails) onTap;
 
   const MapWidget({
-    Key? key,
+    super.key,
     required this.endLocation,
     required this.size,
     required this.allianceColor,
     required this.image,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

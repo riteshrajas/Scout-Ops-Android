@@ -10,6 +10,7 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:scouting_app/components/MatchSelection.dart';
+import 'package:scouting_app/main.dart';
 
 import '../components/DataBase.dart';
 import '../components/nav.dart';
@@ -62,6 +63,9 @@ class MatchPageState extends State<MatchPage> {
       appBar: _buildCustomAppBar(context),
       body: matchPage(context, _selectedIndex), // Main content area
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: isdarkmode()
+            ? const Color.fromARGB(255, 255, 255, 255)
+            : const Color.fromARGB(255, 42, 40, 40),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -75,6 +79,9 @@ class MatchPageState extends State<MatchPage> {
         currentIndex: _selectedIndex.clamp(
             0, 1), // Ensure currentIndex is within valid range
         selectedItemColor: Colors.red,
+        unselectedItemColor: isdarkmode()
+            ? const Color.fromARGB(255, 255, 255, 255)
+            : const Color.fromARGB(188, 255, 255, 255),
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
@@ -86,6 +93,14 @@ class MatchPageState extends State<MatchPage> {
 
   AppBar _buildCustomAppBar(BuildContext context) {
     return AppBar(
+      leading: Builder(builder: (context) {
+        return IconButton(
+            icon: Icon(Icons.menu),
+            color: !isdarkmode()
+                ? const Color.fromARGB(193, 255, 255, 255)
+                : const Color.fromARGB(105, 36, 33, 33),
+            onPressed: () => Scaffold.of(context).openDrawer());
+      }),
       backgroundColor: Colors.transparent, // Transparent to show the animation
       title: Center(
         child: ShaderMask(
@@ -187,8 +202,12 @@ class MatchPageState extends State<MatchPage> {
       var data = Hive.box("matchData").get("matches", defaultValue: null);
       LocalDataBase.putData(Types.eventFile, data.toString());
       LocalDataBase.putData(Types.eventKey, data[0]['event_key']);
-      LocalDataBase.putData(Types.allianceColor, Hive.box('userData').get('alliance', defaultValue: ''));
-      LocalDataBase.putData(Types.selectedStation,((Hive.box('userData').get('alliance') == "Red") ? "R" : "B")+  Hive.box('userData').get('position', defaultValue: ''));
+      LocalDataBase.putData(Types.allianceColor,
+          Hive.box('userData').get('alliance', defaultValue: ''));
+      LocalDataBase.putData(
+          Types.selectedStation,
+          ((Hive.box('userData').get('alliance') == "Red") ? "R" : "B") +
+              Hive.box('userData').get('position', defaultValue: ''));
       eventKeyController.text = LocalDataBase.getData(Types.eventKey);
       writeJson(data);
       developer.log(data.toString());
@@ -241,17 +260,20 @@ class MatchPageState extends State<MatchPage> {
   List<Widget> modules(BuildContext context) {
     return [
       Padding(
-          padding: const EdgeInsets.all(20),
-          child: TextField(
-            controller: eventKeyController,
-            decoration: InputDecoration(
+        padding: const EdgeInsets.all(20),
+        child: TextField(
+          cursorColor: !isdarkmode()
+              ? const Color.fromARGB(255, 255, 255, 255)
+              : const Color.fromARGB(255, 0, 0, 0),
+          controller: eventKeyController,
+          decoration: InputDecoration(
             labelText: 'Match Event Key (e.g. 2024isde4)',
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ),),
-
+          ),
+        ),
+      ),
       SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -289,7 +311,6 @@ class MatchPageState extends State<MatchPage> {
                   'Load Event',
                   style: GoogleFonts.museoModerno(
                       fontSize: 20, color: Colors.white),
-
                 ),
               ),
               ElevatedButton(
