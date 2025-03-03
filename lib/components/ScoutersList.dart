@@ -10,7 +10,7 @@ class ScouterList extends StatefulWidget {
 }
 
 class _ScouterListState extends State<ScouterList> {
-  final List<String> _scouterNames =
+  final List<dynamic> _scouterNames =
       Hive.box('userData').get('scouterNames', defaultValue: []);
   String _selectedChip =
       Hive.box('settings').get('deviceName', defaultValue: '');

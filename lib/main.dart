@@ -37,6 +37,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scouterNames =
+        Hive.box('userData').get('scouterNames', defaultValue: []);
     return MaterialApp(
       title: 'Scout Ops',
       theme: ThemeData(
