@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:scouting_app/components/CommentBox.dart';
@@ -74,14 +76,14 @@ class MatchCard extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => FullScreenQrCodePage(
-                                  data: correctJsonFormat(matchData)),
+                              builder: (context) =>
+                                  FullScreenQrCodePage(data: matchData),
                               fullscreenDialog: true,
                             ),
                           );
                         },
                         child: QrImageView(
-                          data: matchData,
+                          data: jsonEncode(matchData),
                           version: QrVersions.auto,
                           size: 270,
                           gapless: false,

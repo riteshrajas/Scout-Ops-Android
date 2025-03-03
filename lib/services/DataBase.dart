@@ -396,6 +396,75 @@ class MatchDataBase {
   static dynamic Export() {
     return _storage;
   }
+
+  static List<MatchRecord> GetAll() {
+    List<MatchRecord> records = [];
+    _storage.forEach((key, value) {
+      records.add(MatchRecord.fromJson(value));
+    });
+    return records;
+  }
+
+  static MatchRecord fromJson(Map<String, dynamic> json) {
+    return MatchRecord(
+      AutonPoints.fromJson(json['autonPoints'] ?? {}),
+      TeleOpPoints.fromJson(json['teleOpPoints'] ?? {}),
+      EndPoints.fromJson(json['endPoints'] ?? {}),
+      teamNumber: json['teamNumber'] ?? "",
+      scouterName: json['scouterName'] ?? "",
+      matchKey: json['matchKey'] ?? "",
+      allianceColor: json['allianceColor'] ?? "",
+      eventKey: json['eventKey'] ?? "",
+      station: json['station'] ?? 0,
+      matchNumber: json['matchNumber'] ?? 0,
+    );
+  }
+
+  static MatchRecord fromMap(Map<String, dynamic> map) {
+    return MatchRecord(
+      AutonPoints.fromJson(map['autonPoints'] ?? {}),
+      TeleOpPoints.fromJson(map['teleOpPoints'] ?? {}),
+      EndPoints.fromJson(map['endPoints'] ?? {}),
+      teamNumber: map['teamNumber'] ?? "",
+      scouterName: map['scouterName'] ?? "",
+      matchKey: map['matchKey'] ?? "",
+      allianceColor: map['allianceColor'] ?? "",
+      eventKey: map['eventKey'] ?? "",
+      station: map['station'] ?? 0,
+      matchNumber: map['matchNumber'] ?? 0,
+    );
+  }
+
+  static Map<String, dynamic> toMap(MatchRecord record) {
+    return {
+      'teamNumber': record.teamNumber,
+      'scouterName': record.scouterName,
+      'matchKey': record.matchKey,
+      'allianceColor': record.allianceColor,
+      'eventKey': record.eventKey,
+      'station': record.station,
+      'matchNumber': record.matchNumber,
+      'autonPoints': record.autonPoints.toJson(),
+      'teleOpPoints': record.teleOpPoints.toJson(),
+      'endPoints': record.endPoints.toJson(),
+    };
+  }
+
+  static List<MatchRecord> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => fromJson(json)).toList();
+  }
+
+  static List<Map<String, dynamic>> toJsonList(List<MatchRecord> records) {
+    return records.map((record) => record.toJson()).toList();
+  }
+
+  static List<MatchRecord> fromMapList(List<Map<String, dynamic>> mapList) {
+    return mapList.map((map) => fromMap(map)).toList();
+  }
+
+  static List<Map<String, dynamic>> toMapList(List<MatchRecord> records) {
+    return records.map((record) => toMap(record)).toList();
+  }
 }
 
 class MatchRecord {

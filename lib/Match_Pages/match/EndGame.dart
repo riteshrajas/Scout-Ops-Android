@@ -121,13 +121,16 @@ class EndGameState extends State<EndGame> {
                   vibrationFlag: true,
                   width: MediaQuery.of(context).size.width - 16,
                   action: () async {
+                    MatchDataBase.PutData(
+                        widget.matchRecord.matchKey, widget.matchRecord);
+                    MatchDataBase.SaveAll();
+                    MatchDataBase.PrintAll();
                     await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
                                 Qrgenerator(matchRecord: widget.matchRecord),
                             fullscreenDialog: true));
-                    return null;
                   },
                   label: const Text("Slide to Complete Event",
                       style: TextStyle(

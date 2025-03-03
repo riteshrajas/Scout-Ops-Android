@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scouting_app/Experiment/experiment.dart';
+import 'package:scouting_app/logs.dart';
 import 'package:scouting_app/main.dart';
 
 import '../about_page.dart';
@@ -91,12 +92,12 @@ class NavBar extends StatelessWidget {
                   title: 'Match',
                   page: const MatchPage(),
                 ),
-                // _buildNavItem(
-                //   context,
-                //   icon: Icons.list_alt_outlined,
-                //   title: 'Logs',
-                //   page: const LogsPage(),
-                // ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.list_alt_outlined,
+                  title: 'Logs',
+                  page: const LogsPage(),
+                ),
                 _buildNavItem(
                   context,
                   icon: Icons.settings_outlined,
