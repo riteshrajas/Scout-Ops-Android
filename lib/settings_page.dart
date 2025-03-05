@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'services/DataBase.dart';
 import 'components/MatchSelection.dart';
@@ -505,7 +507,9 @@ class SettingsPageState extends State<SettingsPage> {
                               Uri.parse(
                                   "https://api.github.com/repos/feds201/Scout-Ops-Android/releases/latest"),
                             ).send().then((response) {
-                              response.stream.bytesToString().then((body) {
+                              response.stream
+                                  .bytesToString()
+                                  .then((body) async {
                                 final jsonData = jsonDecode(body);
                                 String remoteTag = jsonData[
                                     'tag_name']; // e.g. "Version-2.0.1.3"
@@ -536,6 +540,11 @@ class SettingsPageState extends State<SettingsPage> {
                                   print("Update Available");
                                   print(jsonData["assets"][0]
                                       ["browser_download_url"]);
+
+                                  InstallApk(await downloadApk(
+                                      jsonData["assets"][0]
+                                          ["browser_download_url"],
+                                      remoteTag));
                                 } else {
                                   print("No Update Available");
                                 }
@@ -565,3 +574,33 @@ final WidgetStateProperty<Icon?> thumbIcon =
     return const Icon(Icons.close);
   },
 );
+
+Future<String> downloadApk(String apkUrl, String version) async {
+  var response = await http.get(Uri.parse(apkUrl));
+
+  if (response.statusCode == 200) {
+    var bytes = response.bodyBytes;
+
+    var dir = await getTemporaryDirectory();
+
+    var filePath = dir.path + '/ScoutOps_$version.apk';
+
+    File file = File(filePath);
+
+    await file.writeAsBytes(bytes);
+    return filePath;
+  } else {
+    print("Error: ${response.statusCode}");
+    return "";
+  }
+}
+
+void InstallApk(String filePath) async {
+  Process.run('adb', ['install', filePath]).then((result) {
+    if (result.exitCode == 0) {
+      print("APK installed successfully.");
+    } else {
+      print("Error installing APK: ${result.stderr}");
+    }
+  });
+}
