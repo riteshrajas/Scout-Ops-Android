@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +24,8 @@ class QrCoder extends State<Qrgenerator> {
   final PluginStateManager pluginStateManager = PluginStateManager();
   @override
   Widget build(BuildContext context) {
-    bool isJson = Hive.box('settings').get('isJson');
+    // bool isJson = Hive.box('settings').get('isJson');
+    // log('Building QR Code with isJson: $isJson');
     return Scaffold(
       appBar: AppBar(
         title: Text('QR Code',
@@ -39,9 +41,7 @@ class QrCoder extends State<Qrgenerator> {
           children: <Widget>[
             QrImageView(
               // data: json.encode(widget.matchRecord.toJson()),
-              data: isJson
-                  ? json.encode(widget.matchRecord.toJson())
-                  : widget.matchRecord.toCsv(),
+              data: json.encode(widget.matchRecord.toJson()),
               version: QrVersions.auto,
               size: MediaQuery.of(context).size.width - 40,
               semanticsLabel: 'QR code',
