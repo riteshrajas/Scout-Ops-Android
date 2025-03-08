@@ -71,6 +71,7 @@ class _TeleOperatedState extends State<TeleOperated> {
     widget.matchRecord.teleOpPoints.AlgaeScoringProcessor =
         algaeScoringProcessor;
     widget.matchRecord.teleOpPoints.AlgaeScoringBarge = algaeScoringBarge;
+    widget.matchRecord.teleOpPoints.AlgaePickUp = algaePickUp;
     widget.matchRecord.teleOpPoints.Defense = defense;
 
     saveState();

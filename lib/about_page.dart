@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:card_swiper/card_swiper.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'dart:math' as math;
 
 import 'components/Chips.dart';
 import 'components/nav.dart';
-import 'components/plugin-tile.dart';
-import 'home_page.dart';
 import 'main.dart';
 
 class AboutPage extends StatelessWidget {

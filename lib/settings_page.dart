@@ -23,7 +23,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  String version = '2.0.1.4';
+  String version = '2.0.1.5';
   bool isLocationGranted = false;
   bool isBluetoothGranted = false;
   bool isNearbyDevicesGranted = false;
@@ -236,8 +236,10 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                       SizedBox(height: 10),
                       TextField(
-                        cursorColor: const Color.fromARGB(255, 255, 255, 255),
                         controller: eventKeyController,
+                        onChanged: (String value) {
+                          Hive.box('userData').put('eventKey', value);
+                        },
                         decoration: InputDecoration(
                           labelText: 'Match Event Key (e.g. 2024isde4)',
                           border: OutlineInputBorder(
