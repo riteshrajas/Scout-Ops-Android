@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/painting.dart';
 import 'package:hive/hive.dart';
 
 class Settings {
@@ -73,30 +74,50 @@ class PitRecord {
   final int teamNumber;
   final String scouterName;
   final String eventKey;
-  final String keyStrengths;
-  final String keyWeaknesses;
-  final String defensiveStratigiy;
-  final String defensePlan;
+  final String driveTrainType;
+  final String autonType;
+  final List<String> scoreObject;
+  final List<String> scoreType;
+  final String intake;
+  final List<String> climbType;
 
   PitRecord(
       {required this.teamNumber,
       required this.scouterName,
       required this.eventKey,
-      required this.keyStrengths,
-      required this.keyWeaknesses,
-      required this.defensiveStratigiy,
-      required this.defensePlan});
+      required this.driveTrainType,
+      required this.autonType,
+      required this.scoreObject,
+      required this.scoreType,
+      required this.intake,
+      required this.climbType});
 
   Map<String, dynamic> toJson() {
     return {
       "teamNumber": teamNumber,
       "scouterName": scouterName,
       "eventKey": eventKey,
-      "keyStrengths": keyStrengths,
-      "keyWeaknesses": keyWeaknesses,
-      "defensiveStratigiy": defensiveStratigiy,
-      "defensePlan": defensePlan
+      "driveTrain": driveTrainType,
+      "auton": autonType,
+      "scoreObject": scoreObject.toString(),
+      "scoreType": scoreType,
+      "intake": intake,
+      "climbType": climbType
     };
+  }
+
+  factory PitRecord.fromJson(Map<String, dynamic> json) {
+    return PitRecord(
+      teamNumber: json['teamNumber'],
+      scouterName: json['scouterName'],
+      eventKey: json['eventKey'],
+      driveTrainType: json['driveTrainType'],
+      autonType: json['autonType'],
+      scoreType: List<String>.from(json['scoreType']),
+      scoreObject: List<String>.from(json['scoreObject']),
+      intake: json['intake'],
+      climbType: json['climbType'],
+    );
   }
 }
 
@@ -567,6 +588,7 @@ class AutonPoints {
   bool LeftBarge = false;
   int AlgaeScoringProcessor = 0;
   int AlgaeScoringBarge = 0;
+  BotLocation robot_position;
 
   AutonPoints(
     this.CoralScoringLevel1,
@@ -576,6 +598,7 @@ class AutonPoints {
     this.LeftBarge,
     this.AlgaeScoringProcessor,
     this.AlgaeScoringBarge,
+    this.robot_position,
   );
 
   Map<String, dynamic> toJson() {
@@ -587,6 +610,7 @@ class AutonPoints {
       "LeftBarge": LeftBarge,
       "AlgaeScoringProcessor": AlgaeScoringProcessor,
       "AlgaeScoringBarge": AlgaeScoringBarge,
+      "RobotLocation": robot_position.toJson(),
     };
   }
 
@@ -599,15 +623,16 @@ class AutonPoints {
       json['LeftBarge'] ?? false,
       json['AlgaeScoringProcessor'] ?? 0,
       json['AlgaeScoringBarge'] ?? 0,
+      BotLocation.fromJson(json['RobotLocation'] ?? {}),
     );
   }
 
   @override
   String toString() {
-    return 'AutonPoints{CoralScoringLevel1: $CoralScoringLevel1, CoralScoringLevel2: $CoralScoringLevel2, CoralScoringLevel3: $CoralScoringLevel3, CoralScoringLevel4: $CoralScoringLevel4, LeftBarge: $LeftBarge, AlgaeScoringProcessor: $AlgaeScoringProcessor, AlgaeScoringBarge: $AlgaeScoringBarge}';
+    return 'AutonPoints{CoralScoringLevel1: $CoralScoringLevel1, CoralScoringLevel2: $CoralScoringLevel2, CoralScoringLevel3: $CoralScoringLevel3, CoralScoringLevel4: $CoralScoringLevel4, LeftBarge: $LeftBarge, AlgaeScoringProcessor: $AlgaeScoringProcessor, AlgaeScoringBarge: $AlgaeScoringBarge, RobotLocation: $robot_position}';
   }
 
-  setCoralScoringL1(int value) {
+  void setCoralScoringL1(int value) {
     CoralScoringLevel1 = value;
   }
 
@@ -830,14 +855,14 @@ class LocalDataBase {
   // Helper conversion methods
   static AutonPoints mapToAutonPoints(Map<dynamic, dynamic> data) {
     return AutonPoints(
-      data['CoralScoringLevel1'] ?? 0,
-      data['CoralScoringLevel2'] ?? 0,
-      data['CoralScoringLevel3'] ?? 0,
-      data['CoralScoringLevel4'] ?? 0,
-      data['LeftBarge'] ?? false,
-      data['AlgaeScoringProcessor'] ?? 0,
-      data['AlgaeScoringBarge'] ?? 0,
-    );
+        data['CoralScoringLevel1'] ?? 0,
+        data['CoralScoringLevel2'] ?? 0,
+        data['CoralScoringLevel3'] ?? 0,
+        data['CoralScoringLevel4'] ?? 0,
+        data['LeftBarge'] ?? false,
+        data['AlgaeScoringProcessor'] ?? 0,
+        data['AlgaeScoringBarge'] ?? 0,
+        data['RobotLocation'] ?? Offset.zero);
   }
 
   static TeleOpPoints mapToTeleOpPoints(Map<dynamic, dynamic> data) {
@@ -859,6 +884,30 @@ class LocalDataBase {
       data['SpotlightLevel'] ?? 0,
       data['Harmonize'] ?? false,
       data['Park'] ?? false,
+    );
+  }
+}
+
+class BotLocation {
+  Offset position;
+  Size size;
+  double angle;
+
+  BotLocation(this.position, this.size, this.angle);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'position': {'x': position.dx, 'y': position.dy},
+      'size': {'width': size.width, 'height': size.height},
+      'angle': angle,
+    };
+  }
+
+  static BotLocation fromJson(Map<String, dynamic> json) {
+    return BotLocation(
+      Offset(json['position']['x'], json['position']['y']),
+      Size(json['size']['width'], json['size']['height']),
+      json['angle'],
     );
   }
 }

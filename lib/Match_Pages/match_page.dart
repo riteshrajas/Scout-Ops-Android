@@ -173,7 +173,8 @@ class MatchPageState extends State<MatchPage> {
                         [_allianceColor.toLowerCase()]['team_keys']
                     [int.parse(_station) - 1];
                 MatchRecord matchRecord = MatchRecord(
-                  AutonPoints(0, 0, 0, 0, false, 0, 0),
+                  AutonPoints(0, 0, 0, 0, false, 0, 0,
+                      BotLocation(Offset(100, 100), Size(200, 200), 0)),
                   TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
                   EndPoints(false, false, false, ""),
                   teamNumber: teamNNumber.split(
@@ -241,7 +242,8 @@ class MatchPageState extends State<MatchPage> {
                         [_allianceColor.toLowerCase()]['team_keys']
                     [int.parse(_station)];
                 MatchRecord matchRecord = MatchRecord(
-                  AutonPoints(0, 0, 0, 0, false, 0, 0),
+                  AutonPoints(0, 0, 0, 0, false, 0, 0,
+                      BotLocation(Offset.zero, Size.zero, 0)),
                   TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
                   EndPoints(false, false, false, ""),
                   teamNumber: teamNNumber.split(
@@ -301,7 +303,8 @@ class MatchPageState extends State<MatchPage> {
                         [_allianceColor.toLowerCase()]['team_keys']
                     [int.parse(_station)];
                 MatchRecord matchRecord = MatchRecord(
-                  AutonPoints(0, 0, 0, 0, false, 0, 0),
+                  AutonPoints(0, 0, 0, 0, false, 0, 0,
+                      BotLocation(Offset.zero, Size.zero, 0)),
                   TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
                   EndPoints(false, false, false, ""),
                   teamNumber: teamNNumber.split(

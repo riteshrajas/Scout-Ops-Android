@@ -67,7 +67,6 @@ class EndGameState extends State<EndGame> {
   void dispose() {
     // Make sure data is saved when navigating away
     UpdateData();
-    saveState();
     super.dispose();
   }
 
@@ -201,6 +200,7 @@ class EndGameState extends State<EndGame> {
                   vibrationFlag: true,
                   width: MediaQuery.of(context).size.width - 16,
                   action: () async {
+                    UpdateData();
                     MatchDataBase.PutData(
                         widget.matchRecord.matchKey, widget.matchRecord);
                     MatchDataBase.SaveAll();

@@ -1,8 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:scouting_app/components/CheckBox.dart';
 import 'package:scouting_app/components/CommentBox.dart';
 import 'package:scouting_app/components/CounterShelf.dart';
+import 'package:scouting_app/components/Map.dart';
 
 import '../../services/DataBase.dart';
 import '../../components/TeamInfo.dart';
@@ -23,6 +23,7 @@ class AutonState extends State<Auton> {
   late int coralScoreL4;
   late int algaeScoringProcessor;
   late int algaeScoringBarge;
+  late BotLocation botLocations;
 
   late AutonPoints autonPoints;
 
@@ -42,7 +43,7 @@ class AutonState extends State<Auton> {
     matchKey = widget.matchRecord.matchKey;
     allianceColor = widget.matchRecord.allianceColor;
     matchNumber = widget.matchRecord.matchNumber;
-
+    botLocations = BotLocation(Offset(200, 200), Size(2000, 2000), 45);
     left_barge = widget.matchRecord.autonPoints.LeftBarge;
     coralScoreL1 = widget.matchRecord.autonPoints.CoralScoringLevel1;
     coralScoreL2 = widget.matchRecord.autonPoints.CoralScoringLevel2;
@@ -52,27 +53,27 @@ class AutonState extends State<Auton> {
         widget.matchRecord.autonPoints.AlgaeScoringProcessor;
     algaeScoringBarge = widget.matchRecord.autonPoints.AlgaeScoringBarge;
     autonPoints = AutonPoints(
-      coralScoreL1,
-      coralScoreL2,
-      coralScoreL3,
-      coralScoreL4,
-      left_barge,
-      algaeScoringProcessor,
-      algaeScoringBarge,
-    );
+        coralScoreL1,
+        coralScoreL2,
+        coralScoreL3,
+        coralScoreL4,
+        left_barge,
+        algaeScoringProcessor,
+        algaeScoringBarge,
+        botLocations);
     // log('Auton initialized: $autonPoints');
   }
 
   void UpdateData() {
     autonPoints = AutonPoints(
-      coralScoreL1,
-      coralScoreL2,
-      coralScoreL3,
-      coralScoreL4,
-      left_barge,
-      algaeScoringProcessor,
-      algaeScoringBarge,
-    );
+        coralScoreL1,
+        coralScoreL2,
+        coralScoreL3,
+        coralScoreL4,
+        left_barge,
+        algaeScoringProcessor,
+        algaeScoringBarge,
+        botLocations);
 
     widget.matchRecord.autonPoints = autonPoints;
     widget.matchRecord.autonPoints.LeftBarge = left_barge;
@@ -123,6 +124,13 @@ class AutonState extends State<Auton> {
               left_barge = value;
             });
             UpdateData();
+          }),
+          buildMap(context, botLocations, allianceColor,
+              onLocationChanged: (BotLocation updatedLocation) {
+            setState(() {
+              botLocations = updatedLocation;
+            });
+            print(botLocations);
           }),
           buildComments(
               "Coral Scoring",
