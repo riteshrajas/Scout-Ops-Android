@@ -64,7 +64,7 @@ class NavBar extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Scout Ops v.2.0.1',
+                        'Scout Ops v.3.0.0',
                         style: GoogleFonts.museoModerno(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -82,7 +82,7 @@ class NavBar extends StatelessWidget {
                           end: Alignment.bottomRight,
                         ).createShader(bounds),
                         child: Text(
-                          'MK6',
+                          'MK1',
                           style: GoogleFonts.museoModerno(
                             fontSize: 14,
                             color: const Color.fromARGB(255, 255, 255, 255),

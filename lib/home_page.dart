@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage>
           onClosing: () {},
           builder: (BuildContext context) {
             List<Widget> children = [
-              const SizedBox(height: 5),
+              const SizedBox(height: 20),
               buildButton(
                 context: context,
                 text: 'Qualitative Scouting',
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage>
                           fullscreenDialog: true));
                 },
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 12),
               buildButton(
                 context: context,
                 text: 'Match Scouting',
@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage>
                           fullscreenDialog: true));
                 },
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 12),
               buildButton(
                 context: context,
                 text: 'Record Pit',
@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage>
               const SizedBox(height: 5),
             ];
 
-            double height = 55.0 * children.length;
+            double height = 50.0 * children.length;
 
             return Container(
               width: MediaQuery.of(context).size.width,
@@ -163,18 +163,15 @@ class _HomePageState extends State<HomePage>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _colorAnimation.value!.withOpacity(0.6),
-                    blurRadius: 50.0,
-                    spreadRadius: 2.0,
-                    offset: const Offset(0, 0),
+                    color: _colorAnimation.value!.withOpacity(0.8),
+                    blurRadius: 20.0,
+                    spreadRadius: -5.0,
+                    offset: const Offset(0, -3),
                   ),
                 ],
               ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: children,
-                ),
+              child: Column(
+                children: children,
               ),
             );
           },
@@ -237,60 +234,75 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget HOME() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10.0, left: 30.0),
-          child: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Colors.red, Colors.blue],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ).createShader(bounds),
-            child: Text(
-              'Scout-Ops',
-              style: GoogleFonts.chivoMono(
-                fontSize: 70,
-                fontWeight: FontWeight.w300,
-                color: Colors.white,
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0, left: 30.0),
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [
+                  Colors.redAccent,
+                  Colors.blue,
+                  Colors.blueAccent,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Scout-Ops',
+                style: GoogleFonts.chivoMono(
+                  fontSize: 70,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      color: Colors.red.withOpacity(0.3),
+                      blurRadius: 15.0,
+                      offset: const Offset(5, 5),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 30.0),
-          child: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Colors.red, Colors.blue, Colors.lightBlueAccent],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ).createShader(bounds),
-            child: Row(
-              children: [
-                Text(
-                  'DEVELOPED BY ',
-                  style: GoogleFonts.museoModerno(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.only(left: 30.0),
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.red, Colors.blue, Colors.lightBlueAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Row(
+                children: [
+                  Text(
+                    'DEVELOPED BY ',
+                    style: GoogleFonts.museoModerno(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                Text(
-                  'FEDS201',
-                  style: GoogleFonts.museoModerno(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                  Text(
+                    'FEDS201',
+                    style: GoogleFonts.museoModerno(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
-        _ReminderWidget(),
-      ],
+          const SizedBox(height: 30),
+          _ReminderWidget(),
+          // Add more content here
+        ],
+      ),
     );
   }
 

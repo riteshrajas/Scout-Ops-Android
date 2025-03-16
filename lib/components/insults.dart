@@ -4,7 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 Widget ShowInsults() {
   return Card(
-    margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+    margin: const EdgeInsets.fromLTRB(4, 0, 4, 20),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(18),
     ),
@@ -14,7 +14,10 @@ Widget ShowInsults() {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
         gradient: LinearGradient(
-          colors: [Colors.purple.shade300, Colors.deepPurple.shade500],
+          colors: [
+            const Color.fromARGB(255, 214, 67, 60),
+            Colors.deepPurple.shade500
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -93,18 +96,13 @@ String _getRandomInsult() {
     "Timothy, the symphony, Played his trumpet in disharmony. (They said stop, but he played non-stop.) ",
     "Timothy, full of energy, Tripped and spilled his cup of tea. (Now he’s just Tim-oh-pee, sad and tea-free.) ",
     "Timothy, the referee, Accidentally called a foul on a tree (The tree protested, but Tim stood firmly.) ",
-// SPREAD SHEETS SPREADSHEETS SPREADSHEETS
-// Bring back the buzz
+    "SPREAD SHEETS SPREADSHEETS SPREADSHEETS",
+    "Bring back the buzz",
 // Shorty king
 // Do you need someone to reach the top shelf
 // Lock-in...
 
     //Sukhesh
-    "Sukhesh, oh Sukhesh,Thinks he’s cool, but he's just a mess.(Tripped on air, spilled his drink—now he’s drenched, no less! )",
-    "Sukhesh tried to flex his cash,Turns out it's all just fake mustache.(Big talk, small wallet—living life on borrowed stash. )",
-    "Sukhesh says he’s fast and fresh,But even a turtle makes him stress.(Slow-motion legend, breaking records in reverse. )",
-    "Sukhesh thinks he's got that drip,But his style looks like a garage sale flip.(Mismatched socks and a shirt that rips—fashion police, please assist! )",
-    "Sukhesh, the king of trash talk,But runs away when it’s time to walk.",
 
     //Adit
     "Adit, oh Adit, Hit his head on a door—just a bit!(Now he ducks, but still gets stuck.)",
@@ -116,14 +114,14 @@ String _getRandomInsult() {
     "Ritesh, oh Ritesh, he thinks he's Rizztesh but he's Ritech",
 
     //clifford
-    "Clifford, eyes open wide,Typing fast with zero pride. (Sleep is a myth, just one more line… or fifth.)"
+    "Clifford, eyes open wide,Typing fast with zero pride. (Sleep is a myth, just one more line… or fifth.)",
 
-        //Avanti
-        "Avanti, Asked for water, got ‘wa’er’ instead.(British depression and vowels got harmed.)"
+    //Avanti
+    "Avanti, Asked for water, got ‘wa’er’ instead.(British depression and vowels got harmed.)",
 
-        //Rishi
+    //Rishi
 
-        "Rishi, always on the go, Writes one line, then says ‘Uh-oh.’ (Fixes none, but claims he’s done.)",
+    "Rishi, always on the go, Writes one line, then says ‘Uh-oh.’ (Fixes none, but claims he’s done.)",
 
     //Nisha
     "Nisha Misha Dish Pisha Gisha Jisha Yisha Risha Bisa"
@@ -211,5 +209,5 @@ String _getRandomInsult() {
 
     //andrew salmopnson
   ];
-  return insults[DateTime.now().microsecond % insults.length];
+  return insults[DateTime.now().second % insults.length];
 }

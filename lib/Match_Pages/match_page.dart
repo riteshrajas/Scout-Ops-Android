@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:scouting_app/components/Inspiration.dart';
 import 'package:scouting_app/components/MatchSelection.dart';
 import 'package:scouting_app/components/ScoutersList.dart';
-import 'package:scouting_app/components/insults.dart';
+import 'package:scouting_app/components/Insults.dart';
 import 'package:scouting_app/home_page.dart';
 import 'match.dart';
 import '../services/DataBase.dart';
@@ -17,13 +18,27 @@ class MatchPage extends StatefulWidget {
   MatchPageState createState() => MatchPageState();
 }
 
-class MatchPageState extends State<MatchPage> {
+class MatchPageState extends State<MatchPage>
+    with SingleTickerProviderStateMixin {
   late int selectedMatchType;
+  late AnimationController _animationController;
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     selectedMatchType = 0;
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -31,33 +46,34 @@ class MatchPageState extends State<MatchPage> {
     var data = Hive.box('matchData').get('matches');
     if (data == null) {
       return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          title: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Colors.red, Colors.blue],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ).createShader(bounds),
-            child: Text(
-              'Match Scouting',
-              style: GoogleFonts.museoModerno(
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          centerTitle: true,
-        ),
-        body: Center(child: Text('No match data available.')),
+        appBar: _buildAppBar(),
+        body: _buildNoDataView(),
       );
     }
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
+      appBar: _buildAppBar(),
+      body: matchSelection(context, selectedMatchType, (int index) {
+        setState(() {
+          selectedMatchType = index;
+          _animationController.reset();
+          _animationController.forward();
+        });
+      }, jsonEncode(data)),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      actions: [
+        Container(
+          margin: const EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.home, color: Color.fromARGB(255, 0, 0, 0)),
             onPressed: () async {
               await Navigator.pushAndRemoveUntil(
                 context,
@@ -67,33 +83,62 @@ class MatchPageState extends State<MatchPage> {
                 ),
                 (Route<dynamic> route) => false,
               );
-
-              print('Navigated back to MatchPage and removed previous pages.');
             },
           ),
-        ],
-        backgroundColor: Colors.transparent,
-        title: ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.red, Colors.blue],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
+        ),
+      ],
+      backgroundColor: Colors.transparent,
+      title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+                colors: [Colors.red, Colors.blue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+          child: Text(
+            'Match Scouting',
+            style: GoogleFonts.museoModerno(
+              fontSize: 30,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
+          )),
+      centerTitle: true,
+    );
+  }
+
+  Widget _buildNoDataView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.sports_score_outlined,
+            size: 80,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No Match Data Available',
+            style: GoogleFonts.museoModerno(
+              fontSize: 22,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Match Scouting',
-              style: GoogleFonts.museoModerno(
-                fontSize: 30,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+              'Please load match data from the TBA',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
               ),
-            )),
-        centerTitle: true,
+            ),
+          ),
+        ],
       ),
-      body: matchSelection(context, selectedMatchType, (int index) {
-        setState(() {
-          selectedMatchType = index;
-        });
-      }, jsonEncode(data)),
     );
   }
 
@@ -101,38 +146,92 @@ class MatchPageState extends State<MatchPage> {
       Function onMatchTypeSelected, String matchData) {
     return Row(
       children: [
-        NavigationRail(
-          backgroundColor: Colors.white,
-          selectedIndex: currentSelectedMatchType,
-          onDestinationSelected: (int index) {
-            onMatchTypeSelected(index);
-          },
-          labelType: NavigationRailLabelType.all,
-          destinations: const <NavigationRailDestination>[
-            NavigationRailDestination(
-              indicatorColor: Colors.white,
-              icon: Icon(Icons.sports_soccer),
-              label: Text('Quals'),
+        // Enhanced Navigation Rail
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: NavigationRail(
+            backgroundColor: Colors.white,
+            selectedIndex: currentSelectedMatchType,
+            onDestinationSelected: (int index) {
+              onMatchTypeSelected(index);
+            },
+            labelType: NavigationRailLabelType.all,
+            selectedLabelTextStyle: GoogleFonts.museoModerno(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w600,
             ),
-            NavigationRailDestination(
-              icon: Icon(Icons.sports_basketball),
-              label: Text('Playoffs'),
+            unselectedLabelTextStyle: GoogleFonts.museoModerno(
+              color: Colors.grey.shade600,
             ),
-            NavigationRailDestination(
-              icon: Icon(Icons.sports_rugby),
-              label: Text('Finals'),
-            ),
-            NavigationRailDestination(
-              icon: Icon(Icons.settings),
-              label: Text('Settings'),
-            ),
-          ],
+            destinations: [
+              _buildNavDestination(
+                Icons.sports_soccer,
+                'Quals',
+                Colors.blue,
+                currentSelectedMatchType == 0,
+              ),
+              _buildNavDestination(
+                Icons.sports_basketball,
+                'Playoffs',
+                Colors.orange,
+                currentSelectedMatchType == 1,
+              ),
+              _buildNavDestination(
+                Icons.sports_rugby,
+                'Finals',
+                Colors.red,
+                currentSelectedMatchType == 2,
+              ),
+              _buildNavDestination(
+                Icons.settings,
+                'Settings',
+                Colors.purple,
+                currentSelectedMatchType == 3,
+              ),
+            ],
+          ),
         ),
         const VerticalDivider(thickness: 1, width: 1),
+
+        // Match List with Animation
         Expanded(
-          child: _buildMatchList(currentSelectedMatchType, matchData),
+          child: FadeTransition(
+            opacity: _animationController..forward(),
+            child: _buildMatchList(currentSelectedMatchType, matchData),
+          ),
         ),
       ],
+    );
+  }
+
+  NavigationRailDestination _buildNavDestination(
+      IconData icon, String label, Color color, bool isSelected) {
+    return NavigationRailDestination(
+      icon: Icon(
+        icon,
+        color: isSelected ? color : Colors.grey.shade500,
+      ),
+      selectedIcon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          icon,
+          color: color,
+        ),
+      ),
+      label: Text(label),
     );
   }
 
@@ -148,63 +247,12 @@ class MatchPageState extends State<MatchPage> {
           ..sort((a, b) => int.parse(a['match_number'].toString())
               .compareTo(int.parse(b['match_number'].toString())));
 
-        return ListView.builder(
-          itemCount: filteredMatches.length + 1,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 0) {
-              return ShowInsults();
-            }
-            index -= 1;
-            return ListTile(
-              title: Text(
-                  'Qualification ${filteredMatches[index]['match_number']}'),
-              subtitle: const Text('Qualification Match'),
-              leading: Icon(Icons.sports_soccer,
-                  color: Theme.of(context).colorScheme.primary),
-              trailing: Icon(Icons.arrow_forward_ios_rounded,
-                  color: Theme.of(context).colorScheme.onSurface),
-              tileColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              onTap: () {
-                // log(filteredMatches[index].toString());
-                String _scouterName = Hive.box('settings').get('deviceName');
-                String _allianceColor = Hive.box('userData').get('alliance');
-                String _station = Hive.box('userData').get('position');
-                String teamNNumber = filteredMatches[index]['alliances']
-                        [_allianceColor.toLowerCase()]['team_keys']
-                    [int.parse(_station) - 1];
-                MatchRecord matchRecord = MatchRecord(
-                  AutonPoints(0, 0, 0, 0, false, 0, 0,
-                      BotLocation(Offset(100, 100), Size(200, 200), 0)),
-                  TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
-                  EndPoints(false, false, false, ""),
-                  teamNumber: teamNNumber.split(
-                    'frc',
-                  )[1],
-                  scouterName: _scouterName,
-                  matchKey: filteredMatches[index]['key'].toString(),
-                  allianceColor: _allianceColor,
-                  station: int.parse(_station),
-                  matchNumber: filteredMatches[index]['set_number'],
-                  eventKey: filteredMatches[index]['event_key'],
-                );
-                // print(filteredMatches[index]['match_number']);
-                // (matchRecord.toString());
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Match(
-                            matchRecord: matchRecord,
-                          ),
-                      fullscreenDialog: true),
-                ).then((value) => print('Returned to Match Page'));
-              },
-            );
-          },
+        return _buildMatchListView(
+          filteredMatches,
+          'Qualification',
+          Icons.sports_soccer,
+          Colors.blue,
+          (match) => int.parse(match['match_number'].toString()),
         );
 
       case 1:
@@ -220,64 +268,14 @@ class MatchPageState extends State<MatchPage> {
                 return aValue.compareTo(bValue);
               });
 
-        return ListView.builder(
-          itemCount: filteredMatches.length + 1,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 0) {
-              return ShowInsults();
-            }
-            index -= 1;
-            return ListTile(
-              title: Text(
-                'Match ${filteredMatches[index]['comp_level'].startsWith('sf') ? filteredMatches[index]['set_number'] : filteredMatches[index]['match_number']}',
-              ),
-              subtitle: const Text('Semifinal Match'),
-              leading: Icon(Icons.sports_basketball,
-                  color: Theme.of(context).colorScheme.primary),
-              trailing: Icon(Icons.arrow_forward_ios,
-                  color: Theme.of(context).colorScheme.onSurface),
-              tileColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              onTap: () {
-                // log(filteredMatches[index].toString());
-                String _scouterName = Hive.box('settings').get('deviceName');
-                String _allianceColor = Hive.box('userData').get('alliance');
-                String _station = Hive.box('userData').get('position');
-                String teamNNumber = filteredMatches[index]['alliances']
-                        [_allianceColor.toLowerCase()]['team_keys']
-                    [int.parse(_station)];
-                MatchRecord matchRecord = MatchRecord(
-                  AutonPoints(0, 0, 0, 0, false, 0, 0,
-                      BotLocation(Offset.zero, Size.zero, 0)),
-                  TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
-                  EndPoints(false, false, false, ""),
-                  teamNumber: teamNNumber.split(
-                    'frc',
-                  )[1],
-                  scouterName: _scouterName,
-                  matchKey: filteredMatches[index]['key'].toString(),
-                  allianceColor: _allianceColor,
-                  station: int.parse(_station),
-                  matchNumber: filteredMatches[index]['set_number'],
-                  eventKey: filteredMatches[index]['event_key'],
-                );
-                print(filteredMatches[index]['set_number']);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Match(
-                            matchRecord: matchRecord,
-                          ),
-                      fullscreenDialog: true),
-                ).then((value) => print('Returned to Match Page'));
-              },
-            );
-          },
+        return _buildMatchListView(
+          filteredMatches,
+          'Semifinal',
+          Icons.sports_basketball,
+          Colors.orange,
+          (match) => match['comp_level'].startsWith('sf')
+              ? int.parse(match['set_number'].toString())
+              : int.parse(match['match_number'].toString()),
         );
 
       case 2:
@@ -287,383 +285,569 @@ class MatchPageState extends State<MatchPage> {
           ..sort((a, b) => int.parse(a['match_number'].toString())
               .compareTo(int.parse(b['match_number'].toString())));
 
-        return ListView.builder(
-          itemCount: filteredMatches.length + 1,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 0) {
-              return ShowInsults();
-            }
-            index -= 1;
-            return ListTile(
-              title: Text('Match ${filteredMatches[index]['match_number']}'),
-              subtitle: const Text('Final Match'),
-              leading: Icon(Icons.sports_rugby,
-                  color: Theme.of(context).colorScheme.primary),
-              trailing: Icon(Icons.arrow_forward_ios,
-                  color: Theme.of(context).colorScheme.onSurface),
-              tileColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              onTap: () {
-                // log(filteredMatches[index].toString());
-                String _scouterName = Hive.box('settings').get('deviceName');
-                String _allianceColor = Hive.box('userData').get('alliance');
-                String _station = Hive.box('userData').get('position');
-                String teamNNumber = filteredMatches[index]['alliances']
-                        [_allianceColor.toLowerCase()]['team_keys']
-                    [int.parse(_station)];
-                MatchRecord matchRecord = MatchRecord(
-                  AutonPoints(0, 0, 0, 0, false, 0, 0,
-                      BotLocation(Offset.zero, Size.zero, 0)),
-                  TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
-                  EndPoints(false, false, false, ""),
-                  teamNumber: teamNNumber.split(
-                    'frc',
-                  )[1],
-                  scouterName: _scouterName,
-                  matchKey: filteredMatches[index]['key'].toString(),
-                  allianceColor: _allianceColor,
-                  station: int.parse(_station),
-                  matchNumber: filteredMatches[index]['set_number'],
-                  eventKey: filteredMatches[index]['event_key'],
-                );
-                // log(matchRecord.toString());
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Match(
-                            matchRecord: matchRecord,
-                          ),
-                      fullscreenDialog: true),
-                ).then((value) => print('Returned to Match Page'));
-              },
-            );
-          },
+        return _buildMatchListView(
+          filteredMatches,
+          'Final',
+          Icons.sports_rugby,
+          Colors.red,
+          (match) => int.parse(match['match_number'].toString()),
         );
 
       case 3:
-        // Decode match data to extract statistics
-        List<dynamic> allMatches = jsonDecode(matchData);
-        int totalMatches = allMatches.length;
-        int qualMatches =
-            allMatches.where((m) => m['comp_level'] == 'qm').length;
-        int playoffMatches =
-            allMatches.where((m) => m['comp_level'] == 'sf').length;
-        int finalMatches =
-            allMatches.where((m) => m['comp_level'] == 'f').length;
+        // Settings Page
+        // Using the existing settings page implementation
+        return _buildSettingsView(matches);
 
-        // Extract event information
-        String eventKey =
-            allMatches.isNotEmpty ? allMatches[0]['event_key'] : 'Unknown';
-        String eventName = _formatEventName(eventKey);
-        String eventYear = eventKey.substring(0, 4);
-        return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ScouterList(),
-              // Event Information Card
-              Card(
-                margin: const EdgeInsets.all(16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                elevation: 8,
-                shadowColor: Colors.blueAccent.withOpacity(0.3),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.blueAccent.withOpacity(0.7),
-                        Colors.indigoAccent.withOpacity(0.8)
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.emoji_events,
-                              color: Colors.white, size: 26),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Competition',
-                            style: GoogleFonts.museoModerno(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        eventName,
-                        style: GoogleFonts.museoModerno(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        '$eventYear Season',
-                        style: GoogleFonts.roboto(
-                          fontSize: 18,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Match Statistics Card
-              Card(
-                color: Colors.white,
-                margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                elevation: 6,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.analytics,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 24),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Match Statistics',
-                            style: GoogleFonts.roboto(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildStatisticRow(
-                          context,
-                          Icons.sports_score,
-                          'Total Matches',
-                          totalMatches.toString(),
-                          Colors.blue.shade800),
-                      const SizedBox(height: 12),
-                      _buildStatisticRow(
-                          context,
-                          Icons.sports_soccer,
-                          'Qualification Matches',
-                          qualMatches.toString(),
-                          Colors.green.shade700),
-                      const SizedBox(height: 12),
-                      _buildStatisticRow(
-                          context,
-                          Icons.sports_basketball,
-                          'Playoff Matches',
-                          playoffMatches.toString(),
-                          Colors.orange.shade700),
-                      const SizedBox(height: 12),
-                      _buildStatisticRow(
-                          context,
-                          Icons.sports_rugby,
-                          'Final Matches',
-                          finalMatches.toString(),
-                          Colors.red.shade700),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Scouter Configuration
-              Card(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                color: const Color.fromARGB(255, 255, 255, 255),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                elevation: 6,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.person,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 24),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Scouter Profile',
-                            style: GoogleFonts.roboto(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.2),
-                            radius: 36,
-                            child: Text(
-                              _getInitials(Hive.box('settings')
-                                  .get('deviceName', defaultValue: 'Scout')),
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  Hive.box('settings').get('deviceName') ??
-                                      'Unknown Scout',
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Hive.box('userData').get('alliance') ==
-                                                'Red'
-                                            ? Colors.red.withOpacity(0.2)
-                                            : Colors.blue.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    "${Hive.box('userData').get('alliance', defaultValue: 'Red')} Alliance - Position ${Hive.box('userData').get('position', defaultValue: '1')}",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Hive.box('userData')
-                                                  .get('alliance') ==
-                                              'Red'
-                                          ? Colors.red.shade700
-                                          : Colors.blue.shade700,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      MatchSelection(
-                          onAllianceSelected: (String? alliance) {
-                            setState(() {
-                              Hive.box('userData').put('alliance', alliance);
-                            });
-                          },
-                          onPositionSelected: (String? position) {
-                            setState(() {
-                              Hive.box('userData').put('position', position);
-                            });
-                          },
-                          initAlliance: Hive.box('userData')
-                              .get('alliance', defaultValue: "Red"),
-                          initPosition: Hive.box('userData')
-                              .get('position', defaultValue: '1')),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Tips or Fun Facts
-              Card(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                elevation: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.purple.shade300,
-                        Colors.deepPurple.shade500
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.lightbulb_outline,
-                              color: Colors.white, size: 24),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Scouting Tip',
-                            style: GoogleFonts.roboto(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _getRandomScoutingTip(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
       default:
         return const Center(child: Text('Unknown Match Type'));
     }
   }
 
-// Helper method to format event name
+  Widget _buildMatchListView(
+    List<dynamic> matches,
+    String matchTypeName,
+    IconData matchIcon,
+    Color themeColor,
+    Function(dynamic) getMatchNumber,
+  ) {
+    if (matches.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              matchIcon,
+              size: 60,
+              color: themeColor.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No $matchTypeName Matches',
+              style: GoogleFonts.museoModerno(
+                fontSize: 20,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 24),
+      itemCount: matches.length + 1,
+      itemBuilder: (BuildContext context, int index) {
+        if (index == 0) {
+          return ShowInsults();
+        }
+        index -= 1;
+
+        final match = matches[index];
+        final matchNumber = getMatchNumber(match);
+
+        return _buildEnhancedMatchCard(
+          context,
+          match,
+          matchTypeName,
+          matchIcon,
+          themeColor,
+          matchNumber,
+          index,
+        );
+      },
+    );
+  }
+
+  Widget _buildEnhancedMatchCard(
+    BuildContext context,
+    dynamic match,
+    String matchTypeName,
+    IconData matchIcon,
+    Color themeColor,
+    int matchNumber,
+    int index,
+  ) {
+    // Create alliance teams lists
+    final redAlliance = match['alliances']['red']['team_keys']
+        .map((team) => team.toString().replaceAll('frc', ''))
+        .toList();
+    final blueAlliance = match['alliances']['blue']['team_keys']
+        .map((team) => team.toString().replaceAll('frc', ''))
+        .toList();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        elevation: 4,
+        shadowColor: themeColor.withOpacity(0.3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: themeColor.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _handleMatchSelection(match),
+          splashColor: themeColor.withOpacity(0.1),
+          highlightColor: themeColor.withOpacity(0.05),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header row with match number and icon
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: themeColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        matchIcon,
+                        color: themeColor,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$matchTypeName $matchNumber',
+                            style: GoogleFonts.museoModerno(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: themeColor,
+                            ),
+                          ),
+                          Text(
+                            '$matchTypeName Match',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: themeColor.withOpacity(0.6),
+                      size: 18,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+                const Divider(),
+                const SizedBox(height: 8),
+
+                // Alliance information
+                Row(
+                  children: [
+                    // Red Alliance
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Red Alliance',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.red.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ...redAlliance
+                              .map((team) => Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 20, top: 2),
+                                    child: Text(
+                                      team,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        ],
+                      ),
+                    ),
+
+                    // Blue Alliance
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Blue Alliance',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ...blueAlliance
+                              .map((team) => Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 20, top: 2),
+                                    child: Text(
+                                      team,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleMatchSelection(dynamic match) {
+    String _scouterName = Hive.box('settings').get('deviceName');
+    String _allianceColor = Hive.box('userData').get('alliance');
+    String _station = Hive.box('userData').get('position');
+
+    // Safely get the team number based on alliance and position
+    String teamNNumber;
+    try {
+      teamNNumber = match['alliances'][_allianceColor.toLowerCase()]
+          ['team_keys'][int.parse(_station) - 1];
+    } catch (e) {
+      // Handle any errors in accessing team keys
+      print('Error accessing team keys: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: Unable to determine team number')),
+      );
+      return;
+    }
+
+    MatchRecord matchRecord = MatchRecord(
+      AutonPoints(0, 0, 0, 0, false, 0, 0,
+          BotLocation(Offset(100, 100), Size(200, 200), 0)),
+      TeleOpPoints(0, 0, 0, 0, 0, 0, 0, false),
+      EndPoints(false, false, false, ""),
+      teamNumber: teamNNumber.split('frc')[1],
+      scouterName: _scouterName,
+      matchKey: match['key'].toString(),
+      allianceColor: _allianceColor,
+      station: int.parse(_station),
+      matchNumber: match['match_number'],
+      eventKey: match['event_key'],
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Match(matchRecord: matchRecord),
+          fullscreenDialog: true),
+    ).then((_) => print('Returned to Match Page'));
+  }
+
+  Widget _buildSettingsView(List<dynamic> allMatches) {
+    // Extract event information
+    int totalMatches = allMatches.length;
+    int qualMatches = allMatches.where((m) => m['comp_level'] == 'qm').length;
+    int playoffMatches =
+        allMatches.where((m) => m['comp_level'] == 'sf').length;
+    int finalMatches = allMatches.where((m) => m['comp_level'] == 'f').length;
+
+    String eventKey =
+        allMatches.isNotEmpty ? allMatches[0]['event_key'] : 'Unknown';
+    String eventName = _formatEventName(eventKey);
+    String eventYear = eventKey.substring(0, 4);
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ScouterList(),
+
+          // Event Information Card with enhanced visual appeal
+          Card(
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            elevation: 8,
+            shadowColor: Colors.blueAccent.withOpacity(0.3),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.blueAccent.withOpacity(0.7),
+                    Colors.indigoAccent.withOpacity(0.8)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.emoji_events, color: Colors.white, size: 26),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Competition',
+                        style: GoogleFonts.museoModerno(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    eventName,
+                    style: GoogleFonts.museoModerno(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '$eventYear Season',
+                    style: GoogleFonts.roboto(
+                      fontSize: 18,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Match Statistics Card with enhanced visual appeal
+          Card(
+            color: Colors.white,
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.analytics,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 24),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Match Statistics',
+                        style: GoogleFonts.roboto(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildStatisticRow(
+                      context,
+                      Icons.sports_score,
+                      'Total Matches',
+                      totalMatches.toString(),
+                      Colors.blue.shade800),
+                  const SizedBox(height: 12),
+                  _buildStatisticRow(
+                      context,
+                      Icons.sports_soccer,
+                      'Qualification Matches',
+                      qualMatches.toString(),
+                      Colors.green.shade700),
+                  const SizedBox(height: 12),
+                  _buildStatisticRow(
+                      context,
+                      Icons.sports_basketball,
+                      'Playoff Matches',
+                      playoffMatches.toString(),
+                      Colors.orange.shade700),
+                  const SizedBox(height: 12),
+                  _buildStatisticRow(
+                      context,
+                      Icons.sports_rugby,
+                      'Final Matches',
+                      finalMatches.toString(),
+                      Colors.red.shade700),
+                ],
+              ),
+            ),
+          ),
+
+          // Scouter Configuration with enhanced visual appeal
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            color: const Color.fromARGB(255, 255, 255, 255),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.person,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 24),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Scouter Profile',
+                        style: GoogleFonts.roboto(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.2),
+                        radius: 36,
+                        child: Text(
+                          _getInitials(Hive.box('settings')
+                              .get('deviceName', defaultValue: 'Scout')),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              Hive.box('settings').get('deviceName') ??
+                                  'Unknown Scout',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Hive.box('userData').get('alliance') ==
+                                        'Red'
+                                    ? Colors.red.withOpacity(0.2)
+                                    : Colors.blue.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                "${Hive.box('userData').get('alliance', defaultValue: 'Red')} Alliance - Position ${Hive.box('userData').get('position', defaultValue: '1')}",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Hive.box('userData').get('alliance') ==
+                                          'Red'
+                                      ? Colors.red.shade700
+                                      : Colors.blue.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  MatchSelection(
+                      onAllianceSelected: (String? alliance) {
+                        setState(() {
+                          Hive.box('userData').put('alliance', alliance);
+                        });
+                      },
+                      onPositionSelected: (String? position) {
+                        setState(() {
+                          Hive.box('userData').put('position', position);
+                        });
+                      },
+                      initAlliance: Hive.box('userData')
+                          .get('alliance', defaultValue: "Red"),
+                      initPosition: Hive.box('userData')
+                          .get('position', defaultValue: '1')),
+                ],
+              ),
+            ),
+          ),
+
+          ShowInsiration()
+        ],
+      ),
+    );
+  }
+
+  // Helper method to format event name
   String _formatEventName(String eventKey) {
-    // Extract event code (e.g., "2024nyro" becomes "NYRO")
+    // Your existing formatting code
     String eventCode = eventKey.substring(4);
 
-    // Convert to proper format
     Map<String, String> eventNames = {
       // Michigan District Events
       "miket": "Kettering University District",
@@ -693,14 +877,14 @@ class MatchPageState extends State<MatchPage> {
       "miesc": "Escanaba District",
       "mifor": "Fordson District",
       "mibri": "Brighton District",
-      "mimtp": "Mt. Pleasant District", // Added Mt. Pleasant
+      "mimtp": "Mt. Pleasant District",
       "mipla": "Placeholder District",
 
       // Michigan State Championship
       "micmp": "Michigan State Championship",
       "micha": "Michigan State Championship",
 
-      // Other popular events Michigan teams might attend
+      // Other popular events
       "chs": "Chesapeake District Championship",
       "ont": "Ontario Provincial Championship",
       "in": "Indiana State Championship",
@@ -719,21 +903,28 @@ class MatchPageState extends State<MatchPage> {
       "cmptx": "FIRST Championship - Houston",
       "cmpmi": "FIRST Championship - Detroit",
 
-      // Add more event codes and names as needed
-      "isde": "Isreal District Event",
-      "isdc": "Isreal District Championship",
-      "isw": "Isreal World Championship",
+      // Additional events
+      "isde": "Israel District Event",
+      "isdc": "Israel District Championship",
+      "isw": "Israel World Championship",
     };
 
     return eventNames[eventCode] ?? "Event ${eventCode.toUpperCase()}";
   }
 
-// Helper method to build statistic row
+  // Helper method to build statistic row with enhanced visual appeal
   Widget _buildStatisticRow(BuildContext context, IconData icon, String label,
       String value, Color color) {
     return Row(
       children: [
-        Icon(icon, color: color, size: 22),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
         const SizedBox(width: 12),
         Text(
           label,
@@ -763,7 +954,7 @@ class MatchPageState extends State<MatchPage> {
     );
   }
 
-// Helper method to get initials from name
+  // Helper method to get initials from name
   String _getInitials(String name) {
     if (name.isEmpty) return "Ri";
 
@@ -773,79 +964,5 @@ class MatchPageState extends State<MatchPage> {
     } else {
       return name[0].toUpperCase();
     }
-  }
-
-// Helper method to get random scouting tip
-// Helper method to get random scouting tip
-  String _getRandomScoutingTip() {
-    List<String> tips = [
-      "Focus on one robot at a time to get accurate data.",
-      "Note unusual strategies that might affect alliance selection.",
-      "Watch for consistent performance rather than best/worst matches.",
-      "Pay attention to robot speed and maneuverability during matches.",
-      "Defense capability can be just as valuable as scoring ability.",
-      "Track cycle times for repetitive actions to gauge efficiency.",
-      "Note any technical issues that might indicate reliability problems.",
-      "Watch for effective communication between alliance partners.",
-      "Be aware of the field layout and how it affects robot movement.",
-      "Take note of any unique features or strategies used by teams.",
-      "Scouting is only as hard as you make it. You can always give up. 😁",
-      "Data drives decisions—scout smart, strategize smarter.",
-      "Scouting isn't just collecting numbers; it's unlocking victories.",
-      "Great teams don't guess—they scout.",
-      "Every match tells a story. It's your job to read it.",
-      "Championships are built on good scouting.",
-      "Scouting today wins matches tomorrow.",
-      "Your data is your weapon—use it wisely.",
-      "Precision in scouting leads to domination on the field.",
-      "The best alliances are chosen, not given.",
-      "To defeat the ops, you must scout them using Scout Ops.",
-      "Numbers don't lie—trust the data, trust the process.",
-      "If this app breaks, it's your fault not ours",
-      "Agents, remember a goup of spies is always better then a hivemind",
-      "Every match you scout is a step closer to seeing your strategy come to life.",
-      "The robots may be on the field, but the future is in your notes.",
-      "A great match starts with great data; your observations lay the foundation for victory.",
-      "The more you know, the better you grow. Scout with precision, compete with confidence.",
-      "Behind every winning strategy is a team that never stopped analyzing.",
-      "Scouting isn’t just about watching robots, it’s about understanding the rhythm of the game.",
-      "Success in FRC is built on the small moments captured in your scouting sheets.",
-      "In scouting, every detail matters — it’s the difference between a good match and a great one.",
-      "When you see the game clearly, you can outthink the competition.",
-      "Scouting is the quiet hero of every FRC match — it's the knowledge that wins the battle.",
-      "Every match you scout is a step closer to seeing your strategy come to life.",
-      "The robots may be on the field, but the future is in your notes.",
-      "A great match starts with great data; your observations lay the foundation for victory.",
-      "The more you know, the better you grow. Scout with precision, compete with confidence.",
-      "Behind every winning strategy is a team that never stopped analyzing.",
-      "Scouting isn’t just about watching robots, it’s about understanding the rhythm of the game.",
-      "Success in FRC is built on the small moments captured in your scouting sheets.",
-      "In scouting, every detail matters — it’s the difference between a good match and a great one.",
-      "When you see the game clearly, you can outthink the competition.",
-      "Scouting is the quiet hero of every FRC match — it's the knowledge that wins the battle.",
-      "Follow our lord and savior, Ritesh Raj, for a scouting advantage",
-      "Just like the beat of Dandanakka, Ritesh Raj Arul Selvan’s app brings the rhythm to your scouting, making every match easier to analyze and every strategy stronger!",
-      "In the rhythm of scouting, we don’t just follow the beat; we create it—just like Dandanakka!",
-      "Just like Dandanakka’s catchy beat, every piece of scouting data adds to the flow that leads to victory!",
-      "When the competition feels overwhelming, remember: keep the tempo steady, just like Dandanakka, and success will follow.",
-      "Every match you scout adds a layer to your strategy, just like the layers of rhythm in Dandanakka—steady, strong, and unstoppable.",
-      "Just as Dandanakka captures your attention, the details in every match you scout will grab your team's focus and lead them to greatness.",
-      "Keep your scouting as sharp as Dandanakka’s beat, and you’ll compose a strategy that moves with power and precision!",
-      "In the Reefscape, your scouting knowledge is the bassline that keeps the strategy in sync, just like Dandanakka keeps the crowd moving.",
-      "Like the infectious groove of Dandanakka, your scouting energy fuels the team's drive to perform with confidence.",
-      "As Dandanakka's rhythm builds to a crescendo, your insights will shape a strategy that rises above the competition.",
-      "The best teams in Reefscape move with precision—just like the rhythm of Dandanakka, they know when to strike and when to adapt.",
-      "In the Reefscape, every team is a unique species—scouting helps you understand their strengths and weaknesses.",
-      "Scouting is like mapping the ocean’s currents; the more you understand, the smoother your journey to victory.",
-      "A healthy reef thrives on diversity—your scouting insights bring together the unique strengths of every team.",
-      "In the depths of competition, your scouting knowledge is the lighthouse guiding your team toward success.",
-      "Just as a reef is built by countless tiny pieces, a winning strategy is formed from the details you discover through scouting.",
-      "Like coral in a reef, each match provides another layer of insight to strengthen your team's foundation.",
-      "Dive deep into the data—every match is an opportunity to uncover the hidden treasures of strategy.",
-      "In the Reefscape, the best teams don’t just survive—they adapt and thrive by learning from every match.",
-      "The ocean of competition is vast, but your scouting maps the best path to victory.",
-    ];
-
-    return tips[DateTime.now().microsecond % tips.length];
   }
 }

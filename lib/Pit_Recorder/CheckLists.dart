@@ -36,8 +36,6 @@ class _RecordState extends State<Record> {
   late String selectedChoice;
   late String ImageBlob;
 
-  late CameraController _cameraController;
-
   @override
   void initState() {
     super.initState();

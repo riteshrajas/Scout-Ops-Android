@@ -23,7 +23,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  String version = '2.0.1.5';
+  String version = '3.1.1.1';
   bool isLocationGranted = false;
   bool isBluetoothGranted = false;
   bool isNearbyDevicesGranted = false;
@@ -418,25 +418,25 @@ class SettingsPageState extends State<SettingsPage> {
                     activeColor: const Color.fromARGB(255, 255, 255, 255),
                   ),
                   const SizedBox(height: 10),
-                  ChoiceChip(
-                    label: Center(
-                      child: Text(
-                        isjson ? "Json" : "Csv",
-                        style: GoogleFonts.museoModerno(
-                            fontSize: 25, color: Colors.white),
-                      ),
-                    ),
-                    selectedColor: const Color.fromARGB(255, 25, 89, 241),
-                    selected: true,
-                    showCheckmark: false,
-                    side: const BorderSide(color: Colors.black),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        isjson = !isjson;
-                      });
-                      Hive.box('settings').put('isjson', isjson);
-                    },
-                  ),
+                  // ChoiceChip(
+                  //   label: Center(
+                  //     child: Text(
+                  //       isjson ? "Json" : "Csv",
+                  //       style: GoogleFonts.museoModerno(
+                  //           fontSize: 25, color: Colors.white),
+                  //     ),
+                  //   ),
+                  //   selectedColor: const Color.fromARGB(255, 25, 89, 241),
+                  //   selected: true,
+                  //   showCheckmark: false,
+                  //   side: const BorderSide(color: Colors.black),
+                  //   onSelected: (bool selected) {
+                  //     setState(() {
+                  //       isjson = !isjson;
+                  //     });
+                  //     Hive.box('settings').put('isjson', isjson);
+                  //   },
+                  // ),
                 ],
               ),
             ), // Permission Switches
