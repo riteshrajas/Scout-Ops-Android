@@ -7,8 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:scouting_app/components/qr_code_scanner_page.dart';
 import 'package:scouting_app/services/DataBase.dart';
 
-import '../components/ScoutersList.dart';
-
 class FEDSScoutzWidget extends StatefulWidget {
   const FEDSScoutzWidget({super.key});
 
@@ -142,7 +140,7 @@ class _FEDSScoutzWidgetState extends State<FEDSScoutzWidget> {
   Widget build(BuildContext context) {
     return Column(children: [
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         child: Column(
           children: [
             TextField(
@@ -209,35 +207,7 @@ class _FEDSScoutzWidgetState extends State<FEDSScoutzWidget> {
                 Icon(Icons.wifi, size: 22, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
-                  'Test Connection',
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton(
-            onPressed: _registerDevice,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.greenAccent.shade700,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              elevation: 5,
-              shadowColor: Colors.black.withOpacity(0.2),
-            ).copyWith(
-              overlayColor:
-                  MaterialStateProperty.all(Colors.greenAccent.shade400),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.save, size: 22, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  'Register Device',
+                  'Test',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),

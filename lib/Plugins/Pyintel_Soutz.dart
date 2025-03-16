@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:scouting_app/components/qr_code_scanner_page.dart';
 
 import '../components/ScoutersList.dart';
 
@@ -139,15 +141,45 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
   Widget build(BuildContext context) {
     return Column(children: [
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
         child: Column(
           children: [
             TextField(
               controller: _controllerIp,
-              decoration: const InputDecoration(
-                labelText: 'Enter Pyintel Scoutz Server IP Address',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: 'Ip Address',
+                labelStyle: GoogleFonts.museoModerno(fontSize: 15),
+                hintText: 'Enter your Ip Address',
+                hintStyle: GoogleFonts.museoModerno(fontSize: 15),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.qr_code_scanner),
+                  onPressed: () async {
+                    final qrCode = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const QRCodeScannerPage(),
+                          fullscreenDialog: true),
+                    );
+                    if (qrCode != null) {
+                      setState(() {
+                        Hive.box('settings').put('ipAddress', qrCode);
+                      });
+                    }
+                  },
+                ),
               ),
+              style: GoogleFonts.museoModerno(fontSize: 18),
+              onSubmitted: (String value) {
+                Hive.box('settings').put('ipAddress', value);
+              },
             ),
             const SizedBox(height: 8),
             ScouterList(),
@@ -175,7 +207,7 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
                 Icon(Icons.wifi, size: 22, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
-                  'Test Connection',
+                  'Test',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),

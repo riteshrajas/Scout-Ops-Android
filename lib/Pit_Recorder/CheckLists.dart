@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:scouting_app/components/CameraComposit.dart';
 import 'package:scouting_app/services/DataBase.dart';
 import 'package:scouting_app/components/TextBox.dart';
@@ -31,6 +34,7 @@ class _RecordState extends State<Record> {
   late List<String> ScoreObjectController;
   late bool? hello;
   late String selectedChoice;
+  late String ImageBlob;
 
   late CameraController _cameraController;
 
@@ -49,6 +53,7 @@ class _RecordState extends State<Record> {
     ScoreObjectController = [];
     hello = null;
     selectedChoice = '';
+    ImageBlob = "";
 
     // Load database and try to get existing data for this team
     PitDataBase.LoadAll();
@@ -63,12 +68,15 @@ class _RecordState extends State<Record> {
           IntakeController = existingRecord.intake;
           ClimbTypeController = existingRecord.climbType;
           ScoreObjectController = existingRecord.scoreObject;
+          ImageBlob = existingRecord.imageblob;
         });
         print("Loaded existing data for team ${widget.team.teamNumber}");
+      } else {
+        print("No existing record found for team ${widget.team.teamNumber}");
       }
     } catch (e) {
       print("Error retrieving team data: $e");
-    }
+    } finally {}
   }
 
   @override
@@ -164,8 +172,10 @@ class _RecordState extends State<Record> {
               Icon(Icons.question_answer),
               CameraPhotoCapture(onPhotoTaken: (photo) {
                 print('Photo captured: $photo');
+                // Convert the captured photo to base64
+                ImageBlob = base64Encode(photo.readAsBytesSync());
+                developer.log(ImageBlob);
               }),
-              const SizedBox(height: 20),
               const SizedBox(height: 20),
               _buildFunButton(),
             ],
@@ -242,24 +252,51 @@ class _RecordState extends State<Record> {
   }
 
   void _recordData() {
+    String deviceName = Hive.box('settings')
+        .get('deviceName', defaultValue: 'Ritesh Raj Arul Selvan');
+    String eventKey =
+        Hive.box('userData').get('eventKey', defaultValue: 'test');
     PitRecord record = PitRecord(
-      teamNumber: widget.team.teamNumber,
-      scouterName: 'Scouter Name',
-      eventKey: "test",
-      driveTrainType: DrivetrainController,
-      autonType: AutonController,
-      scoreType: ScoreTypeController,
-      intake: IntakeController,
-      climbType: ClimbTypeController,
-      scoreObject: ScoreObjectController.cast<String>().toList(),
-    );
+        teamNumber: widget.team.teamNumber,
+        scouterName: deviceName,
+        eventKey: eventKey,
+        driveTrainType: DrivetrainController,
+        autonType: AutonController,
+        scoreType: ScoreTypeController,
+        intake: IntakeController,
+        climbType: ClimbTypeController,
+        scoreObject: ScoreObjectController.cast<String>().toList(),
+        imageblob: ImageBlob);
 
     print('Recording data: $record');
     print("Hiv ${record.toJson()}");
+
+    _showConfirmationDialog(record);
     PitDataBase.PutData(widget.team.teamNumber, record);
     PitDataBase.SaveAll();
 
     PitDataBase.PrintAll();
+  }
+
+  void _showConfirmationDialog(PitRecord record) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirmation"),
+          content: Text(
+              "Data recorded successfully. \n\nTeam: ${record.teamNumber}\nScouter: ${record.scouterName}"),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                PopBoard(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void PopBoard(BuildContext context) {

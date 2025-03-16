@@ -105,17 +105,20 @@ class PitRecord {
   final List<String> scoreType;
   final String intake;
   final List<String> climbType;
+  final String imageblob;
 
-  PitRecord(
-      {required this.teamNumber,
-      required this.scouterName,
-      required this.eventKey,
-      required this.driveTrainType,
-      required this.autonType,
-      required this.scoreObject,
-      required this.scoreType,
-      required this.intake,
-      required this.climbType});
+  PitRecord({
+    required this.teamNumber,
+    required this.scouterName,
+    required this.eventKey,
+    required this.driveTrainType,
+    required this.autonType,
+    required this.scoreObject,
+    required this.scoreType,
+    required this.intake,
+    required this.climbType,
+    required this.imageblob,
+  });
 
   Map<String, dynamic> toJson() {
     return {
@@ -127,7 +130,8 @@ class PitRecord {
       "scoreObject": scoreObject.toString(),
       "scoreType": scoreType,
       "intake": intake,
-      "climbType": climbType
+      "climbType": climbType,
+      "imageblob": imageblob
     };
   }
 
@@ -162,6 +166,8 @@ class PitRecord {
       intake: json['intake'] ?? '',
       climbType:
           json['climbType'] is List ? List<String>.from(json['climbType']) : [],
+
+      imageblob: json['imageblob'] ?? '',
     );
   }
 }
@@ -943,6 +949,7 @@ class LocalDataBase {
       scoreObject: List<String>.from(data['scoreObject'] ?? []),
       climbType: List<String>.from(data['climbType'] ?? []),
       scoreType: List<String>.from(data['scoreType'] ?? []),
+      imageblob: data['imageblob'] ?? "",
     );
   }
 }

@@ -46,6 +46,17 @@ class _ScouterListState extends State<ScouterList>
     Icons.auto_awesome,
     Icons.emoji_events,
     Icons.anchor,
+    Icons.airline_seat_legroom_extra,
+    Icons.cookie,
+    Icons.cyclone,
+    Icons.handyman,
+    Icons.baby_changing_station,
+    Icons.sports_soccer,
+    Icons.sports_tennis,
+    Icons.local_taxi,
+    Icons.self_improvement,
+    Icons.smartphone,
+    Icons.flutter_dash,
   ];
 
   @override
