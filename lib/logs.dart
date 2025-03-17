@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'services/DataBase.dart';
 import 'components/SwipeCards.dart';
-import 'components/compactifier.dart';
 import 'Match_Pages/GeminiPrediction.dart';
 
 class LogsPage extends StatelessWidget {
@@ -21,13 +18,22 @@ class LogsPage extends StatelessWidget {
     List<Widget> matchCards = [];
     for (int i = 0; i < matchData.length; i++) {
       matchCards.add(MatchCard(
-        matchData: json.encode(matchData[i].toJson()),
+        matchData: (matchData[i].toCsv()),
         teamNumber: matchData[i].teamNumber,
         eventName: matchData[i].eventKey,
         allianceColor: matchData[i].allianceColor,
         selectedStation: matchData[i].station.toString(),
         matchKey: matchData[i].matchKey,
       ));
+    }
+
+    if (matchCards.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Text("No match logs available."),
+        ),
+      );
     }
 
     return Scaffold(
@@ -66,6 +72,7 @@ class LogsPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.restore_from_trash_rounded),
             onPressed: () {
+              MatchDataBase.ClearData();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -81,9 +88,9 @@ class LogsPage extends StatelessWidget {
         child: CarouselSlider(
           items: matchCards,
           options: CarouselOptions(
-            height: MediaQuery.of(context).size.height * .8,
+            height: MediaQuery.of(context).size.height * .85,
             enlargeFactor: 1,
-            aspectRatio: 4 / 3,
+            aspectRatio: 3 / 3,
             viewportFraction: 0.85,
             initialPage: 0,
             enableInfiniteScroll: false,

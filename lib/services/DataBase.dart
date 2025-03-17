@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/painting.dart';
 import 'package:hive/hive.dart';
 
 class Settings {
@@ -7,14 +8,22 @@ class Settings {
     LocalDataBase.putData('Settings.apiKey', key);
   }
 
+  static void setPitKey(String key) {
+    LocalDataBase.putData('Settings.pitKey', key);
+  }
+
   static String getApiKey() {
     return LocalDataBase.getData('Settings.apiKey');
+  }
+
+  static String getPitKey() {
+    return LocalDataBase.getData('Settings.pitKey');
   }
 }
 
 // PitDataBase
 class PitDataBase {
-  static final Map<String, dynamic> _storage = {};
+  static final Map<String, PitRecord> _storage = {};
 
   static void PutData(dynamic key, PitRecord value) {
     if (key == null) {
@@ -22,12 +31,25 @@ class PitDataBase {
     }
 
     // print(' Storing $key as $value');
-    _storage[key.toString()] = value.toJson();
+    _storage[key.toString()] = value;
   }
 
-  static dynamic GetData(dynamic key) {
-    // print('Retrieving $key as ${_storage[key.toString()]}');
-    return jsonDecode(jsonEncode(_storage[key.toString()]));
+  static PitRecord? GetData(dynamic key) {
+    // print('Retrieving $key as ${_storage[key]}');
+    if (_storage[key.toString()] == null) {
+      return null;
+    }
+
+    // Convert the stored data to a PitRecord object
+    var data = _storage[key.toString()];
+    if (data is PitRecord) {
+      return data;
+    } else if (data is Map<String, dynamic>) {
+      // ignore: cast_from_null_always_fails
+      return PitRecord.fromJson(data as Map<String, dynamic>);
+    }
+
+    return null;
   }
 
   static void DeleteData(String key) {
@@ -48,7 +70,12 @@ class PitDataBase {
   static void LoadAll() {
     var dd = Hive.box('pitData').get('data');
     if (dd != null) {
-      _storage.addAll(json.decode(dd));
+      Map<String, dynamic> data = json.decode(dd);
+      data.forEach((key, value) {
+        _storage[key] = value is Map
+            ? PitRecord.fromJson(value as Map<String, dynamic>)
+            : value;
+      });
     }
   }
 
@@ -59,7 +86,7 @@ class PitDataBase {
   static List<int> GetRecorderTeam() {
     List<int> teams = [];
     _storage.forEach((key, value) {
-      teams.add(value['teamNumber']);
+      teams.add(value.teamNumber);
     });
     return teams;
   }
@@ -73,30 +100,76 @@ class PitRecord {
   final int teamNumber;
   final String scouterName;
   final String eventKey;
-  final String keyStrengths;
-  final String keyWeaknesses;
-  final String defensiveStratigiy;
-  final String defensePlan;
+  final String driveTrainType;
+  final String autonType;
+  final List<String> scoreObject;
+  final List<String> scoreType;
+  final String intake;
+  final List<String> climbType;
+  final String imageblob;
 
-  PitRecord(
-      {required this.teamNumber,
-      required this.scouterName,
-      required this.eventKey,
-      required this.keyStrengths,
-      required this.keyWeaknesses,
-      required this.defensiveStratigiy,
-      required this.defensePlan});
+  PitRecord({
+    required this.teamNumber,
+    required this.scouterName,
+    required this.eventKey,
+    required this.driveTrainType,
+    required this.autonType,
+    required this.scoreObject,
+    required this.scoreType,
+    required this.intake,
+    required this.climbType,
+    required this.imageblob,
+  });
 
   Map<String, dynamic> toJson() {
     return {
       "teamNumber": teamNumber,
       "scouterName": scouterName,
       "eventKey": eventKey,
-      "keyStrengths": keyStrengths,
-      "keyWeaknesses": keyWeaknesses,
-      "defensiveStratigiy": defensiveStratigiy,
-      "defensePlan": defensePlan
+      "driveTrain": driveTrainType,
+      "auton": autonType,
+      "scoreObject": scoreObject.toString(),
+      "scoreType": scoreType,
+      "intake": intake,
+      "climbType": climbType,
+      "imageblob": imageblob
     };
+  }
+
+  factory PitRecord.fromJson(Map<String, dynamic> json) {
+    // Parse scoreObject which might be a string representation of a list
+    List<String> parseScoreObject() {
+      var scoreObj = json['scoreObject'];
+      if (scoreObj == null) return [];
+      if (scoreObj is List) return List<String>.from(scoreObj);
+      if (scoreObj is String) {
+        // Parse string representation of list
+        if (scoreObj.startsWith('[') && scoreObj.endsWith(']')) {
+          String listContent = scoreObj.substring(1, scoreObj.length - 1);
+          return listContent.isEmpty
+              ? []
+              : listContent.split(', ').map((s) => s.trim()).toList();
+        }
+      }
+      return [];
+    }
+
+    return PitRecord(
+      teamNumber: json['teamNumber'] ?? 0,
+      scouterName: json['scouterName'] ?? '',
+      eventKey: json['eventKey'] ?? '',
+      // These field names didn't match what's in toJson
+      driveTrainType: json['driveTrain'] ?? '',
+      autonType: json['auton'] ?? '',
+      scoreType:
+          json['scoreType'] is List ? List<String>.from(json['scoreType']) : [],
+      scoreObject: parseScoreObject(),
+      intake: json['intake'] ?? '',
+      climbType:
+          json['climbType'] is List ? List<String>.from(json['climbType']) : [],
+
+      imageblob: json['imageblob'] ?? '',
+    );
   }
 }
 
@@ -469,7 +542,7 @@ class MatchDataBase {
 
 class MatchRecord {
   final String teamNumber;
-  final String scouterName;
+  String scouterName;
   final String matchKey;
   final int matchNumber;
   final String allianceColor;
@@ -497,6 +570,7 @@ class MatchRecord {
       "teamNumber": teamNumber,
       "scouterName": scouterName,
       "matchKey": matchKey,
+      "matchNumber": matchNumber,
       "allianceColor": allianceColor,
       "eventKey": eventKey,
       "station": station,
@@ -504,6 +578,10 @@ class MatchRecord {
       "teleOpPoints": teleOpPoints.toJson(),
       "endPoints": endPoints.toJson(),
     };
+  }
+
+  String toCsv() {
+    return '${teamNumber},${scouterName},${matchKey},${allianceColor},${eventKey},${station},${matchNumber}, ${autonPoints.toCsv()}, ${teleOpPoints.toCsv()}, ${endPoints.toCsv()}';
   }
 
   static MatchRecord fromJson(Map<String, dynamic> json) {
@@ -524,6 +602,10 @@ class MatchRecord {
   @override
   String toString() {
     return 'MatchRecord{teamNumber: $teamNumber, scouterName: $scouterName, matchKey: $matchKey, autonPoints: $autonPoints, teleOpPoints: $teleOpPoints, endPoints: $endPoints, allianceColor: $allianceColor, eventKey: $eventKey, station: $station}';
+  }
+
+  String toJsonString() {
+    return jsonEncode(this.toJson());
   }
 
   @override
@@ -559,6 +641,7 @@ class AutonPoints {
   bool LeftBarge = false;
   int AlgaeScoringProcessor = 0;
   int AlgaeScoringBarge = 0;
+  BotLocation robot_position;
 
   AutonPoints(
     this.CoralScoringLevel1,
@@ -568,6 +651,7 @@ class AutonPoints {
     this.LeftBarge,
     this.AlgaeScoringProcessor,
     this.AlgaeScoringBarge,
+    this.robot_position,
   );
 
   Map<String, dynamic> toJson() {
@@ -579,7 +663,12 @@ class AutonPoints {
       "LeftBarge": LeftBarge,
       "AlgaeScoringProcessor": AlgaeScoringProcessor,
       "AlgaeScoringBarge": AlgaeScoringBarge,
+      "RobotLocation": robot_position.toJson(),
     };
+  }
+
+  String toCsv() {
+    return '${CoralScoringLevel1},${CoralScoringLevel2},${CoralScoringLevel3},${CoralScoringLevel4},${LeftBarge},${AlgaeScoringProcessor},${AlgaeScoringBarge},${robot_position.toCsv()}';
   }
 
   static AutonPoints fromJson(Map<String, dynamic> json) {
@@ -591,15 +680,16 @@ class AutonPoints {
       json['LeftBarge'] ?? false,
       json['AlgaeScoringProcessor'] ?? 0,
       json['AlgaeScoringBarge'] ?? 0,
+      BotLocation.fromJson(json['RobotLocation'] ?? {}),
     );
   }
 
   @override
   String toString() {
-    return 'AutonPoints{CoralScoringLevel1: $CoralScoringLevel1, CoralScoringLevel2: $CoralScoringLevel2, CoralScoringLevel3: $CoralScoringLevel3, CoralScoringLevel4: $CoralScoringLevel4, LeftBarge: $LeftBarge, AlgaeScoringProcessor: $AlgaeScoringProcessor, AlgaeScoringBarge: $AlgaeScoringBarge}';
+    return 'AutonPoints{CoralScoringLevel1: $CoralScoringLevel1, CoralScoringLevel2: $CoralScoringLevel2, CoralScoringLevel3: $CoralScoringLevel3, CoralScoringLevel4: $CoralScoringLevel4, LeftBarge: $LeftBarge, AlgaeScoringProcessor: $AlgaeScoringProcessor, AlgaeScoringBarge: $AlgaeScoringBarge, RobotLocation: $robot_position}';
   }
 
-  setCoralScoringL1(int value) {
+  void setCoralScoringL1(int value) {
     CoralScoringLevel1 = value;
   }
 
@@ -636,6 +726,7 @@ class TeleOpPoints {
   int CoralScoringLevel4 = 0;
   int AlgaeScoringBarge = 0;
   int AlgaeScoringProcessor = 0;
+  int AlgaePickUp = 0;
   bool Defense = true;
 
   TeleOpPoints(
@@ -645,6 +736,7 @@ class TeleOpPoints {
     this.CoralScoringLevel4,
     this.AlgaeScoringBarge,
     this.AlgaeScoringProcessor,
+    this.AlgaePickUp,
     this.Defense,
   );
 
@@ -656,8 +748,13 @@ class TeleOpPoints {
       "CoralScoringLevel4": CoralScoringLevel4,
       "AlgaeScoringBarge": AlgaeScoringBarge,
       "AlgaeScoringProcessor": AlgaeScoringProcessor,
+      "AlgaePickUp": AlgaePickUp,
       "Defense": Defense,
     };
+  }
+
+  String toCsv() {
+    return '${CoralScoringLevel1},${CoralScoringLevel2},${CoralScoringLevel3},${CoralScoringLevel4},${AlgaeScoringBarge},${AlgaeScoringProcessor},${AlgaePickUp},${Defense}';
   }
 
   static TeleOpPoints fromJson(Map<String, dynamic> json) {
@@ -668,6 +765,7 @@ class TeleOpPoints {
       json['CoralScoringLevel4'] ?? 0,
       json['AlgaeScoringBarge'] ?? 0,
       json['AlgaeScoringProcessor'] ?? 0,
+      json['AlgaePickUp'] ?? 0,
       json['Defense'] ?? 0,
     );
   }
@@ -741,6 +839,10 @@ class EndPoints {
   @override
   String toString() {
     return 'EndPoints{Deep_Climb: $Deep_Climb, Shallow_Climb: $Shallow_Climb, Park: $Park, Comments: $Comments}';
+  }
+
+  String toCsv() {
+    return '$Deep_Climb,$Shallow_Climb,$Park,$Comments';
   }
 
   @override
@@ -818,14 +920,14 @@ class LocalDataBase {
   // Helper conversion methods
   static AutonPoints mapToAutonPoints(Map<dynamic, dynamic> data) {
     return AutonPoints(
-      data['CoralScoringLevel1'] ?? 0,
-      data['CoralScoringLevel2'] ?? 0,
-      data['CoralScoringLevel3'] ?? 0,
-      data['CoralScoringLevel4'] ?? 0,
-      data['LeftBarge'] ?? false,
-      data['AlgaeScoringProcessor'] ?? 0,
-      data['AlgaeScoringBarge'] ?? 0,
-    );
+        data['CoralScoringLevel1'] ?? 0,
+        data['CoralScoringLevel2'] ?? 0,
+        data['CoralScoringLevel3'] ?? 0,
+        data['CoralScoringLevel4'] ?? 0,
+        data['LeftBarge'] ?? false,
+        data['AlgaeScoringProcessor'] ?? 0,
+        data['AlgaeScoringBarge'] ?? 0,
+        data['RobotLocation'] ?? Offset.zero);
   }
 
   static TeleOpPoints mapToTeleOpPoints(Map<dynamic, dynamic> data) {
@@ -836,6 +938,7 @@ class LocalDataBase {
       data['CoralScoringLevel4'] ?? 0,
       data['AlgaeScoringProcessor'] ?? 0,
       data['AlgaeScoringBarge'] ?? 0,
+      data['AlgaePickUp'] ?? 0,
       data['Defended'] ?? false,
     );
   }
@@ -847,5 +950,49 @@ class LocalDataBase {
       data['Harmonize'] ?? false,
       data['Park'] ?? false,
     );
+  }
+
+  static PitRecord mapToPitRecord(Map<dynamic, dynamic> data) {
+    return PitRecord(
+      teamNumber: data['teamNumber'] ?? 0,
+      eventKey: data['eventKey'] ?? "",
+      scouterName: data['scouterName'] ?? "",
+      driveTrainType: data['driveTrainType'] ?? "",
+      autonType: data['auton'] ?? "",
+      intake: data['intake'] ?? "",
+      scoreObject: List<String>.from(data['scoreObject'] ?? []),
+      climbType: List<String>.from(data['climbType'] ?? []),
+      scoreType: List<String>.from(data['scoreType'] ?? []),
+      imageblob: data['imageblob'] ?? "",
+    );
+  }
+}
+
+class BotLocation {
+  Offset position;
+  Size size;
+  double angle;
+
+  BotLocation(this.position, this.size, this.angle);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'position': {'x': position.dx, 'y': position.dy},
+      'size': {'width': size.width, 'height': size.height},
+      'angle': angle,
+    };
+  }
+
+  static BotLocation fromJson(Map<String, dynamic> json) {
+    return BotLocation(
+      Offset(json['position']['x'], json['position']['y']),
+      Size(json['size']['width'], json['size']['height']),
+      json['angle'],
+    );
+  }
+
+  String toCsv() {
+    return "null";
+    return '${position.dx},${position.dy},${size.width},${size.height},$angle';
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:scouting_app/components/CheckBox.dart';
 import 'package:scouting_app/components/CommentBox.dart';
@@ -20,6 +18,7 @@ class _TeleOperatedState extends State<TeleOperated> {
   late int coralScoreL2;
   late int coralScoreL3;
   late int coralScoreL4;
+  late int algaePickUp;
   late int algaeScoringProcessor;
   late int algaeScoringBarge;
   late bool defense;
@@ -39,6 +38,8 @@ class _TeleOperatedState extends State<TeleOperated> {
         widget.matchRecord.teleOpPoints.AlgaeScoringProcessor;
     algaeScoringBarge = widget.matchRecord.teleOpPoints.AlgaeScoringBarge;
     defense = widget.matchRecord.teleOpPoints.Defense;
+    algaePickUp = widget.matchRecord.teleOpPoints.AlgaePickUp;
+
     teleOpPoints = TeleOpPoints(
       coralScoreL1,
       coralScoreL2,
@@ -46,6 +47,7 @@ class _TeleOperatedState extends State<TeleOperated> {
       coralScoreL4,
       algaeScoringBarge,
       algaeScoringProcessor,
+      algaePickUp,
       defense,
     );
     // log('TeleOp initialized: $teleOpPoints');
@@ -59,6 +61,7 @@ class _TeleOperatedState extends State<TeleOperated> {
       coralScoreL4,
       algaeScoringBarge,
       algaeScoringProcessor,
+      algaePickUp,
       defense,
     );
     widget.matchRecord.teleOpPoints.CoralScoringLevel1 = coralScoreL1;
@@ -68,6 +71,7 @@ class _TeleOperatedState extends State<TeleOperated> {
     widget.matchRecord.teleOpPoints.AlgaeScoringProcessor =
         algaeScoringProcessor;
     widget.matchRecord.teleOpPoints.AlgaeScoringBarge = algaeScoringBarge;
+    widget.matchRecord.teleOpPoints.AlgaePickUp = algaePickUp;
     widget.matchRecord.teleOpPoints.Defense = defense;
 
     saveState();
@@ -199,11 +203,35 @@ class _TeleOperatedState extends State<TeleOperated> {
                 ),
               ],
               const Icon(Icons.add_comment)),
-          buildCheckBox("Defense", defense, (bool value) {
-            setState(() {
-              defense = value;
-            });
-          }),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              // Add crossAxisAlignment to align items properly
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Wrap first child with Expanded to make it responsive
+                Expanded(
+                  flex: 3,
+                  child:
+                      buildCounter("Algae Pick Up", algaePickUp, (int value) {
+                    setState(() {
+                      algaePickUp = value;
+                    });
+                  }, color: Colors.green),
+                ),
+                const SizedBox(width: 8), // Add spacing between widgets
+                // Wrap second child with Expanded
+                Expanded(
+                  flex: 2,
+                  child: buildCheckBox("Defense", defense, (bool value) {
+                    setState(() {
+                      defense = value;
+                    });
+                  }),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

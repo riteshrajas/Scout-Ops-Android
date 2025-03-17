@@ -5,17 +5,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:scouting_app/components/qr_code_scanner_page.dart';
+import 'package:scouting_app/services/DataBase.dart';
 
-import '../components/ScoutersList.dart';
-
-class PyintelScoutzWidget extends StatefulWidget {
-  const PyintelScoutzWidget({super.key});
+class FEDSScoutzWidget extends StatefulWidget {
+  const FEDSScoutzWidget({super.key});
 
   @override
-  _PyintelScoutzWidgetState createState() => _PyintelScoutzWidgetState();
+  _FEDSScoutzWidgetState createState() => _FEDSScoutzWidgetState();
 }
 
-class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
+class _FEDSScoutzWidgetState extends State<FEDSScoutzWidget> {
   final TextEditingController _controllerIp = TextEditingController();
   final TextEditingController _controllerDeviceName = TextEditingController();
   Color _testButtonColor = Colors.blue;
@@ -141,15 +140,16 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
   Widget build(BuildContext context) {
     return Column(children: [
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         child: Column(
           children: [
             TextField(
-              controller: _controllerIp,
+              controller: TextEditingController()
+                ..text = Hive.box('settings').get('PitKey', defaultValue: ''),
               decoration: InputDecoration(
-                labelText: 'Ip Address',
+                labelText: 'Pit Key',
                 labelStyle: GoogleFonts.museoModerno(fontSize: 15),
-                hintText: 'Enter your Ip Address',
+                hintText: 'Enter your Pit Key',
                 hintStyle: GoogleFonts.museoModerno(fontSize: 15),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -170,7 +170,8 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
                     );
                     if (qrCode != null) {
                       setState(() {
-                        Hive.box('settings').put('ipAddress', qrCode);
+                        Hive.box('settings').put('PitKey', qrCode);
+                        Settings.setPitKey(qrCode);
                       });
                     }
                   },
@@ -178,12 +179,11 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
               ),
               style: GoogleFonts.museoModerno(fontSize: 18),
               onSubmitted: (String value) {
-                Hive.box('settings').put('ipAddress', value);
+                Hive.box('settings').put('PitKey', value);
+                Settings.setPitKey(value);
               },
             ),
-            const SizedBox(height: 8),
-            ScouterList(),
-            const SizedBox(height: 16),
+            SizedBox(height: 10),
           ],
         ),
       ),
@@ -208,34 +208,6 @@ class _PyintelScoutzWidgetState extends State<PyintelScoutzWidget> {
                 const SizedBox(width: 8),
                 Text(
                   'Test',
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          ElevatedButton(
-            onPressed: _registerDevice,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.greenAccent.shade700,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              elevation: 5,
-              shadowColor: Colors.black.withOpacity(0.2),
-            ).copyWith(
-              overlayColor:
-                  MaterialStateProperty.all(Colors.greenAccent.shade400),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.save, size: 22, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  'Register Device',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),

@@ -11,6 +11,12 @@ Widget buildButton({
   required VoidCallback onPressed,
   Color? textColor,
 }) {
+  // Create a slightly darker shade for gradient effect
+  Color darkShade = HSLColor.fromColor(color)
+      .withLightness(
+          (HSLColor.fromColor(color).lightness - 0.1).clamp(0.0, 1.0))
+      .toColor();
+
   return Padding(
     padding:
         const EdgeInsets.symmetric(horizontal: 20), // Added horizontal margin

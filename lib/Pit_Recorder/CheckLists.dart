@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:scouting_app/components/CameraComposit.dart';
 import 'package:scouting_app/services/DataBase.dart';
 import 'package:scouting_app/components/TextBox.dart';
@@ -21,36 +24,56 @@ class _RecordState extends State<Record> {
   final int _requiredPresses = 5;
 
   late ConfettiController _confettiController;
-  late TextEditingController KeyStrengthsController;
-  late TextEditingController ChallengesController;
-  late TextEditingController DefensiveStrategiesController;
-  late TextEditingController DefensePlanController;
+
+  late String DrivetrainController;
+  late String AutonController;
+  late List<String> ScoreTypeController;
+  late String IntakeController;
+  late List<String> ClimbTypeController;
+  late List<String> ScoreObjectController;
+  late bool? hello;
+  late String selectedChoice;
+  late String ImageBlob;
 
   @override
   void initState() {
     super.initState();
-    PitDataBase.PrintAll();
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 2));
 
-    KeyStrengthsController = TextEditingController();
-    ChallengesController = TextEditingController();
-    DefensiveStrategiesController = TextEditingController();
-    DefensePlanController = TextEditingController();
+    // Initialize with empty values
+    DrivetrainController = "";
+    AutonController = "";
+    ScoreTypeController = [];
+    IntakeController = "";
+    ClimbTypeController = [];
+    ScoreObjectController = [];
+    hello = null;
+    selectedChoice = '';
+    ImageBlob = "";
 
+    // Load database and try to get existing data for this team
+    PitDataBase.LoadAll();
     try {
-      print(PitDataBase.GetData(widget.team.teamNumber)["teamNumber"]);
-      KeyStrengthsController.text =
-          PitDataBase.GetData(widget.team.teamNumber)["keyStrengths"];
-      ChallengesController.text =
-          PitDataBase.GetData(widget.team.teamNumber)["keyWeaknesses"];
-      DefensiveStrategiesController.text =
-          PitDataBase.GetData(widget.team.teamNumber)["defensiveStratigiy"];
-      DefensePlanController.text =
-          PitDataBase.GetData(widget.team.teamNumber)["defensePlan"];
+      PitRecord? existingRecord = PitDataBase.GetData(widget.team.teamNumber);
+      if (existingRecord != null) {
+        // Populate UI state variables with existing data
+        setState(() {
+          DrivetrainController = existingRecord.driveTrainType;
+          AutonController = existingRecord.autonType;
+          ScoreTypeController = existingRecord.scoreType;
+          IntakeController = existingRecord.intake;
+          ClimbTypeController = existingRecord.climbType;
+          ScoreObjectController = existingRecord.scoreObject;
+          ImageBlob = existingRecord.imageblob;
+        });
+        print("Loaded existing data for team ${widget.team.teamNumber}");
+      } else {
+        print("No existing record found for team ${widget.team.teamNumber}");
+      }
     } catch (e) {
-      print(e);
-    }
+      print("Error retrieving team data: $e");
+    } finally {}
   }
 
   @override
@@ -80,52 +103,82 @@ class _RecordState extends State<Record> {
 
   Widget _buildQuestions() {
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
+        scrollDirection: Axis.vertical,
+        child: Column(children: [
           buildTextBoxs(
-              "Qualitative questions",
-              [
-                buildTextBox(
-                    "What are the key strengths of your robot?",
-                    "Describe the main features and capabilities that make your robot stand out.",
-                    Icon(
-                      Icons.abc,
-                      size: 30,
-                    ),
-                    KeyStrengthsController),
-                buildTextBox(
-                    "Have you faced any significant challenges with your robot, and how did you overcome them?",
-                    "Mention any major issues encountered and the solutions implemented.",
-                    Icon(
-                      Icons.abc,
-                      size: 30,
-                    ),
-                    ChallengesController),
-                buildTextBox(
-                    "What defensive strategies are they employing?",
-                    "Explain the tactics used to defend against opponents.",
-                    Icon(
-                      Icons.abc,
-                      size: 30,
-                    ),
-                    DefensiveStrategiesController),
-                buildTextBox(
-                    "How are they executing their defense plan?",
-                    "Describe the methods and actions taken to implement the defense strategy.",
-                    Icon(
-                      Icons.abc,
-                      size: 30,
-                    ),
-                    DefensePlanController),
-              ],
-              Icon(Icons.question_answer)),
-          buildCameraBox(),
-          const SizedBox(height: 20),
-          _buildFunButton(),
-        ],
-      ),
-    );
+            "PIT Questions",
+            [
+              buildChoiceBox(
+                  "What type of drive train do they have?",
+                  Icon(Icons.car_crash_outlined,
+                      size: 30, color: Colors.purple),
+                  ["Tank drive", "Swerve drive", "Others"],
+                  DrivetrainController, (value) {
+                setState(() {
+                  DrivetrainController = value;
+                });
+              }),
+              buildChoiceBox(
+                  "Auton?",
+                  Icon(Icons.computer_outlined,
+                      size: 30, color: const Color.fromARGB(255, 69, 84, 169)),
+                  ["No Auto", "Leave", "Leave + Auto."],
+                  AutonController, (value) {
+                setState(() {
+                  AutonController = value;
+                });
+              }),
+              buildMultiChoiceBox(
+                  "What can they score??",
+                  Icon(Icons.star_outline, size: 30, color: Colors.blue),
+                  ["Coral", "Algae"],
+                  ScoreObjectController, (value) {
+                setState(() {
+                  ScoreObjectController = value;
+                });
+              }),
+              buildMultiChoiceBox(
+                  "Where can they score?",
+                  Icon(Icons.star_outline, size: 30, color: Colors.blue),
+                  ["L1", "L2", "L3", "L4", "Barge"],
+                  ScoreTypeController, (value) {
+                setState(() {
+                  ScoreTypeController = value;
+                });
+              }),
+              buildChoiceBox(
+                  "How do they INTAKE Coral",
+                  Icon(Icons.shopping_cart_checkout_outlined,
+                      size: 30, color: Colors.green),
+                  ["Ground", "Coral Station"],
+                  IntakeController, (value) {
+                setState(() {
+                  IntakeController = value;
+                });
+              }),
+              buildMultiChoiceBox(
+                  "Can they climb?",
+                  Icon(Icons.elevator,
+                      size: 30, color: const Color.fromARGB(255, 200, 186, 34)),
+                  ["Deep", "Shallow", "Doesn't Climb"],
+                  ClimbTypeController, (value) {
+                setState(() {
+                  ClimbTypeController = value;
+                });
+              }),
+              Icon(Icons.question_answer),
+              CameraPhotoCapture(onPhotoTaken: (photo) {
+                print('Photo captured: $photo');
+                // Convert the captured photo to base64
+                ImageBlob = base64Encode(photo.readAsBytesSync());
+                developer.log(ImageBlob);
+              }),
+              const SizedBox(height: 20),
+              _buildFunButton(),
+            ],
+            Icon(Icons.question_answer),
+          ),
+        ]));
   }
 
   Widget _buildFunButton() {
@@ -196,20 +249,51 @@ class _RecordState extends State<Record> {
   }
 
   void _recordData() {
+    String deviceName = Hive.box('settings')
+        .get('deviceName', defaultValue: 'Ritesh Raj Arul Selvan');
+    String eventKey =
+        Hive.box('userData').get('eventKey', defaultValue: 'test');
     PitRecord record = PitRecord(
-      teamNumber: widget.team.teamNumber,
-      scouterName: 'Scouter Name',
-      eventKey: "test",
-      keyStrengths: KeyStrengthsController.text,
-      keyWeaknesses: ChallengesController.text,
-      defensiveStratigiy: DefensiveStrategiesController.text,
-      defensePlan: DefensePlanController.text,
-    );
+        teamNumber: widget.team.teamNumber,
+        scouterName: deviceName,
+        eventKey: eventKey,
+        driveTrainType: DrivetrainController,
+        autonType: AutonController,
+        scoreType: ScoreTypeController,
+        intake: IntakeController,
+        climbType: ClimbTypeController,
+        scoreObject: ScoreObjectController.cast<String>().toList(),
+        imageblob: ImageBlob);
 
     print('Recording data: $record');
+    print("Hiv ${record.toJson()}");
+
+    _showConfirmationDialog(record);
     PitDataBase.PutData(widget.team.teamNumber, record);
     PitDataBase.SaveAll();
+
     PitDataBase.PrintAll();
+  }
+
+  void _showConfirmationDialog(PitRecord record) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirmation"),
+          content: Text(
+              "Data recorded successfully. \n\nTeam: ${record.teamNumber}\nScouter: ${record.scouterName}"),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                PopBoard(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void PopBoard(BuildContext context) {
